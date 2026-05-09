@@ -1,0 +1,10 @@
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.conf import settings
+from .models import User
+from wallet.models import UserWallet
+
+@receiver(post_save, sender=User)
+def create_user_wallet(sender, instance, created, **kwargs):
+    if created:
+        UserWallet.objects.get_or_create(user=instance)

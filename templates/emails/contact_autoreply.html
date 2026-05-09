@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #2f81f7; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f9f9f9; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #777; }
+        .button { background: #2f81f7; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Thank You for Contacting Us!</h2>
+        </div>
+        <div class="content">
+            <p>Dear {{ name }},</p>
+            <p>Thank you for reaching out to RadiloxRemoteJobs. We have received your message and our support team will review it shortly.</p>
+            <p><strong>Your Message Summary:</strong></p>
+            <div style="background: white; padding: 15px; border-left: 4px solid #2f81f7;">
+                <p><strong>Subject:</strong> {{ message.get_subject_display }}</p>
+                <p><strong>Message:</strong> {{ message.message|truncatewords:50 }}</p>
+            </div>
+            <p>We typically respond within 24 hours during business days.</p>
+            <p>In the meantime, you might find answers to your questions in our:</p>
+            <ul>
+                <li><a href="https://yourdomain.com/faq/">FAQ Section</a></li>
+                <li><a href="https://yourdomain.com/jobs/">Job Listings</a></li>
+                <li><a href="https://yourdomain.com/about/">About Us</a></li>
+            </ul>
+            <p>Best regards,<br>
+            <strong>RadiloxRemoteJobs Support Team</strong></p>
+        </div>
+        <div class="footer">
+            <p>© 2026 RadiloxRemoteJobs. All rights reserved.</p>
+            <p><small>This is an automated message, please do not reply directly to this email.</small></p>
+        </div>
+    </div>
+</body>
+</html>

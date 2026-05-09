@@ -1,0 +1,100 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Freelancer Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Freelancer Dashboard</h1>
+        <p class="text-github-fg-muted mt-1">Manage your tasks and track earnings</p>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="stat-card p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-github-fg-muted text-sm">Wallet Balance</p>
+                    <p class="text-2xl font-bold text-white mt-1">${{ wallet.balance|floatformat:2 }}</p>
+                </div>
+                <i class="fas fa-wallet text-github-accent text-2xl"></i>
+            </div>
+        </div>
+        
+        <div class="stat-card p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-github-fg-muted text-sm">Assigned Tasks</p>
+                    <p class="text-2xl font-bold text-white mt-1">{{ assigned_tasks.count }}</p>
+                </div>
+                <i class="fas fa-tasks text-warning text-2xl"></i>
+            </div>
+        </div>
+        
+        <div class="stat-card p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-github-fg-muted text-sm">Pending Review</p>
+                    <p class="text-2xl font-bold text-white mt-1">{{ submitted_tasks.count }}</p>
+                </div>
+                <i class="fas fa-clock text-warning text-2xl"></i>
+            </div>
+        </div>
+        
+        <div class="stat-card p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-github-fg-muted text-sm">Total Earned</p>
+                    <p class="text-2xl font-bold text-white mt-1">${{ wallet.total_earned|floatformat:2 }}</p>
+                </div>
+                <i class="fas fa-dollar-sign text-success text-2xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Assigned Tasks -->
+    <div class="bg-github-card border border-github-border rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-github-border">
+            <h3 class="font-semibold text-white">Assigned Tasks</h3>
+        </div>
+        <div class="divide-y divide-github-border">
+            {% for task in assigned_tasks %}
+            <div class="px-5 py-4 hover:bg-github-border/20">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="text-white font-medium">{{ task.title }}</h4>
+                        <p class="text-github-fg-muted text-sm mt-1">{{ task.description|truncatechars:60 }}</p>
+                        <p class="text-success text-sm mt-2">Budget: ${{ task.budget_amount }}</p>
+                    </div>
+                    <a href="{% url 'tasks:detail' task.id %}" class="bg-github-accent text-white px-4 py-2 rounded-lg text-sm hover:bg-github-accent-hover transition">
+                        Start Task
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="px-5 py-8 text-center text-github-fg-muted">No assigned tasks</div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Recent Completed -->
+    <div class="bg-github-card border border-github-border rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-github-border">
+            <h3 class="font-semibold text-white">Recently Completed</h3>
+        </div>
+        <div class="divide-y divide-github-border">
+            {% for task in completed_tasks %}
+            <div class="px-5 py-3 flex justify-between items-center">
+                <div>
+                    <p class="text-white">{{ task.title }}</p>
+                    <p class="text-github-fg-muted text-xs">Completed {{ task.paid_at|timesince }} ago</p>
+                </div>
+                <span class="badge badge-success">+${{ task.budget_amount }}</span>
+            </div>
+            {% empty %}
+            <div class="px-5 py-8 text-center text-github-fg-muted">No completed tasks yet</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

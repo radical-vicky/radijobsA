@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #2f81f7; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f9f9f9; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #777; }
+        .button { background: #2f81f7; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>{{ notification.title }}</h2>
+        </div>
+        <div class="content">
+            <p>Dear {{ user.get_full_name|default:user.username }},</p>
+            <p>{{ notification.message|linebreaks }}</p>
+            {% if notification.link %}
+            <p style="text-align: center; margin-top: 30px;">
+                <a href="{{ site_url }}{{ notification.link }}" class="button">View Details</a>
+            </p>
+            {% endif %}
+            <p style="margin-top: 30px;">
+                Best regards,<br>
+                <strong>RadiloxRemoteJobs Team</strong>
+            </p>
+        </div>
+        <div class="footer">
+            <p>© {% now "Y" %} RadiloxRemoteJobs. All rights reserved.</p>
+            <p><small>You received this email because you are registered on RadiloxRemoteJobs. 
+            <a href="{{ site_url }}{% url 'notifications:preferences' %}">Manage your notification preferences</a></small></p>
+        </div>
+    </div>
+</body>
+</html>

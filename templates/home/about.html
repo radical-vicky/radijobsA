@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us - RadiloxRemoteJobs{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="relative overflow-hidden py-20 md:py-28">
+    <div class="absolute inset-0 -z-10">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#1f6feb_0%,_transparent_60%)] opacity-10"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_#a371f7_0%,_transparent_60%)] opacity-5"></div>
+    </div>
+    
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-github-border/50 border border-github-border mb-6">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span class="text-xs font-medium text-github-fg-muted mono-label">Our Story</span>
+        </div>
+        
+        <h1 class="text-4xl lg:text-5xl font-bold text-white mb-4 tracking-tight">
+            About <span class="gradient-text">RadiloxRemoteJobs</span>
+        </h1>
+        <p class="text-xl text-github-fg-muted body-text max-w-2xl mx-auto">
+            Connecting global remote IT talent with meaningful work opportunities through project-based verification and fair payment structures.
+        </p>
+    </div>
+</section>
+
+<!-- MISSION & QUOTE SECTION -->
+<section class="py-16 border-t border-github-border">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="card p-8">
+                <div class="w-12 h-12 bg-github-border rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-github-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-4 tracking-tight">Our Mission</h2>
+                <p class="text-github-fg-muted leading-relaxed body-text">
+                    To create the most transparent, skill-focused, and accessible remote IT hiring platform 
+                    where professionals are hired based on what they can actually build, not what they claim on a resume.
+                </p>
+            </div>
+            
+            <div class="card p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-github-accent/5 rounded-full blur-2xl"></div>
+                <svg class="w-8 h-8 text-github-accent mb-4 opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"></path>
+                </svg>
+                <p class="text-github-fg-muted italic text-lg mb-4 body-text leading-relaxed">
+                    "Stop guessing, start building. We believe in skills, not claims."
+                </p>
+                <p class="font-semibold text-white font-satoshi">RadiloxRemote Team</p>
+                <p class="text-xs text-github-fg-muted mono-label mt-1">Founded 2026</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- OUR VALUES SECTION -->
+<section class="py-16 border-t border-github-border bg-github-bg-secondary/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <span class="text-sm font-mono text-github-accent uppercase tracking-wider mono-label">Core Principles</span>
+            <h2 class="text-3xl md:text-4xl font-bold text-white mt-2 mb-4 tracking-tight">Our Values</h2>
+            <p class="text-base text-github-fg-muted body-text">The principles that guide everything we do</p>
+        </div>
+        
+        <div class="grid md:grid-cols-4 gap-6">
+            <div class="card p-6 text-center hover:border-github-accent transition-all duration-300">
+                <div class="w-14 h-14 bg-github-border rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-github-accent/10">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="1.5">
+                        <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2 font-satoshi">Skill First</h3>
+                <p class="text-sm text-github-fg-muted body-text">Hiring based on demonstrated ability, not claims</p>
+            </div>
+            
+            <div class="card p-6 text-center hover:border-github-accent transition-all duration-300">
+                <div class="w-14 h-14 bg-github-border rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="1.5">
+                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2 font-satoshi">Transparency</h3>
+                <p class="text-sm text-github-fg-muted body-text">Clear briefs, upfront budgets, fair fees</p>
+            </div>
+            
+            <div class="card p-6 text-center hover:border-github-accent transition-all duration-300">
+                <div class="w-14 h-14 bg-github-border rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="1.5">
+                        <path d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2 font-satoshi">Accessibility</h3>
+                <p class="text-sm text-github-fg-muted body-text">Crypto, PayPal, M-Pesa, Bank Transfer</p>
+            </div>
+            
+            <div class="card p-6 text-center hover:border-github-accent transition-all duration-300">
+                <div class="w-14 h-14 bg-github-border rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="1.5">
+                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2 font-satoshi">Fairness</h3>
+                <p class="text-sm text-github-fg-muted body-text">Zero commission – freelancers keep 100%</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STATS SECTION -->
+<section class="py-16 border-t border-github-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div class="card p-6">
+                <div class="text-4xl font-bold text-github-accent tracking-tight font-satoshi">{{ stats.jobs_posted }}+</div>
+                <div class="text-xs text-github-fg-muted mt-2 mono-label">Jobs Posted</div>
+            </div>
+            <div class="card p-6">
+                <div class="text-4xl font-bold text-github-accent tracking-tight font-satoshi">{{ stats.freelancers }}+</div>
+                <div class="text-xs text-github-fg-muted mt-2 mono-label">Freelancers</div>
+            </div>
+            <div class="card p-6">
+                <div class="text-4xl font-bold text-github-accent tracking-tight font-satoshi">{{ stats.zero_commission }}%</div>
+                <div class="text-xs text-github-fg-muted mt-2 mono-label">Zero Commission</div>
+            </div>
+            <div class="card p-6">
+                <div class="text-4xl font-bold text-github-accent tracking-tight font-satoshi">24/7</div>
+                <div class="text-xs text-github-fg-muted mt-2 mono-label">Support</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- OUR STORY SECTION -->
+<section class="py-16 border-t border-github-border bg-github-bg-secondary/30">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="card p-8">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-github-border rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-github-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-white tracking-tight">Our Story</h2>
+            </div>
+            <p class="text-github-fg-muted leading-relaxed mb-4 body-text">
+                Founded in 2026, RadiloxRemoteJobs was built to solve the growing problem of resume fraud and hiring friction in remote IT recruiting. Traditional platforms rely on self-reported skills and credentials that are easy to fake, leading to wasted time, money, and opportunity.
+            </p>
+            <p class="text-github-fg-muted leading-relaxed mb-4 body-text">
+                We created a platform where candidates prove their abilities by building real projects from actual job ads and presenting their work live via Zoom. This eliminates guesswork and ensures that hiring decisions are based on demonstrated skills, not polished resumes.
+            </p>
+            <p class="text-github-fg-muted leading-relaxed body-text">
+                Today, we're proud to connect thousands of vetted IT professionals with forward-thinking companies worldwide. With zero commission on tasks and multiple payment options, we're building a fairer, more accessible future for remote work.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="py-16 border-t border-github-border">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="card p-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">Ready to Join?</h2>
+            <p class="text-github-fg-muted mb-8 body-text text-lg">Start your journey with RadiloxRemoteJobs today</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'account_signup' %}" class="inline-flex items-center justify-center px-6 py-3 bg-github-accent text-white font-medium rounded-lg hover:bg-github-accent-hover transition shadow-lg btn-primary">
+                    Get Started Free
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ml-2">
+                        <path d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </a>
+                <a href="{% url 'home:contact' %}" class="inline-flex items-center justify-center px-6 py-3 border border-github-border text-github-fg-muted font-medium rounded-lg hover:bg-github-border hover:text-white transition btn-secondary">
+                    Contact Us
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

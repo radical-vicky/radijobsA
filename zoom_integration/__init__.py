@@ -1,0 +1,1 @@
+default_app_config = 'zoom_integration.apps.ZoomIntegrationConfig'

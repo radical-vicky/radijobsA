@@ -1,0 +1,124 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Schedule Interview{% endblock %}
+
+{% block content %}
+
+<style>
+    .schedule-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .schedule-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 24px;
+    }
+    
+    .card-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .card-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+        margin-bottom: 24px;
+    }
+    
+    .applicant-info {
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        padding: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    
+    .info-label {
+        color: #8b949e;
+        font-size: 13px;
+    }
+    
+    .info-value {
+        color: #e6edf3;
+        font-weight: 500;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 10px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+    }
+    
+    .btn-submit {
+        width: 100%;
+        padding: 12px;
+        background: #2f81f7;
+        border: none;
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    
+    @media (max-width: 640px) {
+        .schedule-container {
+            padding: 0;
+        }
+    }
+</style>
+
+<div class="schedule-container">
+    <div class="schedule-card">
+        <h1 class="card-title">Schedule Interview</h1>
+        <p class="card-subtitle">Schedule a Zoom interview for this applicant</p>
+        
+        <div class="applicant-info">
+            <div class="info-row">
+                <span class="info-label">Applicant</span>
+                <span class="info-value">{{ application.user.get_full_name|default:application.user.username }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Job Title</span>
+                <span class="info-value">{{ application.job.title }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Company</span>
+                <span class="info-value">{{ application.job.company }}</span>
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Interview Date & Time</label>
+                <input type="datetime-local" name="start_datetime" class="form-input" required>
+            </div>
+            <button type="submit" class="btn-submit">Schedule Interview</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

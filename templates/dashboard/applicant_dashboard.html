@@ -1,0 +1,579 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Applicant Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .stat-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 20px 12px;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 32px;
+        font-weight: 700;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Subscription Section */
+    .subscription-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        margin-bottom: 24px;
+    }
+    
+    .subscription-inner {
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .subscription-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .subscription-label {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .subscription-status {
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 500;
+    }
+    
+    .status-active {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .status-inactive {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .subscription-expiry {
+        font-size: 12px;
+        color: #6e7681;
+    }
+    
+    .subscribe-button {
+        background: #2f81f7;
+        color: white;
+        padding: 6px 20px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-block;
+    }
+    
+    .subscribe-button:hover {
+        background: #58a6ff;
+    }
+    
+    /* Section Card */
+    .section-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        margin-bottom: 24px;
+    }
+    
+    .section-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid #2d2f36;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin: 0;
+    }
+    
+    .section-link {
+        font-size: 11px;
+        color: #2f81f7;
+        text-decoration: none;
+    }
+    
+    .section-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Application Item */
+    .application-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid #2d2f36;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .application-item:last-child {
+        border-bottom: none;
+    }
+    
+    .application-item:hover {
+        background: #1a1f2e;
+    }
+    
+    .application-info {
+        flex: 1;
+    }
+    
+    .application-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .application-details {
+        font-size: 12px;
+        color: #8b949e;
+    }
+    
+    .application-date {
+        font-size: 11px;
+        color: #6e7681;
+        margin-top: 4px;
+    }
+    
+    .application-status {
+        display: inline-block;
+        padding: 2px 10px;
+        font-size: 11px;
+        font-weight: 500;
+        border-radius: 20px;
+    }
+    
+    .status-pending {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .status-approved {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-interview {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-hired {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .status-rejected {
+        background: rgba(248, 81, 73, 0.1);
+        color: #f85149;
+        border: 1px solid rgba(248, 81, 73, 0.3);
+    }
+    
+    /* Recommendation Item */
+    .recommendation-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid #2d2f36;
+        cursor: pointer;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+    
+    .recommendation-item:last-child {
+        border-bottom: none;
+    }
+    
+    .recommendation-item:hover {
+        background: #1a1f2e;
+    }
+    
+    .recommendation-image {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        overflow: hidden;
+    }
+    
+    .recommendation-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .recommendation-initial {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #21262d;
+        color: #8b949e;
+        font-size: 16px;
+        font-weight: 500;
+    }
+    
+    .recommendation-content {
+        flex: 1;
+    }
+    
+    .rec-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 2px;
+    }
+    
+    .rec-company {
+        font-size: 11px;
+        color: #8b949e;
+        margin-bottom: 2px;
+    }
+    
+    .rec-salary {
+        font-size: 11px;
+        color: #2f81f7;
+        font-weight: 500;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: #8b949e;
+    }
+    
+    .empty-text {
+        font-size: 13px;
+        margin-bottom: 16px;
+    }
+    
+    .empty-link {
+        font-size: 12px;
+        color: #2f81f7;
+        text-decoration: none;
+    }
+    
+    /* Welcome Section */
+    .welcome-section {
+        margin-bottom: 24px;
+    }
+    
+    .welcome-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .welcome-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    /* Quiz Section */
+    .quiz-section {
+        padding: 16px;
+    }
+    
+    .quiz-stats {
+        display: flex;
+        gap: 32px;
+        flex-wrap: wrap;
+    }
+    
+    .quiz-stat {
+        text-align: center;
+    }
+    
+    .quiz-stat-value {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+    
+    .quiz-stat-value.avg { color: #2f81f7; }
+    .quiz-stat-value.passed { color: #3fb950; }
+    .quiz-stat-value.taken { color: #d29922; }
+    
+    .quiz-stat-label {
+        font-size: 10px;
+        color: #8b949e;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 900px) {
+        .stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+        }
+        
+        .subscription-inner {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .application-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .recommendation-item {
+            flex-direction: row;
+            align-items: center;
+            text-align: left;
+        }
+        
+        .recommendation-image {
+            width: 50px;
+            height: 50px;
+            margin: 0;
+        }
+        
+        .welcome-title {
+            font-size: 20px;
+        }
+        
+        .quiz-stats {
+            justify-content: center;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .recommendation-item {
+            flex-direction: row;
+            align-items: center;
+        }
+        
+        .recommendation-image {
+            width: 45px;
+            height: 45px;
+        }
+    }
+</style>
+
+<div>
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <h1 class="welcome-title">Welcome back, {{ user.get_full_name|default:user.username }}</h1>
+        <p class="welcome-subtitle">Track your job applications and find new opportunities</p>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_applications|default:"0" }}</div>
+            <div class="stat-label">TOTAL</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ pending_applications|default:"0" }}</div>
+            <div class="stat-label">PENDING</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ approved_applications|default:"0" }}</div>
+            <div class="stat-label">APPROVED</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ interview_applications|default:"0" }}</div>
+            <div class="stat-label">INTERVIEW</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ hired_applications|default:"0" }}</div>
+            <div class="stat-label">HIRED</div>
+        </div>
+    </div>
+    
+    <!-- Subscription Card -->
+    <div class="subscription-card">
+        <div class="subscription-inner">
+            <div class="subscription-info">
+                <span class="subscription-label">Subscription Status</span>
+                {% if has_active_subscription %}
+                    <span class="subscription-status status-active">Active</span>
+                    {% if subscription_expires_at %}
+                        <span class="subscription-expiry">Expires: {{ subscription_expires_at|date:"M d, Y" }}</span>
+                    {% endif %}
+                {% else %}
+                    <span class="subscription-status status-inactive">Inactive</span>
+                    <span class="subscription-expiry">Subscribe to apply for jobs</span>
+                {% endif %}
+            </div>
+            {% if not has_active_subscription %}
+                <a href="{% url 'subscriptions:subscribe' %}" class="subscribe-button">Subscribe</a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Recent Applications -->
+    <div class="section-card">
+        <div class="section-header">
+            <span class="section-title">Recent Applications</span>
+            <a href="{% url 'application:my_applications' %}" class="section-link">View all →</a>
+        </div>
+        
+        {% if recent_applications %}
+            {% for app in recent_applications %}
+            <div class="application-item" data-url="{% url 'jobs:dashboard_job_detail' app.job.id %}">
+                <div class="application-info">
+                    <div class="application-title">{{ app.job.title }}</div>
+                    <div class="application-details">{{ app.job.company }} • {{ app.job.location }}</div>
+                    <div class="application-date">Applied: {{ app.created_at|date:"M d, Y" }}</div>
+                </div>
+                <div>
+                    <span class="application-status 
+                        {% if app.status == 'pending' %}status-pending
+                        {% elif app.status == 'approved' %}status-approved
+                        {% elif app.status == 'interview_scheduled' %}status-interview
+                        {% elif app.status == 'hired' %}status-hired
+                        {% elif app.status == 'rejected' %}status-rejected
+                        {% else %}status-pending{% endif %}">
+                        {{ app.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-text">No applications yet</div>
+                <a href="{% url 'jobs:dashboard_jobs' %}" class="empty-link">Browse jobs →</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Recommended for You -->
+    <div class="section-card">
+        <div class="section-header">
+            <span class="section-title">Recommended for You</span>
+            <a href="{% url 'jobs:dashboard_jobs' %}" class="section-link">View all →</a>
+        </div>
+        
+        {% if recommended_jobs %}
+            {% for job in recommended_jobs %}
+            <div class="recommendation-item" data-url="{% url 'jobs:dashboard_job_detail' job.id %}">
+                <div class="recommendation-image">
+                    {% if job.image %}
+                        <img src="{{ job.image.url }}" alt="{{ job.title }}">
+                    {% elif job.image_url %}
+                        <img src="{{ job.image_url }}" alt="{{ job.title }}">
+                    {% else %}
+                        <div class="recommendation-initial">{{ job.company|slice:":1" }}</div>
+                    {% endif %}
+                </div>
+                <div class="recommendation-content">
+                    <div class="rec-title">{{ job.title }}</div>
+                    <div class="rec-company">{{ job.company }}</div>
+                    <div class="rec-salary">{{ job.salary_range }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-text">No recommendations available</div>
+                <a href="{% url 'jobs:dashboard_jobs' %}" class="empty-link">Browse jobs →</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Quiz Performance -->
+    {% if quiz_taken > 0 %}
+    <div class="section-card">
+        <div class="section-header">
+            <span class="section-title">Quiz Performance</span>
+        </div>
+        <div class="quiz-section">
+            <div class="quiz-stats">
+                <div class="quiz-stat">
+                    <div class="quiz-stat-value avg">{{ avg_quiz_score }}%</div>
+                    <div class="quiz-stat-label">AVERAGE SCORE</div>
+                </div>
+                <div class="quiz-stat">
+                    <div class="quiz-stat-value passed">{{ quiz_passed }}</div>
+                    <div class="quiz-stat-label">PASSED</div>
+                </div>
+                <div class="quiz-stat">
+                    <div class="quiz-stat-value taken">{{ quiz_taken }}</div>
+                    <div class="quiz-stat-label">TAKEN</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Make items clickable using the data-url attribute
+    document.querySelectorAll('.application-item, .recommendation-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            // Don't trigger if clicking on a link inside
+            if (e.target.closest('a')) return;
+            const url = this.getAttribute('data-url');
+            if (url && url !== 'undefined') {
+                window.location.href = url;
+            }
+        });
+    });
+</script>
+
+{% endblock %}

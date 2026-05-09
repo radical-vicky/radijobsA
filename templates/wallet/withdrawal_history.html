@@ -1,0 +1,140 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Withdrawal History{% endblock %}
+
+{% block content %}
+
+<style>
+    .history-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .history-header {
+        margin-bottom: 24px;
+    }
+    
+    .header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .history-list {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
+    .history-item {
+        padding: 16px 20px;
+        border-bottom: 1px solid #2d2f36;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .history-item:last-child {
+        border-bottom: none;
+    }
+    
+    .history-info {
+        flex: 1;
+    }
+    
+    .history-amount {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e6edf3;
+    }
+    
+    .history-date {
+        font-size: 11px;
+        color: #6e7681;
+        margin-top: 4px;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 500;
+        border-radius: 20px;
+    }
+    
+    .status-pending {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .status-processing {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-completed {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .status-failed {
+        background: rgba(248, 81, 73, 0.1);
+        color: #f85149;
+        border: 1px solid rgba(248, 81, 73, 0.3);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: #8b949e;
+    }
+    
+    @media (max-width: 640px) {
+        .header-title {
+            font-size: 20px;
+        }
+        
+        .history-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="history-container">
+    <div class="history-header">
+        <h1 class="header-title">Withdrawal History</h1>
+        <p class="header-subtitle">View all your withdrawal requests</p>
+    </div>
+    
+    {% if withdrawals %}
+        <div class="history-list">
+            {% for withdrawal in withdrawals %}
+            <div class="history-item">
+                <div class="history-info">
+                    <div class="history-amount">${{ withdrawal.amount|floatformat:2 }}</div>
+                    <div class="history-date">{{ withdrawal.requested_at|date:"M d, Y H:i" }}</div>
+                    <div class="history-date">Fee: ${{ withdrawal.fee|floatformat:2 }} | Net: ${{ withdrawal.net_amount|floatformat:2 }}</div>
+                </div>
+                <div>
+                    <span class="status-badge status-{{ withdrawal.status }}">
+                        {{ withdrawal.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-text">No withdrawal requests yet</div>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

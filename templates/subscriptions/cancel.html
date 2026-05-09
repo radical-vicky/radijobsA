@@ -1,0 +1,142 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Cancel Subscription{% endblock %}
+
+{% block content %}
+
+<style>
+    .cancel-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 20px;
+    }
+    
+    .cancel-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        max-width: 500px;
+        margin: 0 auto;
+        overflow: hidden;
+        text-align: center;
+    }
+    
+    .cancel-header {
+        padding: 32px 24px;
+        border-bottom: 1px solid #2d2f36;
+        background: #0d1117;
+    }
+    
+    .cancel-icon {
+        font-size: 48px;
+        color: #f85149;
+        margin-bottom: 16px;
+    }
+    
+    .cancel-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .cancel-message {
+        font-size: 13px;
+        color: #8b949e;
+        margin-bottom: 16px;
+    }
+    
+    .warning-text {
+        font-size: 12px;
+        color: #d29922;
+        background: rgba(210, 153, 34, 0.1);
+        padding: 12px;
+        margin-top: 16px;
+    }
+    
+    .action-section {
+        padding: 24px;
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 10px 24px;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-danger {
+        background: #f85149;
+        color: white;
+        border: none;
+    }
+    
+    .btn-danger:hover {
+        background: #d63a32;
+    }
+    
+    .btn-secondary {
+        background: #21262d;
+        border: 1px solid #3d444d;
+        color: #e6edf3;
+    }
+    
+    .btn-secondary:hover {
+        background: #2d2f36;
+        border-color: #2f81f7;
+    }
+    
+    @media (max-width: 640px) {
+        .cancel-container {
+            padding: 12px;
+        }
+        
+        .cancel-header {
+            padding: 24px 16px;
+        }
+        
+        .cancel-title {
+            font-size: 20px;
+        }
+        
+        .action-section {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="cancel-container">
+    <div class="cancel-card">
+        <div class="cancel-header">
+            <div class="cancel-icon">⚠</div>
+            <h1 class="cancel-title">Cancel Subscription</h1>
+            <p class="cancel-message">Are you sure you want to cancel your premium subscription?</p>
+            {% if user.subscription_expires_at %}
+            <div class="warning-text">
+                Your subscription will remain active until {{ user.subscription_expires_at|date:"F j, Y" }}.
+                You will lose premium access after this date.
+            </div>
+            {% else %}
+            <div class="warning-text">
+                You will immediately lose access to premium features.
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="action-section">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Yes, Cancel Subscription</button>
+            </form>
+            <a href="{% url 'subscriptions:status' %}" class="btn btn-secondary">No, Go Back</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

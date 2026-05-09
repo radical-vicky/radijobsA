@@ -1,0 +1,160 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Transaction History{% endblock %}
+
+{% block content %}
+
+<style>
+    .history-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .history-header {
+        margin-bottom: 24px;
+    }
+    
+    .header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .history-list {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
+    .history-item {
+        padding: 16px 20px;
+        border-bottom: 1px solid #2d2f36;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .history-item:last-child {
+        border-bottom: none;
+    }
+    
+    .history-info {
+        flex: 1;
+    }
+    
+    .history-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .history-date {
+        font-size: 11px;
+        color: #6e7681;
+    }
+    
+    .history-amount {
+        font-size: 16px;
+        font-weight: 600;
+    }
+    
+    .amount-credit {
+        color: #3fb950;
+    }
+    
+    .amount-debit {
+        color: #f85149;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 20px;
+    }
+    
+    .page-link {
+        padding: 6px 12px;
+        border: 1px solid #2d2f36;
+        background: #0d1117;
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 12px;
+    }
+    
+    .page-link:hover {
+        border-color: #2f81f7;
+        color: #2f81f7;
+    }
+    
+    .page-current {
+        padding: 6px 12px;
+        background: #2f81f7;
+        color: white;
+        font-size: 12px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: #8b949e;
+    }
+    
+    @media (max-width: 640px) {
+        .header-title {
+            font-size: 20px;
+        }
+        
+        .history-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="history-container">
+    <div class="history-header">
+        <h1 class="header-title">Transaction History</h1>
+        <p class="header-subtitle">View all your financial transactions</p>
+    </div>
+    
+    {% if transactions %}
+        <div class="history-list">
+            {% for tx in transactions %}
+            <div class="history-item">
+                <div class="history-info">
+                    <div class="history-title">{{ tx.description }}</div>
+                    <div class="history-date">{{ tx.created_at|date:"M d, Y H:i" }}</div>
+                    <div class="history-date">Reference: {{ tx.reference_id|default:"N/A" }}</div>
+                </div>
+                <div class="history-amount {% if tx.transaction_type == 'credit' %}amount-credit{% else %}amount-debit{% endif %}">
+                    {% if tx.transaction_type == 'credit' %}+{% else %}-{% endif %} ${{ tx.amount|floatformat:2 }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if transactions.has_other_pages %}
+        <div class="pagination">
+            {% if transactions.has_previous %}
+            <a href="?page={{ transactions.previous_page_number }}" class="page-link">Previous</a>
+            {% endif %}
+            <span class="page-current">{{ transactions.number }}</span>
+            {% if transactions.has_next %}
+            <a href="?page={{ transactions.next_page_number }}" class="page-link">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-text">No transactions yet</div>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

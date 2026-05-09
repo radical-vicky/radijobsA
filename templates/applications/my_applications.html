@@ -1,0 +1,298 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}My Applications{% endblock %}
+
+{% block content %}
+
+<style>
+    .applications-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    /* Header */
+    .applications-header {
+        margin-bottom: 24px;
+    }
+    
+    .header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .header-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    /* Stats Row */
+    .stats-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .stat-card {
+        flex: 1;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 16px;
+        text-align: center;
+        border-radius: 8px;
+    }
+    
+    .stat-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Application Items */
+    .applications-list {
+        border: 1px solid #2d2f36;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .application-item {
+        padding: 16px 20px;
+        border-bottom: 1px solid #2d2f36;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .application-item:last-child {
+        border-bottom: none;
+    }
+    
+    .application-item:hover {
+        background: #1a1f2e;
+    }
+    
+    .application-info {
+        flex: 1;
+    }
+    
+    .job-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .job-details {
+        font-size: 13px;
+        color: #8b949e;
+        margin-bottom: 4px;
+    }
+    
+    .applied-date {
+        font-size: 11px;
+        color: #6e7681;
+    }
+    
+    .quiz-score {
+        font-size: 11px;
+        color: #2f81f7;
+        margin-top: 4px;
+    }
+    
+    /* Status Badge */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 500;
+        border-radius: 20px;
+    }
+    
+    .status-pending {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .status-approved {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-interview {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-hired {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .status-rejected {
+        background: rgba(248, 81, 73, 0.1);
+        color: #f85149;
+        border: 1px solid rgba(248, 81, 73, 0.3);
+    }
+    
+    /* View Link */
+    .view-link {
+        color: #2f81f7;
+        text-decoration: none;
+        font-size: 12px;
+    }
+    
+    .view-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #8b949e;
+        border: 1px solid #2d2f36;
+        background: #161b22;
+        border-radius: 8px;
+    }
+    
+    .empty-text {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    
+    .empty-link {
+        color: #2f81f7;
+        text-decoration: none;
+        font-size: 13px;
+    }
+    
+    .empty-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Responsive */
+    @media (max-width: 640px) {
+        .stats-row {
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            min-width: calc(50% - 8px);
+        }
+        
+        .application-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .header-title {
+            font-size: 20px;
+        }
+    }
+</style>
+
+<div class="applications-container">
+    <!-- Header -->
+    <div class="applications-header">
+        <h1 class="header-title">My Applications</h1>
+        <p class="header-subtitle">Track the status of your job applications</p>
+    </div>
+    
+    <!-- Stats Row -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-number">{{ applications|length }}</div>
+            <div class="stat-label">TOTAL</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">
+                {% with pending=0 %}
+                    {% for app in applications %}
+                        {% if app.status == 'pending' %}{% endif %}
+                    {% endfor %}
+                {% endwith %}
+                {{ applications|length }}
+            </div>
+            <div class="stat-label">ACTIVE</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">
+                {% with responses=0 %}
+                    {% for app in applications %}
+                        {% if app.status != 'pending' %}{% endif %}
+                    {% endfor %}
+                {% endwith %}
+                {{ applications|length }}
+            </div>
+            <div class="stat-label">RESPONSES</div>
+        </div>
+    </div>
+    
+    <!-- Applications List -->
+    {% if applications %}
+        <div class="applications-list">
+            {% for application in applications %}
+            <div class="application-item" data-url="{% url 'jobs:dashboard_job_detail' application.job.id %}">
+                <div class="application-info">
+                    <div class="job-title">{{ application.job.title }}</div>
+                    <div class="job-details">{{ application.job.company }} • {{ application.job.location }}</div>
+                    <div class="applied-date">Applied: {{ application.created_at|date:"F j, Y" }}</div>
+                    {% if application.quiz_score %}
+                        <div class="quiz-score">Quiz Score: {{ application.quiz_score }}%</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <span class="status-badge 
+                        {% if application.status == 'pending' %}status-pending
+                        {% elif application.status == 'approved' %}status-approved
+                        {% elif application.status == 'interview_scheduled' %}status-interview
+                        {% elif application.status == 'hired' %}status-hired
+                        {% elif application.status == 'rejected' %}status-rejected
+                        {% endif %}">
+                        {{ application.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-text">No applications yet</div>
+            <a href="{% url 'jobs:dashboard_jobs' %}" class="empty-link">Browse Jobs →</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Make application items clickable using data-url attribute
+    document.querySelectorAll('.application-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            // Don't trigger if clicking on a link inside
+            if (e.target.closest('a')) return;
+            const url = this.getAttribute('data-url');
+            if (url && url !== 'undefined') {
+                window.location.href = url;
+            }
+        });
+    });
+</script>
+
+{% endblock %}

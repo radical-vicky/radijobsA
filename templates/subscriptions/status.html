@@ -1,0 +1,213 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Subscription Status{% endblock %}
+
+{% block content %}
+
+<style>
+    .status-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 20px;
+    }
+    
+    .status-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        max-width: 500px;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+    
+    .status-header {
+        padding: 32px 24px;
+        text-align: center;
+        border-bottom: 1px solid #2d2f36;
+        background: #0d1117;
+    }
+    
+    .status-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 16px;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    
+    .status-active {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .status-inactive {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .info-section {
+        padding: 24px;
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .info-value {
+        font-size: 13px;
+        color: #e6edf3;
+        font-weight: 500;
+    }
+    
+    .action-section {
+        padding: 24px;
+        text-align: center;
+        border-top: 1px solid #2d2f36;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 10px 24px;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-primary {
+        background: #2f81f7;
+        color: white;
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background: #58a6ff;
+    }
+    
+    .btn-danger {
+        background: #21262d;
+        border: 1px solid #3d444d;
+        color: #f85149;
+    }
+    
+    .btn-danger:hover {
+        background: #2d2f36;
+        border-color: #f85149;
+    }
+    
+    @media (max-width: 640px) {
+        .status-container {
+            padding: 12px;
+        }
+        
+        .status-header {
+            padding: 24px 16px;
+        }
+        
+        .status-title {
+            font-size: 20px;
+        }
+        
+        .info-section, .action-section {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="status-container">
+    <div class="status-card">
+        <div class="status-header">
+            <h1 class="status-title">Subscription Status</h1>
+            {% if user.has_active_subscription %}
+                <div class="status-badge status-active">Active</div>
+            {% else %}
+                <div class="status-badge status-inactive">Inactive</div>
+            {% endif %}
+        </div>
+        
+        <div class="info-section">
+            <div class="info-row">
+                <span class="info-label">Plan</span>
+                <span class="info-value">Premium Monthly</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">Price</span>
+                <span class="info-value">$19 / month</span>
+            </div>
+            
+            {% if user.has_active_subscription %}
+                {% if user.subscription_started_at %}
+                <div class="info-row">
+                    <span class="info-label">Started On</span>
+                    <span class="info-value">{{ user.subscription_started_at|date:"F j, Y" }}</span>
+                </div>
+                {% endif %}
+                
+                {% if user.subscription_expires_at %}
+                <div class="info-row">
+                    <span class="info-label">Expires On</span>
+                    <span class="info-value">{{ user.subscription_expires_at|date:"F j, Y" }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="info-row">
+                    <span class="info-label">Days Remaining</span>
+                    <span class="info-value">
+                        {% if user.subscription_expires_at %}
+                            {{ user.subscription_expires_at|timeuntil }}
+                        {% else %}
+                            Unlimited
+                        {% endif %}
+                    </span>
+                </div>
+            {% else %}
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value">No active subscription</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="action-section">
+            {% if user.has_active_subscription %}
+                <form method="post" action="{% url 'subscriptions:cancel' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Cancel Subscription</button>
+                </form>
+                <p style="font-size: 11px; color: #6e7681; margin-top: 12px;">
+                    Your subscription will remain active until the expiration date above.
+                </p>
+            {% else %}
+                <a href="{% url 'subscriptions:subscribe' %}" class="btn btn-primary">Subscribe Now</a>
+                <p style="font-size: 11px; color: #6e7681; margin-top: 12px;">
+                    Get unlimited job applications and premium features for $19/month
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ job.title }} at {{ job.company }} - RadiloxRemoteJobs{% endblock %}
+
+{% block content %}
+
+<style>
+    .job-header {
+        background: linear-gradient(135deg, #0d1117 0%, #151b23 100%);
+        border-bottom: 1px solid #2d2f36;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Gradient overlay for image connection */
+    .job-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(ellipse at 30% 40%, rgba(47, 129, 247, 0.08) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    
+    /* Hero Image Section with Gradient Blend */
+    .hero-image-section {
+        position: relative;
+        width: 100%;
+        height: 280px;
+        overflow: hidden;
+        margin-top: -1px;
+    }
+    
+    @media (min-width: 640px) {
+        .hero-image-section {
+            height: 320px;
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        .hero-image-section {
+            height: 380px;
+        }
+    }
+    
+    .hero-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Gradient overlay that connects image to content */
+    .hero-gradient-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(to top, #0d1117 0%, rgba(13, 17, 23, 0) 100%);
+        pointer-events: none;
+    }
+    
+    /* Alternative: Image with gradient background when no image */
+    .hero-gradient-bg {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 50%, #151b23 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .hero-gradient-bg::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(ellipse at 30% 40%, rgba(47, 129, 247, 0.15) 0%, transparent 70%);
+    }
+    
+    .company-initial {
+        font-size: 80px;
+        font-weight: 700;
+        color: #2f81f7;
+        position: relative;
+        z-index: 1;
+    }
+    
+    @media (min-width: 640px) {
+        .company-initial {
+            font-size: 120px;
+        }
+    }
+    
+    /* Content Section - Pulled up slightly to overlap gradient */
+    .job-content-section {
+        margin-top: -40px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    /* Sharp corners - NO border-radius */
+    .info-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        transition: all 0.2s ease;
+    }
+    
+    .info-card:hover {
+        border-color: #2f81f7;
+    }
+    
+    .apply-btn {
+        background: #2f81f7;
+        color: white;
+        font-weight: 500;
+        padding: 12px 32px;
+        transition: all 0.2s;
+        display: inline-block;
+        text-decoration: none;
+    }
+    
+    .apply-btn:hover {
+        background: #58a6ff;
+    }
+    
+    .skill-tag {
+        background: rgba(47, 129, 247, 0.1);
+        border: 1px solid rgba(47, 129, 247, 0.3);
+        color: #2f81f7;
+        padding: 4px 12px;
+        font-size: 12px;
+        display: inline-block;
+    }
+    
+    .back-link {
+        display: inline-block;
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+        color: #2f81f7;
+    }
+    
+    .job-tag {
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 500;
+    }
+    
+    .job-tag-fulltime {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .job-tag-freelance {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .job-tag-parttime {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .job-tag-featured {
+        background: rgba(240, 136, 62, 0.1);
+        color: #f0883e;
+        border: 1px solid rgba(240, 136, 62, 0.3);
+    }
+    
+    .job-tag-experience {
+        background: rgba(139, 148, 158, 0.1);
+        color: #8b949e;
+        border: 1px solid rgba(139, 148, 158, 0.3);
+    }
+    
+    /* Similar jobs card */
+    .job-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .job-card:hover {
+        border-color: #2f81f7;
+    }
+    
+    /* Meta items - text only */
+    .job-meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: #8b949e;
+        font-size: 13px;
+    }
+    
+    /* Divider */
+    .border-github-border {
+        border-color: #2d2f36;
+    }
+    
+    .bg-github-border {
+        background-color: #2d2f36;
+    }
+    
+    .text-github-accent {
+        color: #2f81f7;
+    }
+    
+    .text-github-fg-muted {
+        color: #8b949e;
+    }
+    
+    .text-white {
+        color: #e6edf3;
+    }
+    
+    .bg-github-accent {
+        background-color: #2f81f7;
+    }
+</style>
+
+<!-- Back Button -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 relative z-20">
+    <a href="{% url 'jobs:list' %}" class="back-link">
+        ← Back to Jobs
+    </a>
+</div>
+
+<!-- Hero Image Section with Gradient Connection -->
+<div class="hero-image-section">
+    {% if job.get_image_url %}
+        <img src="{{ job.get_image_url }}" alt="{{ job.title }}" class="hero-image">
+        <div class="hero-gradient-overlay"></div>
+    {% else %}
+        <div class="hero-gradient-bg">
+            <div class="company-initial">{{ job.company|slice:":1"|upper }}</div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Job Header -->
+<section class="job-header py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-wrap justify-between items-start gap-4">
+            <!-- Job Title and Meta -->
+            <div class="flex-1">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="job-tag 
+                        {% if job.job_type == 'fulltime' %}job-tag-fulltime
+                        {% elif job.job_type == 'freelance' %}job-tag-freelance
+                        {% else %}job-tag-parttime{% endif %}">
+                        {{ job.get_job_type_display }}
+                    </span>
+                    {% if job.is_featured %}
+                    <span class="job-tag job-tag-featured">
+                        Featured
+                    </span>
+                    {% endif %}
+                    <span class="job-tag job-tag-experience">
+                        {{ job.get_experience_level_display }}
+                    </span>
+                </div>
+                
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">{{ job.title }}</h1>
+                <p class="text-lg text-github-fg-muted">{{ job.company }}</p>
+                
+                <div class="flex flex-wrap gap-4 mt-3">
+                    <span class="job-meta-item">
+                        {{ job.location }}
+                    </span>
+                    <span class="job-meta-item">
+                        Posted {{ job.created_at|timesince }} ago
+                    </span>
+                    <span class="job-meta-item">
+                        {{ job.view_count|default:"0" }} views
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Apply Button -->
+            <div class="flex-shrink-0">
+                <a href="{% url 'account_signup' %}" class="apply-btn">
+                    Apply Now
+                </a>
+                <p class="text-xs text-github-fg-muted mt-2 text-center">Sign up to apply</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Job Details Content -->
+<section class="job-content-section py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Salary Card -->
+                <div class="info-card p-6">
+                    <h2 class="text-xl font-semibold text-white mb-4">Salary Range</h2>
+                    <p class="text-2xl font-bold text-github-accent">{{ job.salary_range }}</p>
+                </div>
+                
+                <!-- Job Description -->
+                <div class="info-card p-6">
+                    <h2 class="text-xl font-semibold text-white mb-4">Job Description</h2>
+                    <div class="text-github-fg-muted leading-relaxed space-y-4">
+                        {{ job.description|linebreaks }}
+                    </div>
+                </div>
+                
+                <!-- Requirements -->
+                <div class="info-card p-6">
+                    <h2 class="text-xl font-semibold text-white mb-4">Requirements</h2>
+                    <div class="text-github-fg-muted leading-relaxed space-y-4">
+                        {{ job.requirements|linebreaks }}
+                    </div>
+                </div>
+                
+                <!-- Project Brief -->
+                {% if job.project_brief %}
+                <div class="info-card p-6 border-l-4 border-l-orange-500">
+                    <h2 class="text-xl font-semibold text-white mb-4">Project Brief</h2>
+                    <p class="text-orange-400 text-sm mb-3">
+                        You must complete this project and present it live during your Zoom interview
+                    </p>
+                    <div class="text-github-fg-muted leading-relaxed">
+                        {{ job.project_brief|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Skills Card -->
+                {% if job.skills_required %}
+                <div class="info-card p-6">
+                    <h2 class="text-xl font-semibold text-white mb-4">Required Skills</h2>
+                    <div class="flex flex-wrap gap-2">
+                        {% for skill in job.skills_required %}
+                        <span class="skill-tag">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Job Info Card -->
+                <div class="info-card p-6">
+                    <h2 class="text-xl font-semibold text-white mb-4">Job Information</h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between py-2 border-b border-github-border">
+                            <span class="text-github-fg-muted">Job Type</span>
+                            <span class="text-white font-medium">{{ job.get_job_type_display }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-github-border">
+                            <span class="text-github-fg-muted">Experience</span>
+                            <span class="text-white font-medium">{{ job.get_experience_level_display }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-github-border">
+                            <span class="text-github-fg-muted">Location</span>
+                            <span class="text-white font-medium">{{ job.location }}</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-github-fg-muted">Posted Date</span>
+                            <span class="text-white font-medium">{{ job.created_at|date:"F j, Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hiring Process Card -->
+                <div class="info-card p-6">
+                    <h2 class="text-xl font-semibold text-white mb-4">Hiring Process</h2>
+                    <div class="space-y-4">
+                        <div class="flex gap-3 items-start">
+                            <div class="w-6 h-6 bg-github-accent/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span class="text-xs font-bold text-github-accent">1</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-white">Apply with Profile</p>
+                                <p class="text-xs text-github-fg-muted">Submit your application</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <div class="w-6 h-6 bg-github-accent/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span class="text-xs font-bold text-github-accent">2</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-white">Technical Quiz</p>
+                                <p class="text-xs text-github-fg-muted">Auto-graded assessment</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <div class="w-6 h-6 bg-github-accent/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span class="text-xs font-bold text-github-accent">3</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-white">Build Project</p>
+                                <p class="text-xs text-github-fg-muted">Complete from job ad</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <div class="w-6 h-6 bg-github-accent/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span class="text-xs font-bold text-github-accent">4</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-white">Live Zoom Interview</p>
+                                <p class="text-xs text-github-fg-muted">Present your project</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <div class="w-6 h-6 bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span class="text-xs font-bold text-green-500">5</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-white">Get Hired</p>
+                                <p class="text-xs text-github-fg-muted">Start earning</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Similar Jobs Section -->
+{% if similar_jobs %}
+<section class="py-8 border-t border-github-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-white mb-6">Similar Jobs</h2>
+        <div class="grid md:grid-cols-3 gap-5">
+            {% for similar in similar_jobs %}
+            <div class="job-card p-5 hover:border-github-accent transition-all" onclick="window.location.href='{% url 'jobs:detail' similar.id %}'">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-github-border flex items-center justify-center overflow-hidden">
+                        {% if similar.get_image_url %}
+                            <img src="{{ similar.get_image_url }}" alt="{{ similar.company }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <span class="text-sm font-bold text-github-accent">{{ similar.company|slice:":1"|upper }}</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-white text-sm">{{ similar.title }}</h3>
+                        <p class="text-xs text-github-fg-muted">{{ similar.company }}</p>
+                    </div>
+                </div>
+                <p class="text-github-accent font-semibold text-sm">{{ similar.salary_range }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

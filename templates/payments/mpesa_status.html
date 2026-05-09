@@ -1,0 +1,195 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}M-Pesa Payment Status{% endblock %}
+
+{% block content %}
+
+<style>
+    .status-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 20px;
+    }
+    
+    .status-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        max-width: 500px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 40px;
+    }
+    
+    .status-icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+    }
+    
+    .status-pending { color: #d29922; }
+    .status-success { color: #3fb950; }
+    .status-failed { color: #f85149; }
+    
+    .status-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+    
+    .status-message {
+        color: #8b949e;
+        margin-bottom: 24px;
+    }
+    
+    .transaction-details {
+        text-align: left;
+        background: #0d1117;
+        padding: 16px;
+        margin: 20px 0;
+        border: 1px solid #2d2f36;
+    }
+    
+    .detail-row {
+        padding: 8px 0;
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        color: #8b949e;
+    }
+    
+    .detail-value {
+        color: #e6edf3;
+        font-weight: 500;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 10px 24px;
+        background: #2f81f7;
+        color: white;
+        text-decoration: none;
+        margin-top: 20px;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn:hover {
+        background: #58a6ff;
+    }
+    
+    .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #2d2f36;
+        border-top-color: #2f81f7;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 640px) {
+        .status-container {
+            padding: 12px;
+        }
+        
+        .status-card {
+            padding: 24px;
+        }
+        
+        .status-title {
+            font-size: 20px;
+        }
+    }
+</style>
+
+<div class="status-container">
+    <div class="status-card">
+        {% if transaction.status == 'pending' or transaction.status == 'processing' %}
+            <div class="status-icon status-pending">⏳</div>
+            <h1 class="status-title">Processing Payment</h1>
+            <p class="status-message">Please check your phone and enter your M-Pesa PIN to complete the payment.</p>
+            
+            <div class="transaction-details">
+                <div class="detail-row">
+                    <span class="detail-label">Transaction ID:</span>
+                    <span class="detail-value">{{ transaction.transaction_id }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Amount:</span>
+                    <span class="detail-value">KES {{ transaction.amount }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value">{{ transaction.metadata.phone_number }}</span>
+                </div>
+            </div>
+            
+            <div>
+                <span class="spinner"></span>
+                <span>Waiting for confirmation...</span>
+            </div>
+            
+            <p style="font-size: 12px; color: #6e7681; margin-top: 16px;">
+                This page will auto-refresh every 5 seconds.
+            </p>
+            
+        {% elif transaction.status == 'completed' %}
+            <div class="status-icon status-success">✓</div>
+            <h1 class="status-title">Payment Successful!</h1>
+            <p class="status-message">Your subscription is now active. You can now apply to unlimited jobs.</p>
+            
+            <div class="transaction-details">
+                <div class="detail-row">
+                    <span class="detail-label">Transaction ID:</span>
+                    <span class="detail-value">{{ transaction.transaction_id }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Amount Paid:</span>
+                    <span class="detail-value">KES {{ transaction.amount }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Completed On:</span>
+                    <span class="detail-value">{{ transaction.completed_at|date:"F j, Y H:i"|default:"Just now" }}</span>
+                </div>
+            </div>
+            
+            <a href="{% url 'subscriptions:status' %}" class="btn">View Subscription</a>
+            
+        {% elif transaction.status == 'cancelled' %}
+            <div class="status-icon status-failed">✗</div>
+            <h1 class="status-title">Payment Cancelled</h1>
+            <p class="status-message">You cancelled the payment. No charges were made.</p>
+            
+            <a href="{% url 'payments:subscribe_mpesa' %}" class="btn">Try Again</a>
+            
+        {% else %}
+            <div class="status-icon status-failed">✗</div>
+            <h1 class="status-title">Payment Failed</h1>
+            <p class="status-message">{{ transaction.error_message|default:"Payment could not be processed." }}</p>
+            
+            <a href="{% url 'payments:subscribe_mpesa' %}" class="btn">Try Again</a>
+        {% endif %}
+    </div>
+</div>
+
+{% if refresh %}
+<script>
+    setTimeout(function() {
+        location.reload();
+    }, 5000);
+</script>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,363 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Payment Methods{% endblock %}
+
+{% block content %}
+
+<style>
+    .payment-container {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .payment-header {
+        margin-bottom: 24px;
+    }
+    
+    .header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .header-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .add-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        margin-bottom: 24px;
+        padding: 20px;
+    }
+    
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 6px;
+    }
+    
+    .form-input, .form-select {
+        width: 100%;
+        padding: 10px 12px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+        font-size: 13px;
+    }
+    
+    .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: #2f81f7;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .form-row .form-group {
+        flex: 1;
+    }
+    
+    .btn-submit {
+        padding: 10px 20px;
+        background: #2f81f7;
+        border: none;
+        color: white;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-submit:hover {
+        background: #58a6ff;
+    }
+    
+    .methods-list {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
+    .method-item {
+        padding: 16px 20px;
+        border-bottom: 1px solid #2d2f36;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .method-item:last-child {
+        border-bottom: none;
+    }
+    
+    .method-info {
+        flex: 1;
+    }
+    
+    .method-type {
+        font-size: 15px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .method-details {
+        font-size: 12px;
+        color: #8b949e;
+    }
+    
+    .method-actions {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .default-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        background: rgba(47, 129, 247, 0.1);
+        border: 1px solid rgba(47, 129, 247, 0.3);
+        color: #2f81f7;
+        font-size: 10px;
+        margin-right: 12px;
+    }
+    
+    .btn-default, .btn-delete {
+        padding: 6px 14px;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-default {
+        background: #21262d;
+        border: 1px solid #3d444d;
+        color: #e6edf3;
+    }
+    
+    .btn-default:hover {
+        background: #2d2f36;
+        border-color: #2f81f7;
+        color: #2f81f7;
+    }
+    
+    .btn-delete {
+        background: rgba(248, 81, 73, 0.1);
+        border: 1px solid rgba(248, 81, 73, 0.3);
+        color: #f85149;
+    }
+    
+    .btn-delete:hover {
+        background: rgba(248, 81, 73, 0.2);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: #8b949e;
+    }
+    
+    .empty-text {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    
+    @media (max-width: 640px) {
+        .payment-container {
+            padding: 0;
+        }
+        
+        .add-card, .methods-list {
+            padding: 16px;
+        }
+        
+        .header-title {
+            font-size: 20px;
+        }
+        
+        .method-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .form-row {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="payment-container">
+    <div class="payment-header">
+        <h1 class="header-title">Payment Methods</h1>
+        <p class="header-subtitle">Manage your payment methods for withdrawals and subscriptions</p>
+    </div>
+    
+    <!-- Add New Payment Method -->
+    <div class="add-card">
+        <h3 class="section-title">Add Payment Method</h3>
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label">Payment Type</label>
+                <select name="payment_type" class="form-select" required>
+                    <option value="">Select payment method</option>
+                    <option value="paypal">PayPal</option>
+                    <option value="mpesa">M-Pesa</option>
+                    <option value="bank_account">Bank Account</option>
+                </select>
+            </div>
+            
+            <div id="paypalFields" class="payment-fields" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">PayPal Email</label>
+                    <input type="email" name="paypal_email" class="form-input" placeholder="your@email.com">
+                </div>
+            </div>
+            
+            <div id="mpesaFields" class="payment-fields" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">M-Pesa Phone Number</label>
+                    <input type="tel" name="phone_number" class="form-input" placeholder="0712345678">
+                </div>
+            </div>
+            
+            <div id="bankFields" class="payment-fields" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Bank Name</label>
+                    <input type="text" name="bank_name" class="form-input" placeholder="e.g., KCB, Equity">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Account Name</label>
+                    <input type="text" name="account_name" class="form-input" placeholder="Name on account">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Account Number</label>
+                    <input type="text" name="account_number" class="form-input" placeholder="Account number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">SWIFT Code (Optional)</label>
+                    <input type="text" name="swift_code" class="form-input" placeholder="KCBLKENX">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <input type="checkbox" name="is_default" value="on"> Set as default payment method
+                </label>
+            </div>
+            
+            <button type="submit" class="btn-submit">Add Payment Method</button>
+        </form>
+    </div>
+    
+    <!-- Payment Methods List -->
+    <h3 class="section-title" style="margin-bottom: 16px;">Saved Payment Methods</h3>
+    
+    {% if methods %}
+        <div class="methods-list">
+            {% for method in methods %}
+            <div class="method-item">
+                <div class="method-info">
+                    <div class="method-type">
+                        {% if method.is_default %}
+                            <span class="default-badge">Default</span>
+                        {% endif %}
+                        {{ method.get_payment_type_display }}
+                    </div>
+                    <div class="method-details">
+                        {% if method.payment_type == 'paypal' %}
+                            {{ method.account_email }}
+                        {% elif method.payment_type == 'mpesa' %}
+                            {{ method.phone_number }}
+                        {% elif method.payment_type == 'bank_account' %}
+                            {{ method.bank_name }} - {{ method.bank_account_number }}
+                        {% elif method.payment_type == 'credit_card' or method.payment_type == 'debit_card' %}
+                            •••• {{ method.last_four }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="method-actions">
+                    {% if not method.is_default %}
+                        <a href="{% url 'accounts:set_default_payment_method' method.id %}" class="btn-default">Set as Default</a>
+                    {% endif %}
+                    <a href="{% url 'accounts:delete_payment_method' method.id %}" class="btn-delete" onclick="return confirm('Are you sure you want to delete this payment method?')">Delete</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-text">No payment methods added yet</div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    const paymentTypeSelect = document.querySelector('select[name="payment_type"]');
+    const paypalFields = document.getElementById('paypalFields');
+    const mpesaFields = document.getElementById('mpesaFields');
+    const bankFields = document.getElementById('bankFields');
+    
+    function hideAllFields() {
+        paypalFields.style.display = 'none';
+        mpesaFields.style.display = 'none';
+        bankFields.style.display = 'none';
+        
+        // Disable all inputs
+        document.querySelectorAll('#paypalFields input, #mpesaFields input, #bankFields input').forEach(input => {
+            input.disabled = true;
+        });
+    }
+    
+    function showFields(fields) {
+        fields.querySelectorAll('input').forEach(input => {
+            input.disabled = false;
+        });
+        fields.style.display = 'block';
+    }
+    
+    if (paymentTypeSelect) {
+        paymentTypeSelect.addEventListener('change', function() {
+            hideAllFields();
+            
+            if (this.value === 'paypal') {
+                showFields(paypalFields);
+            } else if (this.value === 'mpesa') {
+                showFields(mpesaFields);
+            } else if (this.value === 'bank_account') {
+                showFields(bankFields);
+            }
+        });
+        
+        // Trigger change on page load
+        paymentTypeSelect.dispatchEvent(new Event('change'));
+    }
+</script>
+
+{% endblock %}

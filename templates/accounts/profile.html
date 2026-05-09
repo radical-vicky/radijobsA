@@ -1,0 +1,619 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Clean Professional Profile - No Icons, Straight Lines */
+    .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    /* Cover Image - Simple gradient */
+    .cover-image {
+        width: 100%;
+        height: 100px;
+        background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
+    }
+    
+    /* Avatar */
+    .avatar-container {
+        position: relative;
+        margin-top: -50px;
+        padding: 0 24px;
+    }
+    
+    .avatar {
+        width: 90px;
+        height: 90px;
+        background: #2f81f7;
+        border-radius: 50%;
+        border: 3px solid #0d1117;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        font-weight: 600;
+        color: white;
+        overflow: hidden;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    
+    .avatar:hover {
+        opacity: 0.8;
+    }
+    
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Profile Card */
+    .profile-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        overflow: hidden;
+        margin-bottom: 0;
+    }
+    
+    /* Profile Info */
+    .profile-info {
+        padding: 20px 24px;
+    }
+    
+    .display-name {
+        font-size: 22px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .username {
+        font-size: 13px;
+        color: #8b949e;
+        margin-bottom: 12px;
+    }
+    
+    .bio {
+        font-size: 13px;
+        color: #e6edf3;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        padding: 10px 0;
+    }
+    
+    /* Edit Profile Button */
+    .edit-btn {
+        background: #21262d;
+        border: 1px solid #3d444d;
+        padding: 6px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #e6edf3;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .edit-btn:hover {
+        background: #2d2f36;
+        border-color: #2f81f7;
+        color: #2f81f7;
+    }
+    
+    /* Stats Row */
+    .stats-row {
+        display: flex;
+        gap: 32px;
+        padding: 16px 24px;
+        border-top: 1px solid #2d2f36;
+        border-bottom: 1px solid #2d2f36;
+        background: #0d1117;
+    }
+    
+    .stat-item {
+        text-align: center;
+        flex: 1;
+    }
+    
+    .stat-number {
+        font-size: 28px;
+        font-weight: 600;
+        color: #e6edf3;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+        color: #8b949e;
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Section Styles - Straight horizontal lines */
+    .profile-section {
+        background: #161b22;
+        border-left: 1px solid #2d2f36;
+        border-right: 1px solid #2d2f36;
+        border-bottom: 1px solid #2d2f36;
+        padding: 20px 24px;
+    }
+    
+    .profile-section:first-of-type {
+        border-top: 1px solid #2d2f36;
+    }
+    
+    .section-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 16px;
+        letter-spacing: 0.3px;
+    }
+    
+    /* List Items - Horizontal line only */
+    .list-item {
+        padding: 14px 0;
+        border-bottom: 1px solid #2d2f36;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .list-item:last-child {
+        border-bottom: none;
+    }
+    
+    .list-item:hover {
+        background: #1a1f2e;
+        margin: 0 -8px;
+        padding: 14px 8px;
+    }
+    
+    .item-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .item-subtitle {
+        font-size: 12px;
+        color: #8b949e;
+    }
+    
+    .item-status {
+        display: inline-block;
+        padding: 2px 10px;
+        font-size: 11px;
+        font-weight: 500;
+    }
+    
+    .status-pending { color: #d29922; }
+    .status-approved { color: #2f81f7; }
+    .status-hired { color: #3fb950; }
+    .status-rejected { color: #f85149; }
+    .status-completed { color: #3fb950; }
+    .status-in-progress { color: #d29922; }
+    
+    .item-right {
+        text-align: right;
+    }
+    
+    .item-amount {
+        font-size: 15px;
+        font-weight: 600;
+        color: #e6edf3;
+    }
+    
+    .item-date {
+        font-size: 11px;
+        color: #6e7681;
+        margin-top: 4px;
+    }
+    
+    /* Settings Items */
+    .settings-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .settings-item:last-child {
+        border-bottom: none;
+    }
+    
+    .settings-label {
+        font-size: 13px;
+        color: #e6edf3;
+    }
+    
+    .settings-value {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .settings-link {
+        color: #2f81f7;
+        text-decoration: none;
+        font-size: 13px;
+    }
+    
+    .settings-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #8b949e;
+    }
+    
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 10000;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal.active {
+        display: flex;
+    }
+    
+    .modal-content {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+    }
+    
+    .modal-close {
+        position: absolute;
+        top: 20px;
+        right: 40px;
+        font-size: 40px;
+        color: white;
+        cursor: pointer;
+        font-weight: 300;
+        transition: opacity 0.2s;
+    }
+    
+    .modal-close:hover {
+        opacity: 0.7;
+    }
+    
+    /* Responsive */
+    @media (max-width: 640px) {
+        .profile-container {
+            margin: 0;
+        }
+        
+        .stats-row {
+            gap: 16px;
+        }
+        
+        .stat-number {
+            font-size: 22px;
+        }
+        
+        .profile-section {
+            padding: 16px;
+        }
+        
+        .modal-close {
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+        }
+    }
+</style>
+
+<div class="profile-container">
+    <!-- Profile Card -->
+    <div class="profile-card">
+        <div class="cover-image"></div>
+        
+        <div class="avatar-container">
+            <div class="avatar" id="avatarButton">
+                {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="{{ user.username }}">
+                {% else %}
+                    {{ user.username|first|upper }}
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="profile-info">
+            <div class="display-name">{{ user.get_full_name|default:user.username }}</div>
+            <div class="username">{{ user.email }}</div>
+            {% if user.bio %}
+                <div class="bio">{{ user.bio }}</div>
+            {% else %}
+                <div class="bio" style="color: #8b949e;">No bio added yet.</div>
+            {% endif %}
+            
+            <a href="{% url 'accounts:profile_edit' %}" class="edit-btn">
+                Edit Profile
+            </a>
+        </div>
+        
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-number">
+                    {% if user.role == 'applicant' %}
+                        {{ total_applications|default:"0" }}
+                    {% elif user.role == 'freelancer' %}
+                        {{ completed_tasks|default:"0" }}
+                    {% else %}
+                        {{ total_users|default:"0" }}
+                    {% endif %}
+                </div>
+                <div class="stat-label">
+                    {% if user.role == 'applicant' %}APPLICATIONS
+                    {% elif user.role == 'freelancer' %}COMPLETED
+                    {% else %}USERS{% endif %}
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">
+                    {% if user.role == 'applicant' %}
+                        {{ hired_count|default:"0" }}
+                    {% elif user.role == 'freelancer' %}
+                        ${{ total_earned|default:"0" }}
+                    {% else %}
+                        {{ active_jobs|default:"0" }}
+                    {% endif %}
+                </div>
+                <div class="stat-label">
+                    {% if user.role == 'applicant' %}HIRED
+                    {% elif user.role == 'freelancer' %}EARNED
+                    {% else %}ACTIVE JOBS{% endif %}
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">
+                    {% if user.role == 'applicant' %}
+                        {% if user.has_active_subscription %}Active{% else %}Inactive{% endif %}
+                    {% elif user.role == 'freelancer' %}
+                        {{ in_progress_tasks|default:"0" }}
+                    {% else %}
+                        {{ pending_applications|default:"0" }}
+                    {% endif %}
+                </div>
+                <div class="stat-label">
+                    {% if user.role == 'applicant' %}SUBSCRIPTION
+                    {% elif user.role == 'freelancer' %}IN PROGRESS
+                    {% else %}PENDING{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Role-specific Sections -->
+    {% if user.role == 'applicant' %}
+        <!-- Recent Applications -->
+        <div class="profile-section">
+            <div class="section-title">Recent Applications</div>
+            {% if recent_applications %}
+                {% for app in recent_applications|slice:":5" %}
+                <div class="list-item" onclick="window.location.href='{% url 'jobs:dashboard_job_detail' app.job.id %}'">
+                    <div>
+                        <div class="item-title">{{ app.job.title }}</div>
+                        <div class="item-subtitle">{{ app.job.company }} | {{ app.job.location }}</div>
+                    </div>
+                    <div class="item-right">
+                        <div class="item-status status-{{ app.status }}">
+                            {{ app.get_status_display }}
+                        </div>
+                        <div class="item-date">{{ app.created_at|date:"M d, Y" }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>No applications submitted yet.</p>
+                    <a href="{% url 'jobs:dashboard_jobs' %}" class="edit-btn" style="margin-top: 12px;">Browse Jobs</a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Subscription -->
+        <div class="profile-section">
+            <div class="section-title">Subscription</div>
+            <div class="settings-item">
+                <span class="settings-label">Status</span>
+                {% if user.has_active_subscription %}
+                    <span class="settings-value">Active</span>
+                {% else %}
+                    <span class="settings-value">Inactive</span>
+                {% endif %}
+            </div>
+            {% if user.subscription_expires_at %}
+            <div class="settings-item">
+                <span class="settings-label">Expires On</span>
+                <span class="settings-value">{{ user.subscription_expires_at|date:"F j, Y" }}</span>
+            </div>
+            {% endif %}
+            {% if not user.has_active_subscription %}
+            <div style="margin-top: 16px;">
+                <a href="{% url 'subscriptions:subscribe' %}" class="edit-btn" style="background: #2f81f7; border-color: #2f81f7; color: white; width: 100%; text-align: center;">
+                    Subscribe Now - $19/month
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    {% endif %}
+    
+    {% if user.role == 'freelancer' %}
+        <!-- Current Tasks -->
+        <div class="profile-section">
+            <div class="section-title">Current Tasks</div>
+            {% if assigned_tasks %}
+                {% for task in assigned_tasks|slice:":5" %}
+                <div class="list-item" onclick="window.location.href='{% url 'tasks:detail' task.id %}'">
+                    <div>
+                        <div class="item-title">{{ task.title }}</div>
+                        <div class="item-subtitle">{{ task.description|truncatewords:12 }}</div>
+                    </div>
+                    <div class="item-right">
+                        <div class="item-amount">${{ task.budget_amount }}</div>
+                        {% if task.deadline %}
+                        <div class="item-date">Due: {{ task.deadline|date:"M d, Y" }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>No current tasks assigned.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Wallet -->
+        <div class="profile-section">
+            <div class="section-title">Wallet</div>
+            <div class="settings-item">
+                <span class="settings-label">Available Balance</span>
+                <span class="settings-value" style="font-size: 20px; font-weight: 600; color: #e6edf3;">${{ wallet.balance|floatformat:2 }}</span>
+            </div>
+            <div class="settings-item">
+                <span class="settings-label">Total Earned</span>
+                <span class="settings-value">${{ wallet.total_earned|floatformat:2 }}</span>
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                <a href="{% url 'wallet:dashboard' %}" class="edit-btn" style="flex: 1; text-align: center;">View Wallet</a>
+                <a href="{% url 'wallet:withdrawal_request' %}" class="edit-btn" style="flex: 1; text-align: center; background: #2f81f7; border-color: #2f81f7; color: white;">Withdraw</a>
+            </div>
+        </div>
+    {% endif %}
+    
+    <!-- Account Settings -->
+    <div class="profile-section">
+        <div class="section-title">Account Settings</div>
+        
+        <div class="settings-item">
+            <span class="settings-label">Email Address</span>
+            <span class="settings-value">{{ user.email }}</span>
+        </div>
+        
+        <div class="settings-item">
+            <span class="settings-label">Member Since</span>
+            <span class="settings-value">{{ user.date_joined|date:"F j, Y" }}</span>
+        </div>
+        
+        <div class="settings-item">
+            <span class="settings-label">Last Login</span>
+            <span class="settings-value">{{ user.last_login|date:"F j, Y"|default:"Never" }}</span>
+        </div>
+        
+        <div class="settings-item">
+            <span class="settings-label">Account Status</span>
+            <span class="settings-value">Active</span>
+        </div>
+        
+        <div class="settings-item">
+            <span class="settings-label">Password</span>
+            <a href="{% url 'account_change_password' %}" class="settings-link">Change Password</a>
+        </div>
+        
+        <div class="settings-item">
+            <span class="settings-label">Notifications</span>
+            <a href="{% url 'notifications:preferences' %}" class="settings-link">Manage Preferences</a>
+        </div>
+        
+        <div class="settings-item">
+            <span class="settings-label">Payment Methods</span>
+            <a href="{% url 'accounts:payment_methods' %}" class="settings-link">Manage</a>
+        </div>
+        
+        <div class="settings-item">
+            <span class="settings-label">Logout</span>
+            <form method="post" action="{% url 'account_logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="settings-link" style="background: none; border: none; cursor: pointer; color: #f85149;">Sign Out</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for viewing profile picture -->
+<div id="avatarModal" class="modal">
+    <span class="modal-close">&times;</span>
+    <img class="modal-content" id="modalImage">
+</div>
+
+<script>
+    // Get modal elements
+    const modal = document.getElementById('avatarModal');
+    const avatarButton = document.getElementById('avatarButton');
+    const modalImage = document.getElementById('modalImage');
+    const closeBtn = document.querySelector('.modal-close');
+    
+    // When user clicks on avatar, open modal
+    avatarButton.addEventListener('click', function() {
+        {% if user.avatar %}
+            modalImage.src = '{{ user.avatar.url }}';
+        {% else %}
+            // If no avatar, create a canvas with the initial
+            const initial = '{{ user.username|first|upper }}';
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#2f81f7';
+            ctx.fillRect(0, 0, 400, 400);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 200px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(initial, 200, 200);
+            modalImage.src = canvas.toDataURL();
+        {% endif %}
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+    
+    // Close modal when clicking on close button
+    closeBtn.addEventListener('click', function() {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+    
+    // Close modal when clicking outside the image
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+</script>
+
+{% endblock %}

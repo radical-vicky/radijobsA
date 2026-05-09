@@ -1,0 +1,232 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Wallet{% endblock %}
+
+{% block content %}
+
+<style>
+    .wallet-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .wallet-header {
+        margin-bottom: 24px;
+    }
+    
+    .header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .header-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .balance-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .balance-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .balance-label {
+        font-size: 11px;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    
+    .balance-amount {
+        font-size: 32px;
+        font-weight: 700;
+        color: #e6edf3;
+    }
+    
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .action-btn {
+        background: #21262d;
+        border: 1px solid #3d444d;
+        padding: 12px;
+        text-align: center;
+        text-decoration: none;
+        color: #e6edf3;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .action-btn:hover {
+        background: #2d2f36;
+        border-color: #2f81f7;
+        color: #2f81f7;
+    }
+    
+    .section-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        margin-bottom: 24px;
+    }
+    
+    .section-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #2d2f36;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin: 0;
+    }
+    
+    .section-link {
+        font-size: 12px;
+        color: #2f81f7;
+        text-decoration: none;
+    }
+    
+    .transaction-item {
+        padding: 14px 20px;
+        border-bottom: 1px solid #2d2f36;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .transaction-item:last-child {
+        border-bottom: none;
+    }
+    
+    .transaction-info {
+        flex: 1;
+    }
+    
+    .transaction-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .transaction-date {
+        font-size: 11px;
+        color: #6e7681;
+    }
+    
+    .transaction-amount {
+        font-size: 16px;
+        font-weight: 600;
+    }
+    
+    .amount-credit {
+        color: #3fb950;
+    }
+    
+    .amount-debit {
+        color: #f85149;
+    }
+    
+    @media (max-width: 768px) {
+        .balance-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .actions-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .header-title {
+            font-size: 20px;
+        }
+        
+        .balance-amount {
+            font-size: 28px;
+        }
+    }
+</style>
+
+<div class="wallet-container">
+    <div class="wallet-header">
+        <h1 class="header-title">Wallet</h1>
+        <p class="header-subtitle">Manage your earnings and transactions</p>
+    </div>
+    
+    <div class="balance-grid">
+        <div class="balance-card">
+            <div class="balance-label">Available Balance</div>
+            <div class="balance-amount">
+                ${{ wallet.balance|floatformat:2|default:"0.00" }}
+            </div>
+        </div>
+        <div class="balance-card">
+            <div class="balance-label">Total Earned</div>
+            <div class="balance-amount">
+                ${{ wallet.total_earned|floatformat:2|default:"0.00" }}
+            </div>
+        </div>
+        <div class="balance-card">
+            <div class="balance-label">Total Withdrawn</div>
+            <div class="balance-amount">
+                ${{ wallet.total_withdrawn|floatformat:2|default:"0.00" }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="actions-grid">
+        <a href="{% url 'wallet:withdrawal_request' %}" class="action-btn">Withdraw Funds</a>
+        <a href="{% url 'wallet:withdrawal_history' %}" class="action-btn">Withdrawal History</a>
+    </div>
+    
+    <div class="section-card">
+        <div class="section-header">
+            <h3 class="section-title">Recent Transactions</h3>
+            <a href="{% url 'wallet:transaction_history' %}" class="section-link">View All →</a>
+        </div>
+        
+        {% if transactions %}
+            {% for tx in transactions %}
+            <div class="transaction-item">
+                <div class="transaction-info">
+                    <div class="transaction-title">{{ tx.description }}</div>
+                    <div class="transaction-date">{{ tx.created_at|date:"M d, Y H:i" }}</div>
+                </div>
+                <div class="transaction-amount {% if tx.transaction_type == 'credit' %}amount-credit{% else %}amount-debit{% endif %}">
+                    {% if tx.transaction_type == 'credit' %}+{% else %}-{% endif %} ${{ tx.amount|floatformat:2 }}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 40px; color: #8b949e;">
+                No transactions yet
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

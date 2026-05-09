@@ -1,0 +1,325 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse Remote IT Jobs - RadiloxRemoteJobs{% endblock %}
+
+{% block content %}
+
+<style>
+    .jobs-hero {
+        background: linear-gradient(135deg, #0d1117 0%, #151b23 100%);
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .job-card {
+        transition: all 0.3s ease;
+    }
+    
+    .job-card:hover {
+        transform: translateY(-2px);
+        border-color: #2f81f7;
+    }
+    
+    .search-input:focus {
+        box-shadow: 0 0 0 2px rgba(47, 129, 247, 0.3);
+        border-color: #2f81f7;
+    }
+    
+    .filter-select:focus {
+        border-color: #2f81f7;
+        outline: none;
+    }
+    
+    /* Company Logo with Gradient Overlay */
+    .company-logo {
+        width: 64px;
+        height: 64px;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    @media (min-width: 640px) {
+        .company-logo {
+            width: 80px;
+            height: 80px;
+        }
+    }
+    
+    .company-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Gradient overlay on logo */
+    .logo-gradient-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(47, 129, 247, 0.2) 0%, rgba(163, 113, 247, 0.1) 100%);
+        pointer-events: none;
+    }
+    
+    /* Sharp corners - no border-radius */
+    .job-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .job-card:hover {
+        border-color: #2f81f7;
+        transform: translateY(-2px);
+    }
+    
+    .search-input, .filter-select, .apply-btn, .skill-tag, .job-tag {
+        border-radius: 0;
+    }
+    
+    .rounded-card, .rounded-lg, .rounded-xl {
+        border-radius: 0;
+    }
+    
+    .company-logo {
+        border-radius: 0;
+    }
+    
+    /* Hero gradient text */
+    .gradient-text {
+        background: linear-gradient(135deg, #2f81f7 0%, #58a6ff 50%, #a371f7 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="jobs-hero py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+                Find Your <span class="gradient-text">Remote IT Job</span>
+            </h1>
+            <p class="text-base sm:text-lg text-github-fg-muted max-w-2xl mx-auto">
+                Discover thousands of remote opportunities from top tech companies worldwide
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Search and Filter Section -->
+<section class="py-8 border-b border-github-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <form method="get" class="space-y-4">
+            <div class="flex flex-col md:flex-row gap-4">
+                <!-- Search Input -->
+                <div class="flex-1">
+                    <div class="relative">
+                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-github-fg-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="text" name="q" value="{{ search_query }}" 
+                               placeholder="Job title, company, or keywords"
+                               class="search-input w-full pl-10 pr-4 py-2.5 bg-github-bg border border-github-border text-github-fg focus:outline-none focus:border-github-accent transition">
+                    </div>
+                </div>
+                
+                <!-- Job Type Filter -->
+                <select name="type" class="filter-select px-4 py-2.5 bg-github-bg border border-github-border text-github-fg-muted focus:border-github-accent transition">
+                    <option value="">All Types</option>
+                    <option value="fulltime" {% if selected_type == 'fulltime' %}selected{% endif %}>Full Time</option>
+                    <option value="freelance" {% if selected_type == 'freelance' %}selected{% endif %}>Freelance</option>
+                    <option value="parttime" {% if selected_type == 'parttime' %}selected{% endif %}>Part Time</option>
+                </select>
+                
+                <!-- Experience Level Filter -->
+                <select name="experience" class="filter-select px-4 py-2.5 bg-github-bg border border-github-border text-github-fg-muted focus:border-github-accent transition">
+                    <option value="">Experience Level</option>
+                    <option value="entry" {% if selected_experience == 'entry' %}selected{% endif %}>Entry Level</option>
+                    <option value="intermediate" {% if selected_experience == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                    <option value="senior" {% if selected_experience == 'senior' %}selected{% endif %}>Senior</option>
+                    <option value="expert" {% if selected_experience == 'expert' %}selected{% endif %}>Expert</option>
+                </select>
+                
+                <!-- Location Filter -->
+                <select name="location" class="filter-select px-4 py-2.5 bg-github-bg border border-github-border text-github-fg-muted focus:border-github-accent transition">
+                    <option value="">All Locations</option>
+                    {% for loc in unique_locations %}
+                    <option value="{{ loc }}" {% if selected_location == loc %}selected{% endif %}>{{ loc }}</option>
+                    {% endfor %}
+                </select>
+                
+                <!-- Search Button -->
+                <button type="submit" class="px-6 py-2.5 bg-github-accent text-white hover:bg-github-accent-hover transition font-medium">
+                    Search
+                </button>
+                
+                <!-- Clear Filters -->
+                {% if search_query or selected_type or selected_experience or selected_location %}
+                <a href="{% url 'jobs:list' %}" class="px-6 py-2.5 border border-github-border text-github-fg-muted hover:bg-github-border transition text-center">
+                    Clear
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Results Count -->
+<section class="py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center">
+            <p class="text-github-fg-muted text-sm">
+                Found <span class="text-white font-semibold">{{ total_jobs }}</span> jobs
+            </p>
+            <select id="sort-select" class="filter-select px-3 py-1.5 bg-github-bg border border-github-border text-github-fg-muted text-sm">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+            </select>
+        </div>
+    </div>
+</section>
+
+<!-- Job Listings -->
+<section class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if jobs %}
+            <div class="grid gap-5" id="jobs-container">
+                {% for job in jobs %}
+                <div class="job-card cursor-pointer" data-date="{{ job.created_at.isoformat }}" onclick="window.location.href='{% url 'jobs:detail' job.id %}'">
+                    <div class="p-5 sm:p-6">
+                        <div class="flex gap-4 sm:gap-5">
+                            <!-- Company Logo with Gradient Overlay -->
+                            <div class="company-logo bg-github-border flex items-center justify-center overflow-hidden flex-shrink-0">
+                                {% if job.get_image_url %}
+                                    <img src="{{ job.get_image_url }}" alt="{{ job.company }}" class="w-full h-full object-cover">
+                                    <div class="logo-gradient-overlay"></div>
+                                {% else %}
+                                    <div class="w-full h-full bg-gradient-to-br from-github-accent/20 to-purple-500/20 flex items-center justify-center">
+                                        <span class="text-2xl font-bold text-github-accent">{{ job.company|slice:":1"|upper }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Job Details -->
+                            <div class="flex-1">
+                                <!-- Header -->
+                                <div class="flex flex-wrap justify-between items-start gap-2 mb-2">
+                                    <div>
+                                        <h3 class="text-lg sm:text-xl font-semibold text-white hover:text-github-accent transition">
+                                            {{ job.title }}
+                                        </h3>
+                                        <p class="text-sm text-github-fg-muted">{{ job.company }}</p>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs font-medium whitespace-nowrap
+                                        {% if job.job_type == 'fulltime' %}bg-green-900/50 text-green-400 border border-green-800
+                                        {% elif job.job_type == 'freelance' %}bg-blue-900/50 text-blue-400 border border-blue-800
+                                        {% else %}bg-purple-900/50 text-purple-400 border border-purple-800{% endif %}">
+                                        {{ job.get_job_type_display }}
+                                    </span>
+                                </div>
+                                
+                                <!-- Job Details Meta -->
+                                <div class="flex flex-wrap gap-4 mb-3 text-sm text-github-fg-muted">
+                                    <span class="flex items-center gap-1">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                            <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                        {{ job.location }}
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 8v4l3 3M12 22a10 10 0 100-20 10 10 0 000 20z"/>
+                                        </svg>
+                                        {{ job.created_at|timesince }} ago
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                        {{ job.view_count|default:"0" }} views
+                                    </span>
+                                </div>
+                                
+                                <!-- Skills -->
+                                {% if job.skills_required %}
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    {% for skill in job.skills_required|slice:":4" %}
+                                    <span class="px-2 py-1 bg-github-border/30 text-xs text-github-fg-muted">{{ skill }}</span>
+                                    {% endfor %}
+                                    {% if job.skills_required|length > 4 %}
+                                    <span class="px-2 py-1 bg-github-border/30 text-xs text-github-fg-muted">+{{ job.skills_required|length|add:"-4" }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Description -->
+                                <p class="text-github-fg-muted text-sm mb-4 line-clamp-2">{{ job.description|truncatewords:35 }}</p>
+                                
+                                <!-- Footer -->
+                                <div class="flex justify-between items-center pt-3 border-t border-github-border">
+                                    <span class="text-github-accent font-semibold text-base">{{ job.salary_range }}</span>
+                                    <span class="inline-flex items-center text-github-accent text-sm font-medium">
+                                        View Details
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ml-1">
+                                            <path d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if jobs.has_other_pages %}
+            <div class="flex justify-center gap-2 mt-8">
+                {% if jobs.has_previous %}
+                <a href="?page={{ jobs.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_experience %}&experience={{ selected_experience }}{% endif %}" class="px-4 py-2 border border-github-border hover:bg-github-border transition text-sm">Previous</a>
+                {% endif %}
+                
+                <span class="px-4 py-2 text-github-fg-muted text-sm">Page {{ jobs.number }} of {{ jobs.paginator.num_pages }}</span>
+                
+                {% if jobs.has_next %}
+                <a href="?page={{ jobs.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_experience %}&experience={{ selected_experience }}{% endif %}" class="px-4 py-2 border border-github-border hover:bg-github-border transition text-sm">Next</a>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+        {% else %}
+            <div class="text-center py-12">
+                <svg class="w-16 h-16 mx-auto text-github-fg-muted/30 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <h3 class="text-xl font-semibold text-white mb-2">No jobs found</h3>
+                <p class="text-github-fg-muted">Try adjusting your search or filter criteria</p>
+                <a href="{% url 'jobs:list' %}" class="inline-block mt-4 text-github-accent hover:underline">Clear all filters</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+    // Sort functionality
+    const sortSelect = document.getElementById('sort-select');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            const container = document.getElementById('jobs-container');
+            const jobs = Array.from(container.children);
+            
+            jobs.sort((a, b) => {
+                const dateA = new Date(a.dataset.date);
+                const dateB = new Date(b.dataset.date);
+                return this.value === 'newest' ? dateB - dateA : dateA - dateB;
+            });
+            
+            jobs.forEach(job => container.appendChild(job));
+        });
+    }
+</script>
+
+{% endblock %}

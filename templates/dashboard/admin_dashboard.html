@@ -1,0 +1,97 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Admin Dashboard</h1>
+        <p class="text-github-fg-muted mt-1">Welcome back, {{ user.get_full_name|default:user.username }}!</p>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="stat-card p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-github-fg-muted text-sm">Total Users</p>
+                    <p class="text-2xl font-bold text-white mt-1">{{ total_users }}</p>
+                </div>
+                <i class="fas fa-users text-github-accent text-2xl"></i>
+            </div>
+        </div>
+        
+        <div class="stat-card p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-github-fg-muted text-sm">Active Jobs</p>
+                    <p class="text-2xl font-bold text-white mt-1">{{ active_jobs }}</p>
+                </div>
+                <i class="fas fa-briefcase text-success text-2xl"></i>
+            </div>
+        </div>
+        
+        <div class="stat-card p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-github-fg-muted text-sm">Applications</p>
+                    <p class="text-2xl font-bold text-white mt-1">{{ pending_applications }}</p>
+                </div>
+                <i class="fas fa-file-alt text-warning text-2xl"></i>
+            </div>
+        </div>
+        
+        <div class="stat-card p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-github-fg-muted text-sm">Freelancers</p>
+                    <p class="text-2xl font-bold text-white mt-1">{{ total_freelancers }}</p>
+                </div>
+                <i class="fas fa-user-check text-purple-500 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Applications Table -->
+    <div class="bg-github-card border border-github-border rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-github-border">
+            <h3 class="font-semibold text-white">Recent Applications</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-github-bg-secondary">
+                    <tr>
+                        <th class="text-left px-5 py-3 text-github-fg-muted text-sm">Applicant</th>
+                        <th class="text-left px-5 py-3 text-github-fg-muted text-sm">Job</th>
+                        <th class="text-left px-5 py-3 text-github-fg-muted text-sm">Status</th>
+                        <th class="text-left px-5 py-3 text-github-fg-muted text-sm">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in recent_applications %}
+                    <tr class="border-t border-github-border hover:bg-github-border/20">
+                        <td class="px-5 py-3 text-white">{{ app.user.get_full_name|default:app.user.username }}</td>
+                        <td class="px-5 py-3 text-github-fg-muted">{{ app.job.title|truncatechars:30 }}</td>
+                        <td class="px-5 py-3">
+                            <span class="badge 
+                                {% if app.status == 'pending' %}badge-warning
+                                {% elif app.status == 'approved' %}badge-info
+                                {% elif app.status == 'hired' %}badge-success
+                                {% elif app.status == 'rejected' %}badge-danger
+                                {% else %}badge-info{% endif %}">
+                                {{ app.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-3 text-github-fg-muted">{{ app.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-8 text-github-fg-muted">No applications yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

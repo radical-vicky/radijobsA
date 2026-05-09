@@ -1,0 +1,94 @@
+{% extends 'base_auth.html' %}
+
+{% block title %}Sign up to RadiloxRemoteJobs{% endblock %}
+
+{% block content %}
+
+<div class="auth-logo">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="48" rx="12" fill="url(#gradient)"/>
+        <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#2f81f7"/>
+                <stop offset="100%" style="stop-color:#a371f7"/>
+            </linearGradient>
+        </defs>
+        <path d="M24 14L34 21L24 28L14 21L24 14Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M34 21V28L24 35L14 28V21" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M24 28V35" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+</div>
+
+<div class="auth-form">
+    <h1 class="auth-heading">Sign up to RadiloxRemoteJobs</h1>
+    <p class="auth-subheading">Create your account to start finding remote IT jobs</p>
+
+    <div id="js-flash-container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="flash flash-full {% if message.tags == 'error' %}flash-error{% endif %}">
+                <button class="flash-close js-flash-close" type="button" aria-label="Dismiss this message">
+                    <svg aria-hidden="true" class="octicon octicon-x" height="16" viewBox="0 0 16 16" version="1.1" width="16">
+                        <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"></path>
+                    </svg>
+                </button>
+                <div aria-atomic="true" role="alert">{{ message }}</div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <form method="post" action="{% url 'account_signup' %}">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="email">Email address</label>
+            <input type="email" name="email" id="email" class="form-control" placeholder="you@example.com" required />
+            {% if form.email.errors %}<div class="error-message">{{ form.email.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username" class="form-control" placeholder="Choose a username" required />
+            {% if form.username.errors %}<div class="error-message">{{ form.username.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="password1">Password</label>
+            <input type="password" name="password1" id="password1" class="form-control" placeholder="Create a password" required />
+            {% if form.password1.errors %}<div class="error-message">{{ form.password1.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="password2">Confirm password</label>
+            <input type="password" name="password2" id="password2" class="form-control" placeholder="Confirm your password" required />
+            {% if form.password2.errors %}<div class="error-message">{{ form.password2.errors.0 }}</div>{% endif %}
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="flash flash-full flash-error">
+            {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <button type="submit" class="btn">Sign up</button>
+        </div>
+    </form>
+    
+    <div class="auth-create-account">
+        <p>By creating an account, you agree to our <a href="{% url 'home:terms' %}">Terms of Service</a> and <a href="{% url 'home:privacy' %}">Privacy Policy</a>.</p>
+    </div>
+</div>
+
+<div class="auth-footer">
+    Already have an account? <a href="{% url 'account_login' %}">Sign in</a>
+</div>
+
+<script>
+    document.querySelectorAll('.flash-close').forEach(btn => {
+        btn.addEventListener('click', () => btn.closest('.flash').remove());
+    });
+</script>
+
+{% endblock %}

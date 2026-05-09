@@ -1,0 +1,374 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Apply for {{ job.title }}{% endblock %}
+
+{% block content %}
+
+<style>
+    .apply-container {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    /* Header */
+    .apply-header {
+        margin-bottom: 24px;
+    }
+    
+    .apply-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .apply-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    /* Back Link */
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 13px;
+    }
+    
+    .back-link:hover {
+        color: #2f81f7;
+    }
+    
+    /* Job Info Card */
+    .job-info-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        margin-bottom: 24px;
+        padding: 20px;
+    }
+    
+    .job-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .job-company {
+        font-size: 14px;
+        color: #8b949e;
+        margin-bottom: 4px;
+    }
+    
+    .job-location {
+        font-size: 13px;
+        color: #6e7681;
+        margin-bottom: 12px;
+    }
+    
+    .job-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+    }
+    
+    .job-tag {
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 500;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #8b949e;
+    }
+    
+    /* Application Form */
+    .application-form {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 24px;
+    }
+    
+    .form-section {
+        margin-bottom: 24px;
+    }
+    
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .form-label .required {
+        color: #f85149;
+    }
+    
+    .form-input, .form-textarea, .form-select {
+        width: 100%;
+        padding: 10px 12px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+        font-size: 13px;
+    }
+    
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+        outline: none;
+        border-color: #2f81f7;
+    }
+    
+    .form-textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+    
+    .help-text {
+        font-size: 11px;
+        color: #6e7681;
+        margin-top: 4px;
+    }
+    
+    .error-text {
+        font-size: 11px;
+        color: #f85149;
+        margin-top: 4px;
+    }
+    
+    /* File Upload */
+    .file-input {
+        padding: 8px 0;
+    }
+    
+    .file-info {
+        font-size: 11px;
+        color: #6e7681;
+        margin-top: 4px;
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #2d2f36;
+    }
+    
+    .btn-submit {
+        padding: 10px 24px;
+        background: #2f81f7;
+        border: none;
+        color: white;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-submit:hover {
+        background: #58a6ff;
+    }
+    
+    .btn-cancel {
+        padding: 10px 24px;
+        background: #21262d;
+        border: 1px solid #3d444d;
+        color: #e6edf3;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        transition: all 0.2s;
+    }
+    
+    .btn-cancel:hover {
+        background: #2d2f36;
+        border-color: #2f81f7;
+        color: #2f81f7;
+    }
+    
+    /* Note */
+    .note-box {
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        padding: 12px 16px;
+        margin-top: 16px;
+    }
+    
+    .note-text {
+        font-size: 12px;
+        color: #8b949e;
+        line-height: 1.5;
+    }
+    
+    /* Responsive */
+    @media (max-width: 640px) {
+        .apply-container {
+            padding: 0;
+        }
+        
+        .job-info-card, .application-form {
+            padding: 16px;
+        }
+        
+        .apply-title {
+            font-size: 20px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-submit, .btn-cancel {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="apply-container">
+    <!-- Back Link -->
+    <a href="{% url 'jobs:dashboard_job_detail' job.id %}" class="back-link">
+        ← Back to Job Details
+    </a>
+    
+    <!-- Header -->
+    <div class="apply-header">
+        <h1 class="apply-title">Apply for this position</h1>
+        <p class="apply-subtitle">Complete the form below to submit your application</p>
+    </div>
+    
+    <!-- Job Info Card -->
+    <div class="job-info-card">
+        <h2 class="job-title">{{ job.title }}</h2>
+        <div class="job-company">{{ job.company }}</div>
+        <div class="job-location">{{ job.location }}</div>
+        <div class="job-tags">
+            <span class="job-tag">{{ job.get_job_type_display }}</span>
+            <span class="job-tag">{{ job.get_experience_level_display }}</span>
+            <span class="job-tag">{{ job.salary_range }}</span>
+        </div>
+    </div>
+    
+    <!-- Application Form -->
+    <div class="application-form">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h3 class="section-title">Personal Information</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name <span class="required">*</span></label>
+                    <input type="text" name="full_name" class="form-input" value="{{ user.get_full_name|default:user.username }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Address <span class="required">*</span></label>
+                    <input type="email" name="email" class="form-input" value="{{ user.email }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" name="phone_number" class="form-input" placeholder="e.g., 0712345678" value="{{ user.phone_number|default:'' }}">
+                    <div class="help-text">Optional but recommended for interview scheduling</div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3 class="section-title">Application Details</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Cover Letter <span class="required">*</span></label>
+                    <textarea name="cover_letter" class="form-textarea" placeholder="Tell us why you're the best candidate for this position..." required></textarea>
+                    <div class="help-text">Include your relevant experience, skills, and why you're interested in this role</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Resume / CV <span class="required">*</span></label>
+                    <input type="file" name="resume" class="form-input file-input" accept=".pdf,.doc,.docx" required>
+                    <div class="file-info">Accepted formats: PDF, DOC, DOCX (Max 5MB)</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Portfolio / GitHub Link</label>
+                    <input type="url" name="portfolio_url" class="form-input" placeholder="https://github.com/yourusername">
+                    <div class="help-text">Share your GitHub, portfolio, or any relevant work samples</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">LinkedIn Profile</label>
+                    <input type="url" name="linkedin_url" class="form-input" placeholder="https://linkedin.com/in/yourusername">
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3 class="section-title">Additional Information</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Years of Experience</label>
+                    <select name="years_experience" class="form-select">
+                        <option value="">Select experience level</option>
+                        <option value="0-1">Less than 1 year</option>
+                        <option value="1-3">1 - 3 years</option>
+                        <option value="3-5">3 - 5 years</option>
+                        <option value="5-10">5 - 10 years</option>
+                        <option value="10+">10+ years</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Notice Period</label>
+                    <select name="notice_period" class="form-select">
+                        <option value="">Select notice period</option>
+                        <option value="immediate">Immediate</option>
+                        <option value="1-week">1 week</option>
+                        <option value="2-weeks">2 weeks</option>
+                        <option value="1-month">1 month</option>
+                        <option value="2-months">2 months</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Additional Notes</label>
+                    <textarea name="additional_notes" class="form-textarea" placeholder="Any other information you'd like to share..."></textarea>
+                </div>
+            </div>
+            
+            <div class="note-box">
+                <p class="note-text">
+                    By submitting this application, you confirm that all information provided is accurate and complete.
+                    Your application will be reviewed by our hiring team, and we will contact you if you are shortlisted.
+                </p>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Submit Application</button>
+                <a href="{% url 'jobs:dashboard_job_detail' job.id %}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

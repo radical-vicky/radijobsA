@@ -1,0 +1,217 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}M-Pesa Subscription - RadiloxRemoteJobs{% endblock %}
+
+{% block content %}
+
+<style>
+    .mpesa-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 20px;
+    }
+    
+    .mpesa-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        max-width: 500px;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+    
+    .mpesa-header {
+        padding: 32px 24px;
+        text-align: center;
+        border-bottom: 1px solid #2d2f36;
+        background: #0d1117;
+    }
+    
+    .mpesa-logo {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 16px;
+        background: #2f81f7;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+    }
+    
+    .price {
+        font-size: 48px;
+        font-weight: 700;
+        color: #e6edf3;
+    }
+    
+    .price-period {
+        font-size: 14px;
+        color: #8b949e;
+    }
+    
+    .mpesa-form {
+        padding: 24px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+        font-size: 14px;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #2f81f7;
+    }
+    
+    .help-text {
+        font-size: 11px;
+        color: #8b949e;
+        margin-top: 4px;
+    }
+    
+    .pay-btn {
+        width: 100%;
+        padding: 14px;
+        background: #2f81f7;
+        border: none;
+        color: white;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .pay-btn:hover {
+        background: #58a6ff;
+    }
+    
+    .pay-btn:disabled {
+        background: #21262d;
+        cursor: not-allowed;
+    }
+    
+    .features {
+        padding: 24px;
+        border-top: 1px solid #2d2f36;
+    }
+    
+    .feature {
+        padding: 8px 0;
+        font-size: 13px;
+        color: #e6edf3;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .feature:last-child {
+        border-bottom: none;
+    }
+    
+    .info-box {
+        background: rgba(47, 129, 247, 0.05);
+        border: 1px solid rgba(47, 129, 247, 0.2);
+        padding: 12px;
+        margin-top: 16px;
+        font-size: 12px;
+        color: #8b949e;
+        text-align: center;
+    }
+    
+    @media (max-width: 640px) {
+        .mpesa-container {
+            padding: 12px;
+        }
+        
+        .price {
+            font-size: 36px;
+        }
+        
+        .mpesa-header {
+            padding: 24px 16px;
+        }
+        
+        .mpesa-form, .features {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="mpesa-container">
+    <div class="mpesa-card">
+        <div class="mpesa-header">
+            <div class="mpesa-logo">
+                📱
+            </div>
+            <div class="price">
+                KES {{ subscription_price }}<span class="price-period">/month</span>
+            </div>
+            <p style="font-size: 13px; color: #8b949e; margin-top: 8px;">Pay securely with M-Pesa</p>
+        </div>
+        
+        <div class="mpesa-form">
+            <form method="post" id="mpesaForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">M-Pesa Phone Number</label>
+                    <input type="tel" name="phone_number" id="phone_number" class="form-input" 
+                           placeholder="0712345678" required>
+                    <div class="help-text">Enter your Safaricom M-Pesa registered phone number</div>
+                </div>
+                <button type="submit" id="payBtn" class="pay-btn">
+                    Pay KES {{ subscription_price }} via M-Pesa
+                </button>
+            </form>
+            <div class="info-box">
+                <strong>How it works:</strong><br>
+                1. Enter your M-Pesa phone number<br>
+                2. Click the button above<br>
+                3. Check your phone for the STK push<br>
+                4. Enter your M-Pesa PIN to complete payment<br>
+                5. Your subscription will be activated instantly
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature">Unlimited job applications</div>
+            <div class="feature">Premium job listings access</div>
+            <div class="feature">Priority support</div>
+            <div class="feature">Application tracking</div>
+            <div class="feature">Cancel anytime</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('mpesaForm').addEventListener('submit', function(e) {
+        const phone = document.getElementById('phone_number').value;
+        // Validate Kenyan phone number
+        const phoneRegex = /^(07|01|2547|2541)\d{8}$/;
+        
+        if (!phoneRegex.test(phone) && !phone.match(/^[0-9]{10,12}$/)) {
+            e.preventDefault();
+            alert('Please enter a valid Safaricom phone number (e.g., 0712345678)');
+            return false;
+        }
+        
+        const btn = document.getElementById('payBtn');
+        btn.disabled = true;
+        btn.innerHTML = 'Sending STK Push... Please check your phone';
+    });
+</script>
+
+{% endblock %}

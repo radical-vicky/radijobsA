@@ -1,0 +1,123 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}My Quizzes{% endblock %}
+
+{% block content %}
+
+<style>
+    .quiz-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .quiz-header {
+        margin-bottom: 24px;
+    }
+    
+    .header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .header-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .quiz-list {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
+    .quiz-item {
+        padding: 16px 20px;
+        border-bottom: 1px solid #2d2f36;
+        transition: background 0.2s;
+        cursor: pointer;
+    }
+    
+    .quiz-item:last-child {
+        border-bottom: none;
+    }
+    
+    .quiz-item:hover {
+        background: #1a1f2e;
+    }
+    
+    .quiz-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .quiz-company {
+        font-size: 12px;
+        color: #8b949e;
+        margin-bottom: 8px;
+    }
+    
+    .quiz-score {
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 4px;
+    }
+    
+    .score-pass {
+        color: #3fb950;
+    }
+    
+    .score-fail {
+        color: #f85149;
+    }
+    
+    .quiz-date {
+        font-size: 11px;
+        color: #6e7681;
+        margin-top: 4px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: #8b949e;
+    }
+    
+    @media (max-width: 640px) {
+        .header-title {
+            font-size: 20px;
+        }
+    }
+</style>
+
+<div class="quiz-container">
+    <div class="quiz-header">
+        <h1 class="header-title">My Quizzes</h1>
+        <p class="header-subtitle">View your quiz results and performance</p>
+    </div>
+    
+    <div class="quiz-list">
+        {% if quizzes %}
+            {% for quiz in quizzes %}
+            <div class="quiz-item" onclick="window.location.href='/quiz/result/{{ quiz.application.id }}/'">
+                <div class="quiz-title">{{ quiz.application.job.title }}</div>
+                <div class="quiz-company">{{ quiz.application.job.company }}</div>
+                <div class="quiz-score {% if quiz.passed %}score-pass{% else %}score-fail{% endif %}">
+                    Score: {{ quiz.score }}% {% if quiz.passed %}(Passed){% else %}(Failed){% endif %}
+                </div>
+                <div class="quiz-date">Completed: {{ quiz.completed_at|date:"M d, Y H:i" }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-text">No quizzes taken yet</div>
+                <div class="empty-subtext">When your application is approved, you'll receive a notification to take the quiz</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,481 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Admin - Applications{% endblock %}
+
+{% block content %}
+
+<style>
+    .admin-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    /* Header */
+    .page-header {
+        margin-bottom: 24px;
+    }
+    
+    .page-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .page-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .stat-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 16px;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Filters */
+    .filters-bar {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 16px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: flex-end;
+    }
+    
+    .filter-group {
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .filter-label {
+        display: block;
+        font-size: 11px;
+        color: #8b949e;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+    }
+    
+    .filter-select, .filter-input {
+        width: 100%;
+        padding: 8px 12px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+        font-size: 13px;
+    }
+    
+    .filter-select:focus, .filter-input:focus {
+        outline: none;
+        border-color: #2f81f7;
+    }
+    
+    .search-btn, .reset-btn {
+        padding: 8px 20px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+    }
+    
+    .search-btn {
+        background: #2f81f7;
+        color: white;
+    }
+    
+    .search-btn:hover {
+        background: #58a6ff;
+    }
+    
+    .reset-btn {
+        background: #21262d;
+        border: 1px solid #3d444d;
+        color: #e6edf3;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .reset-btn:hover {
+        background: #2d2f36;
+        border-color: #2f81f7;
+    }
+    
+    /* Table */
+    .applications-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
+    .applications-table th {
+        text-align: left;
+        padding: 14px 16px;
+        background: #0d1117;
+        color: #8b949e;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .applications-table td {
+        padding: 14px 16px;
+        color: #e6edf3;
+        font-size: 13px;
+        border-bottom: 1px solid #2d2f36;
+        vertical-align: middle;
+    }
+    
+    .applications-table tr:hover {
+        background: #1a1f2e;
+    }
+    
+    /* Status Badges */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 500;
+    }
+    
+    .status-pending {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .status-approved {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-interview {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-hired {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .status-rejected {
+        background: rgba(248, 81, 73, 0.1);
+        color: #f85149;
+        border: 1px solid rgba(248, 81, 73, 0.3);
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .action-btn {
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-view {
+        background: #21262d;
+        border: 1px solid #3d444d;
+        color: #e6edf3;
+    }
+    
+    .btn-view:hover {
+        background: #2d2f36;
+        border-color: #2f81f7;
+    }
+    
+    .btn-approve {
+        background: rgba(47, 129, 247, 0.1);
+        border: 1px solid rgba(47, 129, 247, 0.3);
+        color: #2f81f7;
+    }
+    
+    .btn-approve:hover {
+        background: rgba(47, 129, 247, 0.2);
+    }
+    
+    .btn-reject {
+        background: rgba(248, 81, 73, 0.1);
+        border: 1px solid rgba(248, 81, 73, 0.3);
+        color: #f85149;
+    }
+    
+    .btn-reject:hover {
+        background: rgba(248, 81, 73, 0.2);
+    }
+    
+    .btn-schedule {
+        background: rgba(210, 153, 34, 0.1);
+        border: 1px solid rgba(210, 153, 34, 0.3);
+        color: #d29922;
+    }
+    
+    .btn-schedule:hover {
+        background: rgba(210, 153, 34, 0.2);
+    }
+    
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 20px;
+        padding: 16px 0;
+    }
+    
+    .page-link {
+        padding: 8px 14px;
+        border: 1px solid #2d2f36;
+        background: #0d1117;
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 13px;
+    }
+    
+    .page-link:hover {
+        border-color: #2f81f7;
+        color: #2f81f7;
+    }
+    
+    .page-current {
+        padding: 8px 14px;
+        background: #2f81f7;
+        color: white;
+        font-size: 13px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 900px) {
+        .stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .applications-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .stat-number {
+            font-size: 22px;
+        }
+        
+        .filters-bar {
+            flex-direction: column;
+        }
+        
+        .filter-group {
+            width: 100%;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="admin-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="page-title">Applications</h1>
+        <p class="page-subtitle">Manage job applications from applicants</p>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.total|default:"0" }}</div>
+            <div class="stat-label">TOTAL</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.pending|default:"0" }}</div>
+            <div class="stat-label">PENDING</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.approved|default:"0" }}</div>
+            <div class="stat-label">APPROVED</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.interview|default:"0" }}</div>
+            <div class="stat-label">INTERVIEW</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.hired|default:"0" }}</div>
+            <div class="stat-label">HIRED</div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="filters-bar">
+        <div class="filter-group">
+            <label class="filter-label">STATUS</label>
+            <select name="status" class="filter-select" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="interview_scheduled">Interview Scheduled</option>
+                <option value="hired">Hired</option>
+                <option value="rejected">Rejected</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label class="filter-label">SEARCH</label>
+            <input type="text" name="search" class="filter-input" id="searchInput" placeholder="Applicant name or job title">
+        </div>
+        <div class="filter-group">
+            <label class="filter-label">&nbsp;</label>
+            <button class="search-btn" id="searchBtn">Search</button>
+        </div>
+        <div class="filter-group">
+            <label class="filter-label">&nbsp;</label>
+            <a href="{% url 'application:admin_applications' %}" class="reset-btn">Reset</a>
+        </div>
+    </div>
+    
+    <!-- Applications Table -->
+    <table class="applications-table">
+        <thead>
+            <tr>
+                <th>Applicant</th>
+                <th>Job Title</th>
+                <th>Company</th>
+                <th>Applied Date</th>
+                <th>Status</th>
+                <th>Quiz Score</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if applications %}
+                {% for app in applications %}
+                <tr>
+                    <td>
+                        <strong>{{ app.user.get_full_name|default:app.user.username }}</strong><br>
+                        <span style="font-size: 11px; color: #8b949e;">{{ app.user.email }}</span>
+                    </td>
+                    <td>{{ app.job.title }}</td>
+                    <td>{{ app.job.company }}</td>
+                    <td>{{ app.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <span class="status-badge status-{{ app.status }}">
+                            {{ app.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if app.quiz_score %}
+                            <span style="color: #2f81f7; font-weight: 500;">{{ app.quiz_score }}%</span>
+                        {% else %}
+                            <span style="color: #6e7681;">Not taken</span>
+                        {% endif %}
+                    </td>
+                    <td class="action-buttons">
+                        <a href="{% url 'application:admin_application_detail' app.id %}" class="action-btn btn-view">View</a>
+                        {% if app.status == 'pending' %}
+                            <a href="{% url 'application:admin_approve' app.id %}" class="action-btn btn-approve">Approve</a>
+                            <a href="{% url 'application:admin_reject' app.id %}" class="action-btn btn-reject">Reject</a>
+                        {% endif %}
+                        {% if app.status == 'approved' %}
+                            <a href="{% url 'application:admin_schedule_interview' app.id %}" class="action-btn btn-schedule">Schedule Interview</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 48px; color: #8b949e;">
+                        No applications found
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    
+    <!-- Pagination -->
+    {% if applications.has_other_pages %}
+    <div class="pagination">
+        {% if applications.has_previous %}
+        <a href="?page={{ applications.previous_page_number }}" class="page-link">Previous</a>
+        {% endif %}
+        <span class="page-current">{{ applications.number }}</span>
+        {% if applications.has_next %}
+        <a href="?page={{ applications.next_page_number }}" class="page-link">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Filter functionality
+    const statusFilter = document.getElementById('statusFilter');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    
+    function applyFilters() {
+        const status = statusFilter.value;
+        const search = searchInput.value;
+        let url = window.location.pathname + '?';
+        
+        if (status) url += 'status=' + status + '&';
+        if (search) url += 'search=' + encodeURIComponent(search);
+        
+        window.location.href = url;
+    }
+    
+    searchBtn.addEventListener('click', applyFilters);
+    
+    // Enter key search
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            applyFilters();
+        }
+    });
+</script>
+
+{% endblock %}

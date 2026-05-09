@@ -1,0 +1,204 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}My Tasks{% endblock %}
+
+{% block content %}
+
+<style>
+    .tasks-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .tasks-header {
+        margin-bottom: 24px;
+    }
+    
+    .header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .header-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .stat-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 16px;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+        color: #8b949e;
+        text-transform: uppercase;
+    }
+    
+    .tasks-list {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
+    .task-item {
+        padding: 16px 20px;
+        border-bottom: 1px solid #2d2f36;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .task-item:last-child {
+        border-bottom: none;
+    }
+    
+    .task-item:hover {
+        background: #1a1f2e;
+    }
+    
+    .task-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .task-description {
+        font-size: 13px;
+        color: #8b949e;
+        margin-bottom: 8px;
+    }
+    
+    .task-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 8px;
+    }
+    
+    .task-budget {
+        font-size: 14px;
+        font-weight: 600;
+        color: #2f81f7;
+    }
+    
+    .task-deadline {
+        font-size: 11px;
+        color: #6e7681;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 500;
+        border-radius: 20px;
+    }
+    
+    .status-assigned {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-in_progress {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .status-submitted {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-paid {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: #8b949e;
+    }
+    
+    @media (max-width: 640px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .header-title {
+            font-size: 20px;
+        }
+    }
+</style>
+
+<div class="tasks-container">
+    <div class="tasks-header">
+        <h1 class="header-title">My Tasks</h1>
+        <p class="header-subtitle">Manage your assigned tasks and track progress</p>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ assigned_tasks.count|default:"0" }}</div>
+            <div class="stat-label">ASSIGNED</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ in_progress_tasks.count|default:"0" }}</div>
+            <div class="stat-label">IN PROGRESS</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ submitted_tasks.count|default:"0" }}</div>
+            <div class="stat-label">SUBMITTED</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ completed_tasks.count|default:"0" }}</div>
+            <div class="stat-label">COMPLETED</div>
+        </div>
+    </div>
+    
+    <div class="tasks-list">
+        {% if assigned_tasks %}
+            {% for task in assigned_tasks %}
+            <div class="task-item" onclick="window.location.href='/tasks/{{ task.id }}/'">
+                <div class="task-title">{{ task.title }}</div>
+                <div class="task-description">{{ task.description|truncatewords:30 }}</div>
+                <div class="task-footer">
+                    <span class="task-budget">${{ task.budget_amount }}</span>
+                    <span class="status-badge status-{{ task.status }}">{{ task.get_status_display }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-text">No tasks assigned yet</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

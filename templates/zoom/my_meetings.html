@@ -1,0 +1,136 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}My Meetings{% endblock %}
+
+{% block content %}
+
+<style>
+    .meetings-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .meetings-header {
+        margin-bottom: 24px;
+    }
+    
+    .header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .header-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .meetings-list {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
+    .meeting-item {
+        padding: 16px 20px;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .meeting-item:last-child {
+        border-bottom: none;
+    }
+    
+    .meeting-type {
+        display: inline-block;
+        padding: 2px 8px;
+        font-size: 10px;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    
+    .type-interview {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .type-onboarding {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .meeting-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .meeting-datetime {
+        font-size: 12px;
+        color: #8b949e;
+        margin-bottom: 8px;
+    }
+    
+    .join-btn {
+        display: inline-block;
+        padding: 8px 16px;
+        background: #2f81f7;
+        color: white;
+        text-decoration: none;
+        font-size: 12px;
+        margin-top: 8px;
+        border-radius: 4px;
+    }
+    
+    .join-btn:hover {
+        background: #58a6ff;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: #8b949e;
+    }
+    
+    @media (max-width: 640px) {
+        .header-title {
+            font-size: 20px;
+        }
+    }
+</style>
+
+<div class="meetings-container">
+    <div class="meetings-header">
+        <h1 class="header-title">My Meetings</h1>
+        <p class="header-subtitle">Join your scheduled Zoom interviews and onboarding sessions</p>
+    </div>
+    
+    <div class="meetings-list">
+        {% if meetings %}
+            {% for meeting in meetings %}
+            <div class="meeting-item">
+                <div>
+                    <span class="meeting-type type-{{ meeting.type|lower }}">
+                        {{ meeting.type }}
+                    </span>
+                </div>
+                <div class="meeting-title">{{ meeting.title }}</div>
+                <div class="meeting-datetime">
+                    {{ meeting.start_time|date:"M d, Y H:i" }} - {{ meeting.duration }} minutes
+                </div>
+                <a href="{{ meeting.join_url }}" target="_blank" class="join-btn">Join Meeting</a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-text">No meetings scheduled</div>
+                <div class="empty-subtext">When your application is approved and interview is scheduled, you'll see meetings here</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,477 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Subscribe - RadiloxRemoteJobs{% endblock %}
+
+{% block content %}
+
+<style>
+    .subscription-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 20px;
+    }
+    
+    .pricing-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        max-width: 500px;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+    
+    .pricing-header {
+        padding: 32px 24px;
+        text-align: center;
+        border-bottom: 1px solid #2d2f36;
+        background: #0d1117;
+    }
+    
+    .price {
+        font-size: 48px;
+        font-weight: 700;
+        color: #e6edf3;
+    }
+    
+    .price-period {
+        font-size: 14px;
+        color: #8b949e;
+    }
+    
+    .price-note {
+        font-size: 12px;
+        color: #6e7681;
+        margin-top: 8px;
+    }
+    
+    .payment-methods {
+        padding: 24px;
+    }
+    
+    .payment-method {
+        margin-bottom: 16px;
+        border: 1px solid #2d2f36;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .payment-method:hover {
+        border-color: #2f81f7;
+        background: #1a1f2e;
+    }
+    
+    .payment-method.selected {
+        border-color: #2f81f7;
+        background: rgba(47, 129, 247, 0.1);
+    }
+    
+    .payment-method-radio {
+        display: none;
+    }
+    
+    .payment-method-label {
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        cursor: pointer;
+    }
+    
+    .payment-method-icon {
+        width: 48px;
+        height: 48px;
+        background: #0d1117;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 16px;
+        flex-shrink: 0;
+    }
+    
+    .payment-method-icon svg {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .payment-method-info {
+        flex: 1;
+    }
+    
+    .payment-method-name {
+        font-size: 15px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .payment-method-desc {
+        font-size: 11px;
+        color: #8b949e;
+    }
+    
+    .payment-method-check {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid #3d444d;
+        background: #0d1117;
+        flex-shrink: 0;
+    }
+    
+    .payment-method.selected .payment-method-check {
+        border-color: #2f81f7;
+        background: #2f81f7;
+        position: relative;
+    }
+    
+    .payment-method.selected .payment-method-check::after {
+        content: '✓';
+        color: white;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+    
+    /* M-Pesa Form */
+    .mpesa-form {
+        padding: 0 24px 24px 24px;
+        border-top: 1px solid #2d2f36;
+        display: none;
+    }
+    
+    .mpesa-form.show {
+        display: block;
+    }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+        font-size: 14px;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #2f81f7;
+    }
+    
+    .help-text {
+        font-size: 11px;
+        color: #8b949e;
+        margin-top: 4px;
+    }
+    
+    .subscribe-section {
+        padding: 24px;
+        border-top: 1px solid #2d2f36;
+    }
+    
+    .subscribe-btn {
+        width: 100%;
+        padding: 14px 24px;
+        background: #2f81f7;
+        border: none;
+        color: white;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .subscribe-btn:hover {
+        background: #58a6ff;
+    }
+    
+    .subscribe-btn:disabled {
+        background: #21262d;
+        cursor: not-allowed;
+    }
+    
+    .features-list {
+        padding: 24px;
+        border-top: 1px solid #2d2f36;
+    }
+    
+    .feature-item {
+        padding: 10px 0;
+        font-size: 13px;
+        color: #e6edf3;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .feature-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-box {
+        background: rgba(47, 129, 247, 0.05);
+        border: 1px solid rgba(47, 129, 247, 0.2);
+        padding: 12px;
+        margin-top: 16px;
+        font-size: 12px;
+        color: #8b949e;
+        text-align: center;
+    }
+    
+    /* Merchant Info Row */
+    .merchant-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #2d2f36;
+        font-size: 12px;
+    }
+    
+    .merchant-label {
+        color: #8b949e;
+    }
+    
+    .merchant-value {
+        color: #e6edf3;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 640px) {
+        .subscription-container {
+            padding: 12px;
+        }
+        
+        .price {
+            font-size: 36px;
+        }
+        
+        .pricing-header {
+            padding: 24px 16px;
+        }
+        
+        .payment-methods, .mpesa-form, .subscribe-section, .features-list {
+            padding: 20px;
+        }
+        
+        .payment-method-icon {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .payment-method-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .payment-method-name {
+            font-size: 14px;
+        }
+    }
+</style>
+
+<div class="subscription-container">
+    <div class="pricing-card">
+        <div class="pricing-header">
+            <div class="price">
+                ${{ price }}<span class="price-period">/month</span>
+            </div>
+            <div class="price-note">or KES {{ price_kes }}/month via M-Pesa</div>
+        </div>
+        
+        <form method="post" id="subscriptionForm">
+            {% csrf_token %}
+            
+            <div class="payment-methods">
+                <!-- M-Pesa Payment Method -->
+                <div class="payment-method" data-method="mpesa">
+                    <label class="payment-method-label">
+                        <input type="radio" name="payment_method" value="mpesa" class="payment-method-radio" checked>
+                        <div class="payment-method-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="2" y="4" width="20" height="16" rx="2" stroke="#2f81f7" stroke-width="1.5" fill="none"/>
+                                <path d="M8 10h8" stroke="#2f81f7" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M12 6v4" stroke="#2f81f7" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M16 14h-8" stroke="#2f81f7" stroke-width="1.5" stroke-linecap="round"/>
+                                <circle cx="8" cy="14" r="1" fill="#2f81f7"/>
+                                <circle cx="16" cy="14" r="1" fill="#2f81f7"/>
+                            </svg>
+                        </div>
+                        <div class="payment-method-info">
+                            <div class="payment-method-name">M-Pesa</div>
+                            <div class="payment-method-desc">Pay using Safaricom M-Pesa (KES {{ price_kes }})</div>
+                        </div>
+                        <div class="payment-method-check"></div>
+                    </label>
+                </div>
+                
+                <!-- PayPal Payment Method -->
+                <div class="payment-method" data-method="paypal">
+                    <label class="payment-method-label">
+                        <input type="radio" name="payment_method" value="paypal" class="payment-method-radio">
+                        <div class="payment-method-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 12h10M7 8h6" stroke="#2f81f7" stroke-width="1.5" stroke-linecap="round"/>
+                                <rect x="3" y="4" width="18" height="16" rx="2" stroke="#2f81f7" stroke-width="1.5" fill="none"/>
+                                <path d="M10 16h4" stroke="#2f81f7" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="payment-method-info">
+                            <div class="payment-method-name">PayPal</div>
+                            <div class="payment-method-desc">Pay using PayPal (${{ price }})</div>
+                        </div>
+                        <div class="payment-method-check"></div>
+                    </label>
+                </div>
+                
+                <!-- Bank Transfer Payment Method - With Bank Icon -->
+                <div class="payment-method" data-method="bank">
+                    <label class="payment-method-label">
+                        <input type="radio" name="payment_method" value="bank" class="payment-method-radio">
+                        <div class="payment-method-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="2" y="8" width="20" height="14" rx="1" stroke="#2f81f7" stroke-width="1.5" fill="none"/>
+                                <path d="M12 12v4" stroke="#2f81f7" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M6 4h12" stroke="#2f81f7" stroke-width="1.5" stroke-linecap="round"/>
+                                <circle cx="12" cy="12" r="1" fill="#2f81f7"/>
+                                <path d="M4 8h16" stroke="#2f81f7" stroke-width="1" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="payment-method-info">
+                            <div class="payment-method-name">Bank Transfer</div>
+                            <div class="payment-method-desc">Pay via bank transfer (${{ price }})</div>
+                        </div>
+                        <div class="payment-method-check"></div>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- M-Pesa Form -->
+            <div id="mpesaForm" class="mpesa-form show">
+                <div class="form-group">
+                    <label class="form-label">M-Pesa Phone Number</label>
+                    <input type="tel" name="phone_number" id="phone_number" class="form-input" 
+                           placeholder="0712345678">
+                    <div class="help-text">Enter your Safaricom M-Pesa registered phone number</div>
+                </div>
+                
+                <!-- Merchant Details -->
+                <div class="merchant-row">
+                    <span class="merchant-label">Pay Bill Number:</span>
+                    <span class="merchant-value">174379</span>
+                </div>
+                <div class="merchant-row">
+                    <span class="merchant-label">Account Number:</span>
+                    <span class="merchant-value">RadiloxRemote</span>
+                </div>
+                
+                <div class="info-box">
+                    <strong>Payment Instructions</strong><br>
+                    1. Enter your M-Pesa phone number<br>
+                    2. Click Subscribe Now<br>
+                    3. Check your phone for STK push<br>
+                    4. Enter your PIN to complete
+                </div>
+            </div>
+            
+            <div class="subscribe-section">
+                <button type="submit" id="subscribeBtn" class="subscribe-btn">
+                    Subscribe Now
+                </button>
+            </div>
+        </form>
+        
+        <div class="features-list">
+            <div class="feature-item">Unlimited job applications</div>
+            <div class="feature-item">Access to premium job listings</div>
+            <div class="feature-item">Priority support</div>
+            <div class="feature-item">Application tracking</div>
+            <div class="feature-item">Cancel anytime</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Payment method selection
+    const paymentMethods = document.querySelectorAll('.payment-method');
+    const mpesaForm = document.getElementById('mpesaForm');
+    const phoneInput = document.getElementById('phone_number');
+    
+    paymentMethods.forEach(method => {
+        method.addEventListener('click', function() {
+            // Remove selected class from all
+            paymentMethods.forEach(m => m.classList.remove('selected'));
+            // Add selected class to clicked
+            this.classList.add('selected');
+            
+            // Check the radio button
+            const radio = this.querySelector('input[type="radio"]');
+            radio.checked = true;
+            
+            // Show/hide M-Pesa form
+            const selectedMethod = radio.value;
+            if (selectedMethod === 'mpesa') {
+                mpesaForm.classList.add('show');
+                phoneInput.required = true;
+            } else {
+                mpesaForm.classList.remove('show');
+                phoneInput.required = false;
+            }
+        });
+    });
+    
+    // Form submission
+    const form = document.getElementById('subscriptionForm');
+    const submitBtn = document.getElementById('subscribeBtn');
+    
+    form.addEventListener('submit', function(e) {
+        const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        
+        if (selectedMethod === 'mpesa') {
+            const phone = phoneInput.value.trim();
+            const phoneRegex = /^(07|01|2547|2541)\d{8}$/;
+            
+            if (!phone) {
+                e.preventDefault();
+                alert('Please enter your M-Pesa phone number');
+                return false;
+            }
+            
+            if (!phoneRegex.test(phone) && !phone.match(/^[0-9]{10,12}$/)) {
+                e.preventDefault();
+                alert('Please enter a valid Safaricom phone number (e.g., 0712345678)');
+                return false;
+            }
+        }
+        
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Processing...';
+    });
+    
+    // Set default selected method
+    document.querySelector('.payment-method[data-method="mpesa"]').classList.add('selected');
+    
+    // Format phone number as user types
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 10) {
+                value = value.slice(0, 10);
+            }
+            e.target.value = value;
+        });
+    }
+</script>
+
+{% endblock %}

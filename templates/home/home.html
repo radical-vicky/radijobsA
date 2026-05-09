@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Find Your Remote IT Job - RadiloxRemoteJobs{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: radial-gradient(ellipse at 30% 40%, rgba(47, 129, 247, 0.08) 0%, transparent 50%),
+                    radial-gradient(ellipse at 80% 60%, rgba(163, 113, 247, 0.05) 0%, transparent 60%);
+    }
+    
+    .stat-card {
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-4px);
+        border-color: #2f81f7;
+    }
+    
+    .plan-card {
+        transition: all 0.3s ease;
+    }
+    
+    .plan-card:hover {
+        transform: translateY(-4px);
+    }
+    
+    .testimonial-card {
+        transition: all 0.3s ease;
+    }
+    
+    .testimonial-card:hover {
+        transform: translateY(-2px);
+        border-color: #2f81f7;
+    }
+    
+    details summary::-webkit-details-marker {
+        display: none;
+    }
+    
+    details[open] summary svg {
+        transform: rotate(180deg);
+    }
+    
+    .job-card {
+        transition: all 0.3s ease;
+    }
+    
+    .job-card:hover {
+        transform: translateY(-2px);
+        border-color: #2f81f7;
+    }
+    
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    .floating {
+        animation: float 6s ease-in-out infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="hero-section relative overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute top-20 left-10 w-72 h-72 bg-github-accent/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+    </div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24">
+        <div class="text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-github-accent/10 border border-github-accent/20 mb-6 animate-fade-in">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                <span class="text-xs font-medium text-github-accent mono-label">{{ total_freelancers }}+ remote professionals active</span>
+            </div>
+            
+            <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-6 animate-fade-in">
+                Find Your
+                <span class="gradient-text">Remote IT Job</span>
+                <br>
+                <span class="text-white">Build. Present. Get Hired.</span>
+            </h1>
+            
+            <p class="text-base sm:text-lg md:text-xl text-github-fg-muted mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in">
+                Complete real projects from job ads and present them live via Zoom.
+                <span class="text-github-accent font-semibold">Keep 100% of your earnings.</span>
+            </p>
+            
+            <div class="flex flex-row justify-center gap-3 sm:gap-4">
+    <a href="{% url 'account_signup' %}" class="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-github-accent text-white font-medium rounded-lg hover:bg-github-accent-hover transition-all btn-primary text-sm sm:text-base shadow-lg whitespace-nowrap">
+        Get started free
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ml-1 sm:ml-2">
+            <path d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+        </svg>
+    </a>
+    <a href="{% url 'jobs:list' %}" class="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 border border-github-border text-github-fg-muted font-medium rounded-lg hover:bg-github-border hover:text-white transition-all btn-secondary text-sm sm:text-base whitespace-nowrap">
+        Browse Jobs
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ml-1 sm:ml-2">
+            <path d="M9 5l7 7-7 7"/>
+        </svg>
+    </a>
+</div>
+            
+            <p class="mt-6 text-xs sm:text-sm text-github-fg-muted">
+                Already have an account? <a href="{% url 'account_login' %}" class="text-github-accent hover:text-github-accent-hover transition font-medium">Sign in now</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- STATS SECTION -->
+<section class="py-12 border-b border-github-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="stat-card text-center p-6 bg-github-card border border-github-border rounded-card">
+                <div class="text-3xl sm:text-4xl font-bold text-github-accent mb-2">{{ total_jobs }}+</div>
+                <div class="text-xs sm:text-sm text-github-fg-muted mono-label">Active Jobs</div>
+            </div>
+            <div class="stat-card text-center p-6 bg-github-card border border-github-border rounded-card">
+                <div class="text-3xl sm:text-4xl font-bold text-github-accent mb-2">{{ total_freelancers }}+</div>
+                <div class="text-xs sm:text-sm text-github-fg-muted mono-label">Freelancers</div>
+            </div>
+            <div class="stat-card text-center p-6 bg-github-card border border-github-border rounded-card">
+                <div class="text-3xl sm:text-4xl font-bold text-github-accent mb-2">{{ total_companies }}+</div>
+                <div class="text-xs sm:text-sm text-github-fg-muted mono-label">Companies</div>
+            </div>
+            <div class="stat-card text-center p-6 bg-github-card border border-github-border rounded-card">
+                <div class="text-3xl sm:text-4xl font-bold text-github-accent mb-2">100%</div>
+                <div class="text-xs sm:text-sm text-github-fg-muted mono-label">Zero Commission</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURE PILLARS -->
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="card p-6 text-center md:text-left">
+                <div class="w-12 h-12 bg-github-accent/10 rounded-lg flex items-center justify-center mb-4 mx-auto md:mx-0">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f81f7" stroke-width="1.5">
+                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">Project-based hiring</h3>
+                <p class="text-github-fg-muted text-sm leading-relaxed">Every job ad includes a real project. Build it, present it live, and get hired based on actual skills.</p>
+            </div>
+            
+            <div class="card p-6 text-center md:text-left">
+                <div class="w-12 h-12 bg-github-accent/10 rounded-lg flex items-center justify-center mb-4 mx-auto md:mx-0">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f81f7" stroke-width="1.5">
+                        <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">100% of earnings</h3>
+                <p class="text-github-fg-muted text-sm leading-relaxed">Zero commission on tasks. You keep everything you earn. Only a low monthly subscription.</p>
+            </div>
+            
+            <div class="card p-6 text-center md:text-left">
+                <div class="w-12 h-12 bg-github-accent/10 rounded-lg flex items-center justify-center mb-4 mx-auto md:mx-0">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f81f7" stroke-width="1.5">
+                        <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">Multiple payment options</h3>
+                <p class="text-github-fg-muted text-sm leading-relaxed">Crypto, PayPal, M-Pesa, or bank transfer. Get paid your way, anywhere in the world.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURED JOBS SECTION -->
+<section id="jobs" class="py-16 border-t border-github-border bg-github-bg-secondary/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <span class="text-sm font-mono text-github-accent uppercase tracking-wider">Opportunities</span>
+            <h2 class="text-2xl md:text-3xl font-bold text-white mt-2 mb-4">Featured Remote Jobs</h2>
+            <p class="text-base text-github-fg-muted max-w-2xl mx-auto">Hand-picked remote IT roles from top companies</p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for job in recent_jobs %}
+            <div class="job-card bg-github-card border border-github-border rounded-card overflow-hidden hover:border-github-accent transition-all cursor-pointer" onclick="window.location.href='{% url 'jobs:detail' job.id %}'">
+                <div class="p-5">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 bg-github-border rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {% if job.get_image_url %}
+                                <img src="{{ job.get_image_url }}" alt="{{ job.title }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b949e" stroke-width="1.5">
+                                    <path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                            {% endif %}
+                        </div>
+                        <span class="px-2 py-1 rounded text-xs font-medium
+                            {% if job.job_type == 'fulltime' %}bg-green-900/50 text-green-400 border border-green-800
+                            {% elif job.job_type == 'freelance' %}bg-blue-900/50 text-blue-400 border border-blue-800
+                            {% else %}bg-purple-900/50 text-purple-400 border border-purple-800{% endif %}">
+                            {{ job.get_job_type_display }}
+                        </span>
+                    </div>
+                    <h3 class="text-base font-semibold text-white mb-1">{{ job.title }}</h3>
+                    <p class="text-sm text-github-fg-muted mb-3">{{ job.company }} • {{ job.location }}</p>
+                    <p class="text-github-fg-muted text-sm mb-4 line-clamp-2">{{ job.description|truncatewords:25 }}</p>
+                    <div class="flex justify-between items-center pt-3 border-t border-github-border">
+                        <span class="text-github-accent font-semibold text-sm">{{ job.salary_range }}</span>
+                        <span class="text-xs text-github-fg-muted">{{ job.created_at|timesince }} ago</span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center py-12">
+                <p class="text-github-fg-muted">No jobs available at the moment. Check back later!</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-10">
+            <a href="{% url 'jobs:list' %}" class="inline-flex items-center text-github-accent hover:text-github-accent-hover font-medium transition">
+                View all jobs
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ml-1">
+                    <path d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- PRICING SECTION -->
+<section class="py-16 border-t border-github-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <span class="text-sm font-mono text-github-accent uppercase tracking-wider">Pricing</span>
+            <h2 class="text-2xl md:text-3xl font-bold text-white mt-2 mb-4">Simple, transparent pricing</h2>
+            <p class="text-base text-github-fg-muted">Only pay for what you use. No hidden fees.</p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <!-- Starter Plan -->
+            <div class="plan-card bg-github-card border border-github-border rounded-card p-6 text-center">
+                <h3 class="text-lg font-bold text-white mb-2">Starter</h3>
+                <p class="text-sm text-github-fg-muted mb-4">Perfect for getting started</p>
+                <div class="mb-6">
+                    <span class="text-3xl font-bold text-white">$19</span>
+                    <span class="text-github-fg-muted">/month</span>
+                </div>
+                <ul class="text-sm text-left space-y-3 mb-6">
+                    <li class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span class="text-github-fg-muted">5 job applications/month</span></li>
+                    <li class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span class="text-github-fg-muted">Basic quiz access</span></li>
+                    <li class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span class="text-github-fg-muted">Email support</span></li>
+                </ul>
+                <a href="{% url 'subscriptions:subscribe' %}" class="block w-full text-center border border-github-border text-github-fg-muted py-2 rounded-lg hover:bg-github-border hover:text-white transition">Get Started</a>
+            </div>
+            
+            <!-- Pro Plan - Featured -->
+            <div class="plan-card bg-github-card border-2 border-github-accent rounded-card p-6 text-center relative">
+                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span class="bg-github-accent text-white text-xs font-medium px-3 py-1 rounded-full">Most Popular</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Pro</h3>
+                <p class="text-sm text-github-fg-muted mb-4">For serious job seekers</p>
+                <div class="mb-6">
+                    <span class="text-3xl font-bold text-white">$49</span>
+                    <span class="text-github-fg-muted">/month</span>
+                </div>
+                <ul class="text-sm text-left space-y-3 mb-6">
+                    <li class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span class="text-github-fg-muted">Unlimited applications</span></li>
+                    <li class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span class="text-github-fg-muted">Priority quiz access</span></li>
+                    <li class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span class="text-github-fg-muted">Priority support</span></li>
+                    <li class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span class="text-github-fg-muted">Profile verification badge</span></li>
+                </ul>
+                <a href="{% url 'subscriptions:subscribe' %}" class="block w-full text-center bg-github-accent text-white py-2 rounded-lg hover:bg-github-accent-hover transition">Get Started</a>
+            </div>
+            
+            <!-- Enterprise Plan -->
+            <div class="plan-card bg-github-card border border-github-border rounded-card p-6 text-center">
+                <h3 class="text-lg font-bold text-white mb-2">Enterprise</h3>
+                <p class="text-sm text-github-fg-muted mb-4">For teams and companies</p>
+                <div class="mb-6">
+                    <span class="text-3xl font-bold text-white">Custom</span>
+                </div>
+                <ul class="text-sm text-left space-y-3 mb-6">
+                    <li class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span class="text-github-fg-muted">Bulk job posting</span></li>
+                    <li class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span class="text-github-fg-muted">Candidate management</span></li>
+                    <li class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span class="text-github-fg-muted">Dedicated account manager</span></li>
+                    <li class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span class="text-github-fg-muted">API access</span></li>
+                </ul>
+                <a href="{% url 'home:contact' %}" class="block w-full text-center border border-github-border text-github-fg-muted py-2 rounded-lg hover:bg-github-border hover:text-white transition">Contact Sales</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="py-16 border-t border-github-border bg-github-accent/5">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Ready to start your remote career?</h2>
+        <p class="text-github-fg-muted mb-6 text-base">Join thousands of successful freelancers already on the platform</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'account_signup' %}" class="inline-flex items-center justify-center px-6 py-3 bg-github-accent text-white font-medium rounded-lg hover:bg-github-accent-hover transition shadow-lg">
+                Get started free
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ml-2">
+                    <path d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+            </a>
+            <a href="{% url 'jobs:list' %}" class="inline-flex items-center justify-center px-6 py-3 border border-github-border text-github-fg-muted font-medium rounded-lg hover:bg-github-border hover:text-white transition">
+                Browse jobs
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

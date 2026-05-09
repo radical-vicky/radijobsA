@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #2f81f7; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f9f9f9; }
+        .field { margin-bottom: 15px; }
+        .label { font-weight: bold; color: #555; }
+        .message-box { background: white; padding: 15px; border-left: 4px solid #2f81f7; margin-top: 10px; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #777; }
+        button { background: #2f81f7; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>New Contact Message</h2>
+        </div>
+        <div class="content">
+            <div class="field">
+                <div class="label">From:</div>
+                <div>{{ message.name }} ({{ message.email }})</div>
+            </div>
+            <div class="field">
+                <div class="label">Subject:</div>
+                <div>{{ message.get_subject_display }}</div>
+            </div>
+            <div class="field">
+                <div class="label">Message:</div>
+                <div class="message-box">{{ message.message|linebreaks }}</div>
+            </div>
+            <div class="field">
+                <div class="label">Submitted:</div>
+                <div>{{ message.created_at|date:"F j, Y, g:i a" }}</div>
+            </div>
+            <div class="field">
+                <div class="label">IP Address:</div>
+                <div>{{ message.ip_address }}</div>
+            </div>
+            <p>
+                <a href="{{ admin_url }}{% url 'home:admin_contact_detail' message.id %}" style="background: #2f81f7; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                    View in Admin Panel
+                </a>
+            </p>
+        </div>
+        <div class="footer">
+            <p>RadiloxRemoteJobs - Remote IT Talent Platform</p>
+        </div>
+    </div>
+</body>
+</html>

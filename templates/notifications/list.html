@@ -1,0 +1,770 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Notifications{% endblock %}
+
+{% block content %}
+
+<style>
+    .notifications-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    /* Header */
+    .notifications-header {
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .header-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .header-actions {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .mark-all-btn, .archive-all-btn {
+        padding: 8px 16px;
+        background: #21262d;
+        border: 1px solid #3d444d;
+        color: #e6edf3;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .mark-all-btn:hover, .archive-all-btn:hover {
+        background: #2d2f36;
+        border-color: #2f81f7;
+        color: #2f81f7;
+    }
+    
+    /* Filter Bar with Sort */
+    .filter-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .filter-tabs {
+        display: flex;
+        gap: 0;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        border-radius: 6px;
+        padding: 2px;
+    }
+    
+    .filter-tab {
+        padding: 8px 20px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #8b949e;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        background: none;
+        border-radius: 4px;
+    }
+    
+    .filter-tab:hover {
+        color: #e6edf3;
+        background: #1a1f2e;
+    }
+    
+    .filter-tab.active {
+        color: white;
+        background: #2f81f7;
+    }
+    
+    .sort-dropdown {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .sort-label {
+        font-size: 12px;
+        color: #8b949e;
+    }
+    
+    .sort-select {
+        padding: 6px 10px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+        font-size: 12px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+    
+    .sort-select:focus {
+        outline: none;
+        border-color: #2f81f7;
+    }
+    
+    /* Stats Row */
+    .stats-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .stat-card {
+        flex: 1;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 16px;
+        text-align: center;
+        border-radius: 8px;
+    }
+    
+    .stat-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: #e6edf3;
+        margin-bottom: 4px;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Notification Items */
+    .notification-item {
+        padding: 16px 20px;
+        border-bottom: 1px solid #2d2f36;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        background: #161b22;
+    }
+    
+    .notification-item:first-child {
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+    
+    .notification-item:last-child {
+        border-bottom: none;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+    
+    .notification-item:hover {
+        background: #1a1f2e;
+    }
+    
+    .notification-item.unread {
+        background: rgba(47, 129, 247, 0.05);
+        position: relative;
+    }
+    
+    .notification-item.unread::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: #2f81f7;
+    }
+    
+    /* Notification Icon */
+    .notification-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+    
+    .icon-application { color: #2f81f7; }
+    .icon-task { color: #3fb950; }
+    .icon-payment { color: #d29922; }
+    .icon-subscription { color: #f0883e; }
+    .icon-interview { color: #2f81f7; }
+    .icon-system { color: #8b949e; }
+    .icon-default { color: #6e7681; }
+    
+    /* Notification Content */
+    .notification-content {
+        flex: 1;
+    }
+    
+    .notification-title {
+        font-size: 15px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 6px;
+    }
+    
+    .notification-message {
+        font-size: 13px;
+        color: #8b949e;
+        line-height: 1.5;
+        margin-bottom: 8px;
+    }
+    
+    .notification-time {
+        font-size: 11px;
+        color: #6e7681;
+    }
+    
+    /* Notification Actions */
+    .notification-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+    
+    .mark-read-btn, .archive-btn, .unarchive-btn {
+        background: none;
+        border: none;
+        font-size: 11px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+    
+    .mark-read-btn {
+        color: #2f81f7;
+    }
+    
+    .mark-read-btn:hover {
+        background: rgba(47, 129, 247, 0.1);
+    }
+    
+    .archive-btn {
+        color: #8b949e;
+    }
+    
+    .archive-btn:hover {
+        background: rgba(139, 148, 158, 0.1);
+    }
+    
+    .unarchive-btn {
+        color: #3fb950;
+    }
+    
+    .unarchive-btn:hover {
+        background: rgba(63, 185, 80, 0.1);
+    }
+    
+    .delete-btn {
+        background: none;
+        border: none;
+        color: #f85149;
+        font-size: 11px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+    
+    .delete-btn:hover {
+        background: rgba(248, 81, 73, 0.1);
+    }
+    
+    .divider {
+        color: #3d444d;
+    }
+    
+    /* List Container */
+    .notifications-list {
+        border: 1px solid #2d2f36;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 24px;
+        padding: 16px 0;
+    }
+    
+    .page-link {
+        padding: 8px 14px;
+        border: 1px solid #2d2f36;
+        background: #0d1117;
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 13px;
+        transition: all 0.2s;
+        border-radius: 6px;
+    }
+    
+    .page-link:hover {
+        border-color: #2f81f7;
+        color: #2f81f7;
+    }
+    
+    .page-current {
+        padding: 8px 14px;
+        background: #2f81f7;
+        color: white;
+        font-size: 13px;
+        border-radius: 6px;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #8b949e;
+        border: 1px solid #2d2f36;
+        background: #161b22;
+        border-radius: 8px;
+    }
+    
+    .empty-text {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    
+    .empty-subtext {
+        font-size: 12px;
+        color: #6e7681;
+    }
+    
+    /* Responsive */
+    @media (max-width: 640px) {
+        .stats-row {
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            min-width: calc(50% - 8px);
+        }
+        
+        .notification-item {
+            flex-direction: column;
+        }
+        
+        .notification-icon {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+        
+        .header-title {
+            font-size: 20px;
+        }
+        
+        .filter-tab {
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+        
+        .filter-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .header-actions {
+            width: 100%;
+        }
+        
+        .mark-all-btn, .archive-all-btn {
+            flex: 1;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="notifications-container">
+    <!-- Header -->
+    <div class="notifications-header">
+        <div>
+            <h1 class="header-title">Notifications</h1>
+            <p class="header-subtitle">Stay updated with your latest activity</p>
+        </div>
+        <div class="header-actions">
+            <button id="markAllReadBtn" class="mark-all-btn">Mark all as read</button>
+            <button id="archiveAllBtn" class="archive-all-btn">Archive all</button>
+        </div>
+    </div>
+    
+    <!-- Stats Row -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-number">{{ unread_count|default:"0" }}</div>
+            <div class="stat-label">UNREAD</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ read_count|default:"0" }}</div>
+            <div class="stat-label">READ</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ archived_count|default:"0" }}</div>
+            <div class="stat-label">ARCHIVED</div>
+        </div>
+    </div>
+    
+    <!-- Filter Bar with Sort -->
+    <div class="filter-bar">
+        <div class="filter-tabs">
+            <button class="filter-tab {% if not current_status or current_status == 'active' %}active{% endif %}" data-status="active">Active</button>
+            <button class="filter-tab {% if current_status == 'archived' %}active{% endif %}" data-status="archived">Archived</button>
+        </div>
+        
+        <div class="sort-dropdown">
+            <span class="sort-label">Sort by:</span>
+            <select id="sortSelect" class="sort-select">
+                <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Notifications List -->
+    {% if notifications %}
+        <div class="notifications-list">
+            {% for notif in notifications %}
+            <div class="notification-item {% if notif.status == 'unread' %}unread{% endif %}" 
+                 data-id="{{ notif.id }}" 
+                 data-link="{{ notif.link|default:'#' }}">
+                <div class="notification-icon icon-{{ notif.notification_type|default:'default' }}">
+                    {% if notif.notification_type == 'application' %}A
+                    {% elif notif.notification_type == 'task' %}T
+                    {% elif notif.notification_type == 'payment' %}P
+                    {% elif notif.notification_type == 'subscription' %}S
+                    {% elif notif.notification_type == 'interview' %}I
+                    {% else %}N{% endif %}
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">{{ notif.title }}</div>
+                    <div class="notification-message">{{ notif.message }}</div>
+                    <div class="notification-time">{{ notif.created_at|timesince }} ago</div>
+                </div>
+                <div class="notification-actions">
+                    {% if notif.status == 'unread' %}
+                        <button class="mark-read-btn" data-id="{{ notif.id }}">Mark as read</button>
+                        <span class="divider">|</span>
+                    {% endif %}
+                    
+                    {% if current_status == 'archived' %}
+                        <button class="unarchive-btn" data-id="{{ notif.id }}">Restore</button>
+                        <span class="divider">|</span>
+                    {% else %}
+                        <button class="archive-btn" data-id="{{ notif.id }}">Archive</button>
+                        <span class="divider">|</span>
+                    {% endif %}
+                    
+                    <button class="delete-btn" data-id="{{ notif.id }}">Delete</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if notifications.has_other_pages %}
+        <div class="pagination">
+            {% if notifications.has_previous %}
+            <a href="?page={{ notifications.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="page-link">Previous</a>
+            {% endif %}
+            <span class="page-current">{{ notifications.number }}</span>
+            {% if notifications.has_next %}
+            <a href="?page={{ notifications.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="page-link">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-text">
+                {% if current_status == 'archived' %}
+                    No archived notifications
+                {% else %}
+                    No notifications
+                {% endif %}
+            </div>
+            <div class="empty-subtext">
+                {% if current_status == 'archived' %}
+                    Archived notifications will appear here
+                {% else %}
+                    When you receive notifications, they'll appear here
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentStatus = urlParams.get('status');
+    const currentSort = urlParams.get('sort');
+    
+    // Filter tabs
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const status = this.dataset.status;
+            const params = new URLSearchParams(window.location.search);
+            
+            if (status !== 'active') {
+                params.set('status', status);
+            } else {
+                params.delete('status');
+            }
+            params.delete('page');
+            
+            window.location.href = window.location.pathname + '?' + params.toString();
+        });
+    });
+    
+    // Sort functionality
+    const sortSelect = document.getElementById('sortSelect');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            const params = new URLSearchParams(window.location.search);
+            params.set('sort', this.value);
+            params.delete('page');
+            window.location.href = window.location.pathname + '?' + params.toString();
+        });
+    }
+    
+    // Mark all as read
+    const markAllBtn = document.getElementById('markAllReadBtn');
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', async function() {
+            try {
+                const response = await fetch('/notifications/api/mark-all-read/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error marking all as read');
+            }
+        });
+    }
+    
+    // Archive all
+    const archiveAllBtn = document.getElementById('archiveAllBtn');
+    if (archiveAllBtn) {
+        archiveAllBtn.addEventListener('click', async function() {
+            if (confirm('Archive all active notifications?')) {
+                try {
+                    const response = await fetch('/notifications/api/archive-all/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to archive notifications');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error archiving notifications');
+                }
+            }
+        });
+    }
+    
+    // Mark single notification as read
+    document.querySelectorAll('.mark-read-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.stopPropagation();
+            const id = this.dataset.id;
+            
+            try {
+                const response = await fetch(`/notifications/api/${id}/read/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+    
+    // Archive single notification
+    document.querySelectorAll('.archive-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.stopPropagation();
+            const id = this.dataset.id;
+            
+            try {
+                const response = await fetch(`/notifications/api/${id}/archive/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to archive notification');
+                }
+            } catch (error) {
+                console.error('Error archiving notification:', error);
+                alert('Error archiving notification');
+            }
+        });
+    });
+    
+    // Unarchive (Restore) notification
+    document.querySelectorAll('.unarchive-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.stopPropagation();
+            const id = this.dataset.id;
+            
+            try {
+                const response = await fetch(`/notifications/api/${id}/unarchive/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to restore notification');
+                }
+            } catch (error) {
+                console.error('Error restoring notification:', error);
+                alert('Error restoring notification');
+            }
+        });
+    });
+    
+    // Delete notification
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.stopPropagation();
+            const id = this.dataset.id;
+            
+            if (confirm('Are you sure you want to delete this notification?')) {
+                try {
+                    const response = await fetch(`/notifications/api/${id}/delete/`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to delete notification');
+                    }
+                } catch (error) {
+                    console.error('Error deleting notification:', error);
+                    alert('Error deleting notification');
+                }
+            }
+        });
+    });
+    
+    // Make notification items clickable (for viewing details)
+    document.querySelectorAll('.notification-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            // Don't trigger if clicking on buttons
+            if (e.target.classList.contains('mark-read-btn') || 
+                e.target.classList.contains('delete-btn') ||
+                e.target.classList.contains('archive-btn') ||
+                e.target.classList.contains('unarchive-btn')) return;
+            
+            const link = this.dataset.link;
+            const id = this.dataset.id;
+            
+            if (link && link !== '#') {
+                // Mark as read before redirecting
+                fetch(`/notifications/api/${id}/read/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(() => {
+                    window.location.href = link;
+                })
+                .catch(() => {
+                    window.location.href = link;
+                });
+            }
+        });
+    });
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+{% endblock %}

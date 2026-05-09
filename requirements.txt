@@ -1,0 +1,63 @@
+# Core Django
+Django
+psycopg2-binary
+django-environ
+django-allauth
+django-crispy-forms
+crispy-tailwind
+django-htmx
+django-widget-tweaks
+django-cors-headers
+djangorestframework
+
+# Task Queue & Caching
+celery
+redis
+django-redis
+django-celery-beat
+django-celery-results
+
+# Email
+sendgrid
+django-sendgrid-v5
+
+# Payments
+stripe
+paypalrestsdk
+
+# HTTP & Security
+requests
+pyjwt
+cryptography
+
+# Static & Media Files
+Pillow
+whitenoise
+django-storages
+boto3
+cloudinary
+django-cloudinary-storage
+
+# Utilities
+python-decouple
+
+# Production Server
+gunicorn
+
+# WebSockets (for real-time notifications)
+channels
+channels-redis
+
+# API Documentation (optional)
+drf-yasg
+django-filter
+
+# Monitoring
+sentry-sdk
+
+# Date/Time utilities
+python-dateutil
+pytz
+
+# Database migrations (optional)
+django-extensions
