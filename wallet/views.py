@@ -4,30 +4,42 @@ from django.contrib import messages
 from django.conf import settings
 from django.utils import timezone
 from django.core.paginator import Paginator
+from django.db.models import Sum  # Add this import
 from decimal import Decimal
 from .models import UserWallet, Transaction, WithdrawalRequest
+from notifications.models import Notification
+from accounts.models import User
 
 
 @login_required
 def wallet_dashboard(request):
+    """Main wallet dashboard"""
     wallet, created = UserWallet.objects.get_or_create(user=request.user)
-    transactions = Transaction.objects.filter(user=request.user).order_by('-created_at')[:10]
+    transactions = Transaction.objects.filter(user=request.user).order_by('-created_at')[:15]
+    
+    # Calculate stats - use Sum directly, not models.Sum
+    total_withdrawn = WithdrawalRequest.objects.filter(user=request.user, status='completed').aggregate(Sum('amount'))['amount__sum'] or 0
+    pending_withdrawals = WithdrawalRequest.objects.filter(user=request.user, status='pending').count()
     
     context = {
         'wallet': wallet,
         'transactions': transactions,
+        'total_withdrawn': total_withdrawn,
+        'pending_withdrawals': pending_withdrawals,
     }
     return render(request, 'wallet/dashboard.html', context)
 
 
 @login_required
 def withdrawal_request(request):
-    wallet = get_object_or_404(UserWallet, user=request.user)
+    """Request withdrawal"""
+    wallet, created = UserWallet.objects.get_or_create(user=request.user)
     
     if request.method == 'POST':
         amount = Decimal(request.POST.get('amount', 0))
         payment_method = request.POST.get('payment_method')
         
+        # Validate amount
         if amount < settings.MINIMUM_WITHDRAWAL_USD:
             messages.error(request, f"Minimum withdrawal is ${settings.MINIMUM_WITHDRAWAL_USD}")
             return redirect('wallet:withdrawal_request')
@@ -40,70 +52,90 @@ def withdrawal_request(request):
             messages.error(request, f"Maximum withdrawal is ${settings.MAX_WITHDRAWAL_USD}")
             return redirect('wallet:withdrawal_request')
         
+        # Calculate fee
         fee = amount * (Decimal(settings.WITHDRAWAL_FEE_PERCENTAGE) / 100)
         net_amount = amount - fee
         
-        destination_details = {}
+        # Get payment method details from user's saved payment methods
+        payment_method_obj = request.user.payment_methods.filter(payment_type=payment_method, is_default=True).first()
         
-        # Fix: Use 'payment_type' not 'method_type'
-        user_payment_methods = request.user.payment_methods.filter(payment_type=payment_method, is_default=True)
+        if not payment_method_obj:
+            messages.error(request, "Please add a payment method first")
+            return redirect('accounts:payment_methods')
         
-        if user_payment_methods.exists():
-            pm = user_payment_methods.first()
-            if payment_method == 'paypal':
-                destination_details['email'] = pm.account_email
-            elif payment_method == 'mpesa':
-                destination_details['phone'] = pm.phone_number
-            elif payment_method == 'bank_account' or payment_method == 'bank':
-                destination_details.update({
-                    'bank_name': pm.bank_name,
-                    'account_name': pm.bank_account_name,
-                    'account_number': pm.bank_account_number,
-                    'swift_code': pm.bank_swift_code,
-                })
-        
+        # Create withdrawal request
         withdrawal = WithdrawalRequest.objects.create(
             user=request.user,
             amount=amount,
             fee=fee,
             net_amount=net_amount,
             payment_method=payment_method,
-            destination_details=destination_details,
+            destination_details={
+                'email': getattr(payment_method_obj, 'account_email', ''),
+                'phone': getattr(payment_method_obj, 'phone_number', ''),
+                'bank_name': getattr(payment_method_obj, 'bank_name', ''),
+                'account_name': getattr(payment_method_obj, 'bank_account_name', ''),
+                'account_number': getattr(payment_method_obj, 'bank_account_number', ''),
+            },
             status='pending'
         )
         
-        messages.success(request, f"Withdrawal request submitted for ${amount}. Fee: ${fee}. You'll receive ${net_amount}.")
+        messages.success(request, f"Withdrawal request of ${amount} submitted for approval.")
+        
+        # Notify admin
+        admins = User.objects.filter(is_superuser=True)
+        for admin in admins:
+            Notification.objects.create(
+                user=admin,
+                notification_type='withdrawal',
+                title='New Withdrawal Request',
+                message=f"{request.user.username} requested withdrawal of ${amount}",
+                link='/admin/wallet/withdrawalrequest/',
+                status='unread'
+            )
+        
         return redirect('wallet:withdrawal_history')
-    
-    # Get user's payment methods for the form
-    payment_methods = request.user.payment_methods.filter(is_active=True)
     
     context = {
         'wallet': wallet,
         'min_amount': settings.MINIMUM_WITHDRAWAL_USD,
         'max_amount': settings.MAX_WITHDRAWAL_USD,
         'fee_percentage': settings.WITHDRAWAL_FEE_PERCENTAGE,
-        'payment_methods': payment_methods,
     }
     return render(request, 'wallet/withdrawal_request.html', context)
 
 
 @login_required
 def withdrawal_history(request):
+    """View withdrawal history"""
     withdrawals = WithdrawalRequest.objects.filter(user=request.user).order_by('-requested_at')
+    
+    # Calculate summary
+    total_withdrawn = withdrawals.filter(status='completed').aggregate(Sum('net_amount'))['net_amount__sum'] or 0
+    pending_total = withdrawals.filter(status='pending').aggregate(Sum('amount'))['amount__sum'] or 0
+    completed_count = withdrawals.filter(status='completed').count()
     
     # Pagination
     paginator = Paginator(withdrawals, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    return render(request, 'wallet/withdrawal_history.html', {'withdrawals': page_obj})
-
+    return render(request, 'wallet/withdrawal_history.html', {
+        'withdrawals': page_obj,
+        'total_withdrawn': total_withdrawn,
+        'pending_total': pending_total,
+        'completed_count': completed_count,
+    })
 
 @login_required
 def transaction_history(request):
-    """View all transactions"""
+    """View all transactions with summary"""
     transactions = Transaction.objects.filter(user=request.user).order_by('-created_at')
+    
+    # Calculate summary
+    total_deposits = transactions.filter(transaction_type='deposit').aggregate(Sum('amount'))['amount__sum'] or 0
+    total_withdrawals = transactions.filter(transaction_type='withdrawal').aggregate(Sum('amount'))['amount__sum'] or 0
+    total_task_payments = transactions.filter(transaction_type='task_payment').aggregate(Sum('amount'))['amount__sum'] or 0
     
     # Pagination
     paginator = Paginator(transactions, 20)
@@ -112,13 +144,16 @@ def transaction_history(request):
     
     context = {
         'transactions': page_obj,
+        'total_deposits': total_deposits,
+        'total_withdrawals': total_withdrawals,
+        'total_task_payments': total_task_payments,
     }
     return render(request, 'wallet/transaction_history.html', context)
 
-
 @login_required
-@user_passes_test(lambda u: u.is_admin)
+@user_passes_test(lambda u: u.is_superuser)
 def admin_withdrawals(request):
+    """Admin view all withdrawal requests"""
     withdrawals = WithdrawalRequest.objects.all().order_by('-requested_at')
     pending = withdrawals.filter(status='pending')
     
@@ -127,38 +162,25 @@ def admin_withdrawals(request):
         action = request.POST.get('action')
         withdrawal = get_object_or_404(WithdrawalRequest, pk=withdrawal_id)
         
-        if action == 'approve':
-            withdrawal.status = 'processing'
-            withdrawal.processed_at = timezone.now()
-            withdrawal.save()
-            messages.success(request, f"Withdrawal #{withdrawal.id} marked as processing.")
+        if action == 'process':
+            if withdrawal.process_withdrawal():
+                messages.success(request, f"Withdrawal #{withdrawal.id} is being processed.")
+            else:
+                messages.error(request, f"Failed to process withdrawal #{withdrawal.id}")
+        
         elif action == 'complete':
-            withdrawal.status = 'completed'
-            withdrawal.completed_at = timezone.now()
-            withdrawal.save()
-            
-            # Update wallet
-            wallet = withdrawal.user.wallet
-            wallet.balance -= withdrawal.amount
-            wallet.total_withdrawn += withdrawal.net_amount
-            wallet.save()
-            
-            Transaction.objects.create(
-                user=withdrawal.user,
-                transaction_type='debit',
-                amount=withdrawal.amount,
-                fee=withdrawal.fee,
-                net_amount=withdrawal.net_amount,
-                description=f"Withdrawal via {withdrawal.payment_method}",
-                reference_id=str(withdrawal.id)
-            )
-            messages.success(request, f"Withdrawal #{withdrawal.id} completed.")
+            if withdrawal.complete_withdrawal():
+                messages.success(request, f"Withdrawal #{withdrawal.id} completed.")
+            else:
+                messages.error(request, f"Failed to complete withdrawal #{withdrawal.id}")
+        
         elif action == 'fail':
-            withdrawal.status = 'failed'
-            withdrawal.save()
-            messages.warning(request, f"Withdrawal #{withdrawal.id} marked as failed.")
+            reason = request.POST.get('reason', '')
+            if withdrawal.fail_withdrawal(reason):
+                messages.error(request, f"Withdrawal #{withdrawal.id} marked as failed.")
+        
+        return redirect('wallet:admin_withdrawals')
     
-    # Pagination
     paginator = Paginator(withdrawals, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)

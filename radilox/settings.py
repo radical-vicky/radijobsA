@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     'accounts',
     'jobs',
     'application',
-    'quiz',
     'tasks',
     'payments',
     'wallet',
@@ -159,7 +158,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ============ ALLAUTH CONFIGURATION (Updated for Django 6.0) ============
+# ============ ALLAUTH CONFIGURATION ============
 SITE_ID = 1
 
 # Authentication URLs
@@ -167,7 +166,7 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
 
-# Account Settings - Updated for newer django-allauth
+# Account Settings
 ACCOUNT_LOGIN_METHODS = {'email', 'username'}
 ACCOUNT_SIGNUP_FIELDS = ['email', 'username*', 'password1*', 'password2*']
 ACCOUNT_USERNAME_MIN_LENGTH = 3
@@ -176,11 +175,8 @@ ACCOUNT_UNIQUE_EMAIL = True
 
 # Rate limiting
 ACCOUNT_RATE_LIMITS = {
-    'login_failed': '5/300s',  # 5 attempts per 300 seconds
+    'login_failed': '5/300s',
 }
-
-# Email backend - Console mode
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Social account providers
 SOCIALACCOUNT_PROVIDERS = {
@@ -193,20 +189,37 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+# ============ EMAIL CONFIGURATION (Gmail - Production) ============
+# Use these settings for sending real emails via Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'entreprenuerridicular@gmail.com'
+EMAIL_HOST_PASSWORD = 'fxug ewew mwkt vvsb'  # App password, not regular password
+DEFAULT_FROM_EMAIL = 'RadiloxRemoteJobs <entreprenuerridicular@gmail.com>'
+
+# If you want to use console for development (emails appear in terminal), comment the above and uncomment below:
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 # ============ RADILOXREMOTEJOBS CUSTOM SETTINGS ============
 
 # Subscription & Payments
 SUBSCRIPTION_PRICE_USD = 19
+SUBSCRIPTION_PRICE_KES = 2000
 WITHDRAWAL_FEE_PERCENTAGE = 3
 MINIMUM_WITHDRAWAL_USD = 20
 MAX_WITHDRAWAL_USD = 5000
 
+
+
+
 # Zoom API Configuration
-ZOOM_ACCOUNT_ID = config('ZOOM_ACCOUNT_ID', default='')
-ZOOM_CLIENT_ID = config('ZOOM_CLIENT_ID', default='')
-ZOOM_CLIENT_SECRET = config('ZOOM_CLIENT_SECRET', default='')
-ZOOM_MEETING_DURATION_INTERVIEW = 60  # minutes
-ZOOM_MEETING_DURATION_ONBOARDING = 45  # minutes
+ZOOM_ACCOUNT_ID = 'YBECS6bwQnuVAvErJjRLrg'
+ZOOM_CLIENT_ID = 'mE0t2iCsQ6BKDWCisHZcw'
+ZOOM_CLIENT_SECRET = 'WMDoifDJr7iijmcMNPXq1ohcokqNQQN0'  # You need to get this from Zoom
+ZOOM_MEETING_DURATION_INTERVIEW = 60
+ZOOM_MEETING_DURATION_ONBOARDING = 45
 
 # Payment Gateways
 BINANCE_API_KEY = config('BINANCE_API_KEY', default='')
@@ -220,16 +233,20 @@ PAYPAL_MODE = 'sandbox' if DEBUG else 'live'
 PAYPAL_CLIENT_ID = config('PAYPAL_CLIENT_ID', default='')
 PAYPAL_CLIENT_SECRET = config('PAYPAL_CLIENT_SECRET', default='')
 
-MPESA_CONSUMER_KEY = config('MPESA_CONSUMER_KEY', default='')
-MPESA_CONSUMER_SECRET = config('MPESA_CONSUMER_SECRET', default='')
-MPESA_SHORTCODE = config('MPESA_SHORTCODE', default='174379')
-MPESA_PASSKEY = config('MPESA_PASSKEY', default='')
-MPESA_ENVIRONMENT = 'sandbox' if DEBUG else 'production'
-MPESA_CALLBACK_URL = config('MPESA_CALLBACK_URL', default='https://yourdomain.com/payments/mpesa-callback/')
+# M-Pesa Configuration
+MPESA_CONSUMER_KEY = 'Atscmk0CWUCHXl9FGdUVZnOf7Co3XXggR3kXbEcDdnrdRb41'
+MPESA_CONSUMER_SECRET = 'TgBdlhu7ZlAFnatiwsqCIvr5WdCbU0athFlK75pUWrMmsas3yuPut5tuRLbFUXAb'
+MPESA_SHORTCODE = '174379'
+MPESA_SHORTCODE_TYPE = 'paybill'
+MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
+MPESA_CALLBACK_URL = 'https://cyptconsult.onrender.com/payments/mpesa-callback/'
+MPESA_ENVIRONMENT = 'sandbox'
+MPESA_INITIATOR_NAME = 'testapi'
+MPESA_INITIATOR_PASSWORD = 'Safaricom123!!'
 
 # Session Configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_AGE = 1209600  # 2 weeks
+SESSION_COOKIE_AGE = 1209600
 SESSION_COOKIE_SECURE = False if DEBUG else True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
@@ -247,7 +264,7 @@ CACHES = {
     }
 }
 
-# Logging Configuration (Fixed - only console handler for development)
+# Logging Configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -280,9 +297,15 @@ LOGGING = {
     },
 }
 
+# Celery settings for async tasks
+CELERY_BROKER_URL = config('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
 # Security Headers for Production
 if not DEBUG:
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_SSL_REDIRECT = True
@@ -290,52 +313,3 @@ if not DEBUG:
     X_FRAME_OPTIONS = 'DENY'
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_BROWSER_XSS_FILTER = True
-
-
-
-
-
-    # Add Celery settings for async tasks
-CELERY_BROKER_URL = config('REDIS_URL', default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = config('REDIS_URL', default='redis://localhost:6379/0')
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-
-
-
-# Add to your settings.py
-
-# Email Settings
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='RadiloxRemoteJobs <noreply@radiloxremotejobs.com>')
-ADMIN_EMAIL = config('ADMIN_EMAIL', default='admin@radiloxremotejobs.com')
-SITE_URL = config('SITE_URL', default='https://yourdomain.com')
-
-# Email backend (for production, use SMTP)
-if not DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = config('EMAIL_HOST', default='smtp.sendgrid.net')
-    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='apikey')
-    EMAIL_HOST_PASSWORD = config('SENDGRID_API_KEY', default='')
-
-
-
-# M-Pesa Configuration
-MPESA_CONSUMER_KEY = 'Atscmk0CWUCHXl9FGdUVZnOf7Co3XXggR3kXbEcDdnrdRb41'
-MPESA_CONSUMER_SECRET = 'TgBdlhu7ZlAFnatiwsqCIvr5WdCbU0athFlK75pUWrMmsas3yuPut5tuRLbFUXAb'
-MPESA_SHORTCODE = '174379'
-MPESA_SHORTCODE_TYPE = 'paybill'
-MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
-MPESA_CALLBACK_URL = 'https://cyptconsult.onrender.com/payments/mpesa-callback/'  # Update with your actual domain
-MPESA_ENVIRONMENT = 'sandbox'  # or 'production'
-MPESA_INITIATOR_NAME = 'testapi'
-MPESA_INITIATOR_PASSWORD = 'Safaricom123!!'
-
-# Subscription price in Kenyan Shillings (KES)
-SUBSCRIPTION_PRICE_KES = 2000  # 2000 KES (~$15 USD)
-
-
-# Zoom Configuration
-ZOOM_API_KEY = 'your_zoom_api_key_here'
-ZOOM_API_SECRET = 'your_zoom_api_secret_here'

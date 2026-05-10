@@ -7,8 +7,20 @@
 
 <style>
     .history-container {
-        width: 100%;
-        max-width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 13px;
+    }
+    
+    .back-link:hover {
+        color: #2f81f7;
     }
     
     .history-header {
@@ -22,12 +34,47 @@
         margin-bottom: 4px;
     }
     
-    .history-list {
+    .header-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .summary-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 20px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .summary-item {
+        text-align: center;
+        flex: 1;
+    }
+    
+    .summary-label {
+        font-size: 11px;
+        color: #8b949e;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    
+    .summary-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2f81f7;
+    }
+    
+    .transactions-list {
         background: #161b22;
         border: 1px solid #2d2f36;
     }
     
-    .history-item {
+    .transaction-item {
         padding: 16px 20px;
         border-bottom: 1px solid #2d2f36;
         display: flex;
@@ -37,53 +84,70 @@
         gap: 12px;
     }
     
-    .history-item:last-child {
+    .transaction-item:last-child {
         border-bottom: none;
     }
     
-    .history-info {
+    .transaction-info {
         flex: 1;
     }
     
-    .history-title {
+    .transaction-title {
         font-size: 14px;
         font-weight: 500;
         color: #e6edf3;
         margin-bottom: 4px;
     }
     
-    .history-date {
+    .transaction-date {
         font-size: 11px;
         color: #6e7681;
     }
     
-    .history-amount {
+    .transaction-reference {
+        font-size: 10px;
+        color: #6e7681;
+        margin-top: 2px;
+    }
+    
+    .transaction-amount {
         font-size: 16px;
         font-weight: 600;
     }
     
-    .amount-credit {
+    .amount-positive {
         color: #3fb950;
     }
     
-    .amount-debit {
+    .amount-negative {
         color: #f85149;
+    }
+    
+    .transaction-status {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
+    
+    .status-completed {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
     }
     
     .pagination {
         display: flex;
         justify-content: center;
         gap: 8px;
-        margin-top: 20px;
+        margin-top: 24px;
     }
     
     .page-link {
-        padding: 6px 12px;
+        padding: 8px 12px;
+        background: #161b22;
         border: 1px solid #2d2f36;
-        background: #0d1117;
         color: #8b949e;
         text-decoration: none;
-        font-size: 12px;
+        font-size: 13px;
     }
     
     .page-link:hover {
@@ -92,24 +156,24 @@
     }
     
     .page-current {
-        padding: 6px 12px;
         background: #2f81f7;
         color: white;
-        font-size: 12px;
+        border-color: #2f81f7;
     }
     
     .empty-state {
         text-align: center;
-        padding: 48px 20px;
-        color: #8b949e;
+        padding: 60px 20px;
+        background: #161b22;
+        border: 1px solid #2d2f36;
     }
     
     @media (max-width: 640px) {
-        .header-title {
-            font-size: 20px;
+        .summary-card {
+            flex-direction: column;
         }
         
-        .history-item {
+        .transaction-item {
             flex-direction: column;
             align-items: flex-start;
         }
@@ -117,43 +181,70 @@
 </style>
 
 <div class="history-container">
+    <a href="{% url 'wallet:dashboard' %}" class="back-link">
+        Back to Wallet
+    </a>
+    
     <div class="history-header">
         <h1 class="header-title">Transaction History</h1>
         <p class="header-subtitle">View all your financial transactions</p>
     </div>
     
-    {% if transactions %}
-        <div class="history-list">
-            {% for tx in transactions %}
-            <div class="history-item">
-                <div class="history-info">
-                    <div class="history-title">{{ tx.description }}</div>
-                    <div class="history-date">{{ tx.created_at|date:"M d, Y H:i" }}</div>
-                    <div class="history-date">Reference: {{ tx.reference_id|default:"N/A" }}</div>
+    <div class="summary-card">
+        <div class="summary-item">
+            <div class="summary-label">Total Deposits</div>
+            <div class="summary-value">${{ total_deposits|default:"0"|floatformat:2 }}</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Total Withdrawals</div>
+            <div class="summary-value">${{ total_withdrawals|default:"0"|floatformat:2 }}</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Total Task Payments</div>
+            <div class="summary-value">${{ total_task_payments|default:"0"|floatformat:2 }}</div>
+        </div>
+    </div>
+    
+    <div class="transactions-list">
+        {% if transactions %}
+            {% for transaction in transactions %}
+            <div class="transaction-item">
+                <div class="transaction-info">
+                    <div class="transaction-title">{{ transaction.description }}</div>
+                    <div class="transaction-date">{{ transaction.created_at|date:"M d, Y g:i A" }}</div>
+                    <div class="transaction-reference">
+                        Ref: {{ transaction.reference_id|default:"N/A" }}
+                    </div>
                 </div>
-                <div class="history-amount {% if tx.transaction_type == 'credit' %}amount-credit{% else %}amount-debit{% endif %}">
-                    {% if tx.transaction_type == 'credit' %}+{% else %}-{% endif %} ${{ tx.amount|floatformat:2 }}
+                <div class="transaction-amount {% if transaction.amount > 0 %}amount-positive{% else %}amount-negative{% endif %}">
+                    {% if transaction.transaction_type == 'task_payment' or transaction.transaction_type == 'deposit' %}+{% endif %}
+                    ${{ transaction.amount|floatformat:2 }}
+                </div>
+                <div class="transaction-status status-completed">
+                    Completed
                 </div>
             </div>
             {% endfor %}
-        </div>
-        
-        {% if transactions.has_other_pages %}
-        <div class="pagination">
-            {% if transactions.has_previous %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-text">No transactions yet</div>
+                <div class="empty-subtext">Your transaction history will appear here</div>
+            </div>
+        {% endif %}
+    </div>
+    
+    {% if transactions.has_other_pages %}
+    <div class="pagination">
+        {% if transactions.has_previous %}
             <a href="?page={{ transactions.previous_page_number }}" class="page-link">Previous</a>
-            {% endif %}
-            <span class="page-current">{{ transactions.number }}</span>
-            {% if transactions.has_next %}
-            <a href="?page={{ transactions.next_page_number }}" class="page-link">Next</a>
-            {% endif %}
-        </div>
         {% endif %}
         
-    {% else %}
-        <div class="empty-state">
-            <div class="empty-text">No transactions yet</div>
-        </div>
+        <span class="page-link page-current">Page {{ transactions.number }} of {{ transactions.paginator.num_pages }}</span>
+        
+        {% if transactions.has_next %}
+            <a href="?page={{ transactions.next_page_number }}" class="page-link">Next</a>
+        {% endif %}
+    </div>
     {% endif %}
 </div>
 

@@ -1,0 +1,780 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}{{ task.title }}{% endblock %}
+
+{% block content %}
+
+<style>
+    .task-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 13px;
+    }
+    
+    .back-link:hover {
+        color: #2f81f7;
+    }
+    
+    .task-hero {
+        position: relative;
+        width: 100%;
+        height: 320px;
+        overflow: hidden;
+        background: #0d1117;
+        margin-bottom: 0;
+    }
+    
+    .task-hero-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .hero-gradient-blend {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background: linear-gradient(to bottom, 
+            rgba(13, 17, 23, 0) 0%,
+            rgba(13, 17, 23, 0) 40%,
+            rgba(22, 27, 34, 0.8) 70%,
+            #161b22 100%);
+        pointer-events: none;
+    }
+    
+    .hero-accent-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(47, 129, 247, 0.15) 0%, rgba(13, 17, 23, 0) 60%);
+        pointer-events: none;
+    }
+    
+    .hero-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
+        font-size: 80px;
+        font-weight: 700;
+        color: #2f81f7;
+        position: relative;
+    }
+    
+    .hero-placeholder-gradient {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(13, 17, 23, 0) 60%, #161b22 100%);
+        pointer-events: none;
+    }
+    
+    .task-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        margin-top: -40px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .task-header {
+        padding: 28px 32px;
+        border-bottom: 1px solid #2d2f36;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .task-title-section {
+        flex: 1;
+    }
+    
+    .task-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #e6edf3;
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+    
+    .task-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 8px;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .meta-label {
+        color: #6e7681;
+    }
+    
+    .meta-value {
+        color: #e6edf3;
+        font-weight: 500;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-assigned {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .status-in_progress {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-submitted {
+        background: rgba(163, 113, 247, 0.1);
+        color: #a371f7;
+        border: 1px solid rgba(163, 113, 247, 0.3);
+    }
+    
+    .status-approved {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .status-paid {
+        background: rgba(63, 185, 80, 0.12);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.35);
+    }
+    
+    .status-revision_requested {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .task-section {
+        padding: 28px 32px;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .task-section:last-child {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #2d2f36;
+    }
+    
+    .task-description {
+        background: #0d1117;
+        padding: 20px;
+        font-size: 14px;
+        color: #c9d1d9;
+        line-height: 1.7;
+        white-space: pre-wrap;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .info-label {
+        font-size: 11px;
+        color: #6e7681;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+    }
+    
+    .info-value {
+        font-size: 15px;
+        color: #e6edf3;
+        font-weight: 500;
+    }
+    
+    .btn-success {
+        padding: 12px 24px;
+        background: #3fb950;
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+        border-radius: 6px;
+    }
+    
+    .btn-success:hover {
+        background: #56d364;
+    }
+    
+    .btn-success:disabled {
+        background: #21262d;
+        cursor: not-allowed;
+    }
+    
+    .btn-primary {
+        padding: 12px 24px;
+        background: #2f81f7;
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+    
+    .btn-primary:hover {
+        background: #58a6ff;
+    }
+    
+    .btn-primary:disabled {
+        background: #3fb950;
+        cursor: default;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .form-input, .form-textarea {
+        width: 100%;
+        padding: 10px 12px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+        font-size: 13px;
+    }
+    
+    .form-input:focus, .form-textarea:focus {
+        outline: none;
+        border-color: #2f81f7;
+    }
+    
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .submit-form {
+        background: #0d1117;
+        padding: 24px;
+        margin-top: 20px;
+        border: 1px solid #2d2f36;
+    }
+    
+    .countdown-box {
+        background: rgba(210, 153, 34, 0.1);
+        border-left: 3px solid #d29922;
+        padding: 16px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+    
+    .countdown-timer {
+        font-family: monospace;
+        font-size: 24px;
+        font-weight: 700;
+        color: #d29922;
+        margin-top: 8px;
+    }
+    
+    .countdown-warning {
+        background: rgba(248, 81, 73, 0.1);
+        border-left: 3px solid #f85149;
+    }
+    
+    .countdown-warning .countdown-timer {
+        color: #f85149;
+    }
+    
+    .completion-box {
+        background: rgba(63, 185, 80, 0.1);
+        border-left: 3px solid #3fb950;
+        padding: 16px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+    
+    .completion-text {
+        color: #3fb950;
+        font-weight: 500;
+        margin-top: 8px;
+    }
+    
+    .comments-list {
+        margin-top: 20px;
+    }
+    
+    .comment-item {
+        background: #0d1117;
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .comment-author {
+        font-size: 13px;
+        font-weight: 600;
+        color: #2f81f7;
+    }
+    
+    .comment-date {
+        font-size: 11px;
+        color: #6e7681;
+    }
+    
+    .comment-text {
+        font-size: 13px;
+        color: #c9d1d9;
+        line-height: 1.5;
+    }
+    
+    .comment-form {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid #2d2f36;
+    }
+    
+    @media (max-width: 768px) {
+        .task-hero {
+            height: 200px;
+        }
+        
+        .task-header {
+            padding: 20px;
+        }
+        
+        .task-section {
+            padding: 20px;
+        }
+        
+        .task-title {
+            font-size: 20px;
+        }
+        
+        .hero-placeholder {
+            font-size: 48px;
+        }
+        
+        .countdown-timer {
+            font-size: 18px;
+        }
+    }
+</style>
+
+<div class="task-container">
+    <a href="{% url 'tasks:my_tasks' %}" class="back-link">
+        Back to My Tasks
+    </a>
+    
+    <div class="task-hero">
+        {% if task.get_image_url %}
+            <img src="{{ task.get_image_url }}" alt="{{ task.title }}" class="task-hero-image">
+            <div class="hero-gradient-blend"></div>
+            <div class="hero-accent-overlay"></div>
+        {% elif task.job.get_image_url %}
+            <img src="{{ task.job.get_image_url }}" alt="{{ task.job.title }}" class="task-hero-image">
+            <div class="hero-gradient-blend"></div>
+            <div class="hero-accent-overlay"></div>
+        {% else %}
+            <div class="hero-placeholder">
+                {{ task.title|slice:":1"|upper }}
+                <div class="hero-placeholder-gradient"></div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="task-card">
+        
+        <!-- Header -->
+        <div class="task-header">
+            <div class="task-title-section">
+                <h1 class="task-title">{{ task.title }}</h1>
+                <div class="task-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Job:</span>
+                        <span class="meta-value">{{ task.job.title }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Assigned:</span>
+                        <span class="meta-value">{{ task.assigned_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% if task.deadline %}
+                    <div class="meta-item">
+                        <span class="meta-label">Deadline:</span>
+                        <span class="meta-value">{{ task.deadline|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                    {% if task.submitted_at %}
+                    <div class="meta-item">
+                        <span class="meta-label">Submitted:</span>
+                        <span class="meta-value">{{ task.submitted_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <span class="status-badge status-{{ task.status }}">
+                {{ task.get_status_display }}
+            </span>
+        </div>
+        
+        <!-- Countdown Timer (only if not submitted and deadline exists) -->
+        {% if task.deadline and task.status != 'submitted' and task.status != 'approved' and task.status != 'paid' %}
+        <div class="task-section" id="countdown-section">
+            <h3 class="section-title">Time Remaining</h3>
+            <div class="countdown-box" id="countdown-box">
+                <div>Deadline for submission:</div>
+                <div class="countdown-timer" id="countdown-timer">Loading...</div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Completion Message with Time Taken (if submitted) -->
+        {% if task.status == 'submitted' %}
+        <div class="task-section">
+            <div class="completion-box">
+                <div><strong>Task Submitted Successfully</strong></div>
+                <div class="completion-text">Submitted on: {{ task.submitted_at|date:"F j, Y g:i A" }}</div>
+                <div class="completion-text" id="time-taken-submitted"></div>
+                <div class="completion-text">Waiting for admin review</div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if task.status == 'approved' or task.status == 'paid' %}
+        <div class="task-section">
+            <div class="completion-box" style="border-left-color: #3fb950;">
+                <div><strong>Task Completed</strong></div>
+                {% if task.submitted_at %}
+                <div class="completion-text">Submitted on: {{ task.submitted_at|date:"F j, Y g:i A" }}</div>
+                <div class="completion-text" id="time-taken-completed"></div>
+                {% endif %}
+                {% if task.approved_at %}
+                <div class="completion-text">Approved on: {{ task.approved_at|date:"F j, Y g:i A" }}</div>
+                {% endif %}
+                {% if task.paid_at %}
+                <div class="completion-text">Paid on: {{ task.paid_at|date:"F j, Y g:i A" }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Task Info -->
+        <div class="task-section">
+            <h3 class="section-title">Task Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Budget</span>
+                    <span class="info-value">${{ task.budget_amount }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Assigned By</span>
+                    <span class="info-value">{{ task.assigned_by.get_full_name|default:task.assigned_by.username }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Assigned To</span>
+                    <span class="info-value">{{ task.assigned_to.get_full_name|default:task.assigned_to.username }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Description -->
+        <div class="task-section">
+            <h3 class="section-title">Description</h3>
+            <div class="task-description">{{ task.description|linebreaks }}</div>
+        </div>
+        
+        <!-- ============================================ -->
+        <!-- SUBMIT TASK SECTION - Shows only if not submitted -->
+        <!-- ============================================ -->
+        {% if task.status != 'submitted' and task.status != 'approved' and task.status != 'paid' %}
+        <div class="task-section">
+            <h3 class="section-title">Submit Your Work</h3>
+            
+            <!-- Start Working Button -->
+            <form method="post" style="margin-bottom: 30px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="start">
+                <button type="submit" class="btn-success" id="start-working-btn">Start Working</button>
+            </form>
+            
+            <!-- Submission Form -->
+            <div class="submit-form" id="submit-form">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="submit">
+                    <div class="form-group">
+                        <label class="form-label">Submission URL (GitHub Repository or Live Demo)</label>
+                        <input type="url" name="submission_url" class="form-input" placeholder="https://github.com/yourusername/project">
+                        <div style="font-size: 11px; color: #6e7681; margin-top: 4px;">Paste your GitHub repository link or live demo URL</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Submission Notes</label>
+                        <textarea name="submission_notes" class="form-textarea" placeholder="Describe what you have completed, any challenges faced, or additional information for the reviewer"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Attachments</label>
+                        <input type="file" name="attachments" multiple class="form-input">
+                        <div style="font-size: 11px; color: #6e7681; margin-top: 4px;">Upload screenshots, documentation, or other relevant files (optional)</div>
+                    </div>
+                    <button type="submit" class="btn-primary" id="submit-review-btn">Submit for Review</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <!-- Show message that task is already submitted/completed -->
+        <div class="task-section">
+            <div class="completion-box" style="background: rgba(47, 129, 247, 0.05); border-left-color: #2f81f7;">
+                <div><strong>Task Already {% if task.status == 'submitted' %}Submitted{% else %}Completed{% endif %}</strong></div>
+                <div class="completion-text">You cannot submit this task again.</div>
+            </div>
+        </div>
+        {% endif %}
+        <!-- ============================================ -->
+        
+        <!-- Comments Section -->
+        <div class="task-section">
+            <h3 class="section-title">Comments and Discussion</h3>
+            
+            <div class="comments-list">
+                {% for comment in comments %}
+                <div class="comment-item {% if comment.is_admin_note %}admin-note{% endif %}">
+                    <div class="comment-header">
+                        <span class="comment-author">
+                            {{ comment.user.get_full_name|default:comment.user.username }}
+                            {% if comment.is_admin_note %}(Admin Note){% endif %}
+                        </span>
+                        <span class="comment-date">{{ comment.created_at|date:"M d, Y g:i A" }}</span>
+                    </div>
+                    <div class="comment-text">{{ comment.comment|linebreaks }}</div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 40px; color: #8b949e;">
+                    No comments yet. Be the first to comment.
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="comment-form">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="form-label">Add a Comment</label>
+                        <textarea name="comment" class="form-textarea" placeholder="Write your comment here" required></textarea>
+                    </div>
+                    {% if request.user.is_superuser %}
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="is_admin_note" style="width: auto;">
+                            <span class="form-label" style="margin-bottom: 0;">Admin Note (only visible to admins)</span>
+                        </label>
+                    </div>
+                    {% endif %}
+                    <button type="submit" class="btn-primary" style="width: auto;">Post Comment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Countdown Timer JavaScript -->
+{% if task.deadline and task.status != 'submitted' and task.status != 'approved' and task.status != 'paid' %}
+<script>
+    const deadlineStr = "{{ task.deadline|date:'Y-m-d H:i:s'}}";
+    const deadline = new Date(deadlineStr.replace(' ', 'T'));
+    let timerInterval;
+    
+    function updateCountdown() {
+        const now = new Date();
+        const distance = deadline - now;
+        
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        const countdownElement = document.getElementById('countdown-timer');
+        const countdownBox = document.getElementById('countdown-box');
+        
+        if (distance < 0) {
+            clearInterval(timerInterval);
+            countdownElement.innerHTML = "DEADLINE PASSED";
+            countdownBox.style.background = 'rgba(248, 81, 73, 0.1)';
+            countdownBox.style.borderLeftColor = '#f85149';
+            countdownElement.style.color = '#f85149';
+            
+            const submitBtn = document.getElementById('submit-review-btn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.style.background = '#21262d';
+                submitBtn.style.cursor = 'not-allowed';
+            }
+            return;
+        }
+        
+        if (distance < 900000) {
+            countdownBox.classList.add('countdown-warning');
+            countdownBox.style.background = 'rgba(248, 81, 73, 0.1)';
+            countdownBox.style.borderLeftColor = '#f85149';
+            countdownElement.style.color = '#f85149';
+        } else if (distance < 3600000) {
+            countdownBox.style.background = 'rgba(210, 153, 34, 0.1)';
+            countdownBox.style.borderLeftColor = '#d29922';
+        }
+        
+        let display = '';
+        if (days > 0) display += days + 'd ';
+        if (hours > 0 || days > 0) display += hours + 'h ';
+        if (minutes > 0 || hours > 0 || days > 0) display += minutes + 'm ';
+        display += seconds + 's';
+        
+        countdownElement.innerHTML = display;
+    }
+    
+    updateCountdown();
+    timerInterval = setInterval(updateCountdown, 1000);
+</script>
+{% endif %}
+
+<!-- Time Taken Calculation JavaScript -->
+{% if task.submitted_at %}
+<script>
+    function formatTimeTaken(assignedDate, submittedDate) {
+        const assigned = new Date(assignedDate);
+        const submitted = new Date(submittedDate);
+        const diffMs = submitted - assigned;
+        
+        if (diffMs < 0) return '0 seconds';
+        
+        const diffSeconds = Math.floor(diffMs / 1000);
+        const diffMinutes = Math.floor(diffSeconds / 60);
+        const diffHours = Math.floor(diffMinutes / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        
+        if (diffDays > 0) {
+            return diffDays + ' day' + (diffDays !== 1 ? 's' : '');
+        } else if (diffHours > 0) {
+            return diffHours + ' hour' + (diffHours !== 1 ? 's' : '');
+        } else if (diffMinutes > 0) {
+            return diffMinutes + ' minute' + (diffMinutes !== 1 ? 's' : '');
+        } else {
+            return diffSeconds + ' second' + (diffSeconds !== 1 ? 's' : '');
+        }
+    }
+    
+    const assignedAt = "{{ task.assigned_at|date:'Y-m-d H:i:s'}}";
+    const submittedAt = "{{ task.submitted_at|date:'Y-m-d H:i:s'}}";
+    
+    if (assignedAt && submittedAt) {
+        const timeTakenElement1 = document.getElementById('time-taken-submitted');
+        const timeTakenElement2 = document.getElementById('time-taken-completed');
+        const timeTaken = formatTimeTaken(assignedAt, submittedAt);
+        
+        if (timeTakenElement1) {
+            timeTakenElement1.innerHTML = 'Time taken to complete: ' + timeTaken;
+        }
+        if (timeTakenElement2) {
+            timeTakenElement2.innerHTML = 'Time taken to complete: ' + timeTaken;
+        }
+    }
+</script>
+{% endif %}
+
+<!-- Disable Start Working button if already in progress or submitted -->
+<script>
+    const currentStatus = "{{ task.status }}";
+    const startBtn = document.getElementById('start-working-btn');
+    
+    if (currentStatus === 'in_progress' || currentStatus === 'submitted' || currentStatus === 'approved' || currentStatus === 'paid') {
+        if (startBtn) {
+            startBtn.disabled = true;
+            startBtn.style.background = '#21262d';
+            startBtn.style.cursor = 'not-allowed';
+            startBtn.textContent = 'Already Started';
+        }
+    }
+    
+    // If task is submitted, also disable any remaining form elements
+    if (currentStatus === 'submitted' || currentStatus === 'approved' || currentStatus === 'paid') {
+        const submitForm = document.getElementById('submit-form');
+        if (submitForm) {
+            const inputs = submitForm.querySelectorAll('input, textarea, button');
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+        }
+    }
+</script>
+
+{% endblock %}

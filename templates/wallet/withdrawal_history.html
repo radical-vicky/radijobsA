@@ -7,8 +7,20 @@
 
 <style>
     .history-container {
-        width: 100%;
-        max-width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 13px;
+    }
+    
+    .back-link:hover {
+        color: #2f81f7;
     }
     
     .history-header {
@@ -22,39 +34,68 @@
         margin-bottom: 4px;
     }
     
-    .history-list {
-        background: #161b22;
-        border: 1px solid #2d2f36;
+    .header-subtitle {
+        font-size: 13px;
+        color: #8b949e;
     }
     
-    .history-item {
-        padding: 16px 20px;
-        border-bottom: 1px solid #2d2f36;
+    .summary-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 20px;
+        margin-bottom: 24px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 12px;
+        gap: 16px;
     }
     
-    .history-item:last-child {
-        border-bottom: none;
-    }
-    
-    .history-info {
+    .summary-item {
+        text-align: center;
         flex: 1;
     }
     
-    .history-amount {
-        font-size: 16px;
-        font-weight: 600;
-        color: #e6edf3;
+    .summary-label {
+        font-size: 11px;
+        color: #8b949e;
+        text-transform: uppercase;
+        margin-bottom: 4px;
     }
     
-    .history-date {
-        font-size: 11px;
-        color: #6e7681;
-        margin-top: 4px;
+    .summary-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2f81f7;
+    }
+    
+    .withdrawals-list {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
+    .withdrawal-item {
+        padding: 20px;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .withdrawal-item:last-child {
+        border-bottom: none;
+    }
+    
+    .withdrawal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .withdrawal-amount {
+        font-size: 18px;
+        font-weight: 700;
+        color: #e6edf3;
     }
     
     .status-badge {
@@ -62,7 +103,6 @@
         padding: 4px 12px;
         font-size: 11px;
         font-weight: 500;
-        border-radius: 20px;
     }
     
     .status-pending {
@@ -89,51 +129,199 @@
         border: 1px solid rgba(248, 81, 73, 0.3);
     }
     
+    .withdrawal-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        font-size: 12px;
+        color: #8b949e;
+        margin-bottom: 8px;
+    }
+    
+    .detail-item {
+        display: flex;
+        gap: 4px;
+    }
+    
+    .detail-label {
+        color: #6e7681;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 24px;
+    }
+    
+    .page-link {
+        padding: 8px 12px;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 13px;
+    }
+    
+    .page-link:hover {
+        border-color: #2f81f7;
+        color: #2f81f7;
+    }
+    
+    .page-current {
+        background: #2f81f7;
+        color: white;
+        border-color: #2f81f7;
+    }
+    
     .empty-state {
         text-align: center;
-        padding: 48px 20px;
+        padding: 60px 20px;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
+    .empty-text {
+        font-size: 16px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .empty-subtext {
+        font-size: 13px;
         color: #8b949e;
     }
     
     @media (max-width: 640px) {
-        .header-title {
-            font-size: 20px;
+        .summary-card {
+            flex-direction: column;
         }
         
-        .history-item {
+        .withdrawal-header {
             flex-direction: column;
-            align-items: flex-start;
+        }
+        
+        .withdrawal-details {
+            flex-direction: column;
+            gap: 8px;
         }
     }
 </style>
 
 <div class="history-container">
+    <a href="{% url 'wallet:dashboard' %}" class="back-link">
+        Back to Wallet
+    </a>
+    
     <div class="history-header">
         <h1 class="header-title">Withdrawal History</h1>
-        <p class="header-subtitle">View all your withdrawal requests</p>
+        <p class="header-subtitle">Track your withdrawal requests</p>
     </div>
     
-    {% if withdrawals %}
-        <div class="history-list">
+    <div class="summary-card">
+        <div class="summary-item">
+            <div class="summary-label">Total Withdrawn</div>
+            <div class="summary-value">${{ total_withdrawn|default:"0"|floatformat:2 }}</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Pending Withdrawals</div>
+            <div class="summary-value">${{ pending_total|default:"0"|floatformat:2 }}</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Completed Withdrawals</div>
+            <div class="summary-value">{{ completed_count|default:"0" }}</div>
+        </div>
+    </div>
+    
+    <div class="withdrawals-list">
+        {% if withdrawals %}
             {% for withdrawal in withdrawals %}
-            <div class="history-item">
-                <div class="history-info">
-                    <div class="history-amount">${{ withdrawal.amount|floatformat:2 }}</div>
-                    <div class="history-date">{{ withdrawal.requested_at|date:"M d, Y H:i" }}</div>
-                    <div class="history-date">Fee: ${{ withdrawal.fee|floatformat:2 }} | Net: ${{ withdrawal.net_amount|floatformat:2 }}</div>
-                </div>
-                <div>
+            <div class="withdrawal-item">
+                <div class="withdrawal-header">
+                    <div class="withdrawal-amount">${{ withdrawal.amount|floatformat:2 }}</div>
                     <span class="status-badge status-{{ withdrawal.status }}">
                         {{ withdrawal.get_status_display }}
                     </span>
                 </div>
+                <div class="withdrawal-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Payment Method:</span>
+                        <span>{{ withdrawal.get_payment_method_display }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Fee:</span>
+                        <span>${{ withdrawal.fee|floatformat:2 }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Net Amount:</span>
+                        <span>${{ withdrawal.net_amount|floatformat:2 }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Requested:</span>
+                        <span>{{ withdrawal.requested_at|date:"M d, Y g:i A" }}</span>
+                    </div>
+                    {% if withdrawal.processed_at %}
+                    <div class="detail-item">
+                        <span class="detail-label">Processed:</span>
+                        <span>{{ withdrawal.processed_at|date:"M d, Y g:i A" }}</span>
+                    </div>
+                    {% endif %}
+                    {% if withdrawal.completed_at %}
+                    <div class="detail-item">
+                        <span class="detail-label">Completed:</span>
+                        <span>{{ withdrawal.completed_at|date:"M d, Y g:i A" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if withdrawal.destination_details %}
+                <div class="withdrawal-details" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #2d2f36;">
+                    <div class="detail-item">
+                        <span class="detail-label">Destination:</span>
+                        <span>
+                            {% if withdrawal.payment_method == 'paypal' %}
+                                {{ withdrawal.destination_details.email|default:"N/A" }}
+                            {% elif withdrawal.payment_method == 'mpesa' %}
+                                {{ withdrawal.destination_details.phone|default:"N/A" }}
+                            {% elif withdrawal.payment_method == 'bank_account' %}
+                                {{ withdrawal.destination_details.bank_name|default:"N/A" }} - {{ withdrawal.destination_details.account_number|default:"N/A" }}
+                            {% else %}
+                                {{ withdrawal.destination_details|default:"N/A" }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+                {% if withdrawal.admin_notes %}
+                <div class="withdrawal-details" style="margin-top: 8px; color: #d29922;">
+                    <div class="detail-item">
+                        <span class="detail-label">Admin Note:</span>
+                        <span>{{ withdrawal.admin_notes }}</span>
+                    </div>
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
-        </div>
-    {% else %}
-        <div class="empty-state">
-            <div class="empty-text">No withdrawal requests yet</div>
-        </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-text">No withdrawal requests yet</div>
+                <div class="empty-subtext">Request a withdrawal to see it here</div>
+            </div>
+        {% endif %}
+    </div>
+    
+    {% if withdrawals.has_other_pages %}
+    <div class="pagination">
+        {% if withdrawals.has_previous %}
+            <a href="?page={{ withdrawals.previous_page_number }}" class="page-link">Previous</a>
+        {% endif %}
+        
+        <span class="page-link page-current">Page {{ withdrawals.number }} of {{ withdrawals.paginator.num_pages }}</span>
+        
+        {% if withdrawals.has_next %}
+            <a href="?page={{ withdrawals.next_page_number }}" class="page-link">Next</a>
+        {% endif %}
+    </div>
     {% endif %}
 </div>
 

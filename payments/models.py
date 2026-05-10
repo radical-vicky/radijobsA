@@ -102,6 +102,10 @@ class PaymentTransaction(models.Model):
         self.processed_at = timezone.now()
         self.save()
 
+
+
+
+
 class PaymentWebhookLog(models.Model):
     """Log all incoming webhooks from payment gateways"""
     gateway = models.CharField(max_length=50)  # binance, paypal, mpesa, etc.

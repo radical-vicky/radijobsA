@@ -1,0 +1,25 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<div class="container" style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h2>Hire {{ application.user.get_full_name }}</h2>
+    <p><strong>Job:</strong> {{ application.job.title }}</p>
+    <p><strong>Applicant:</strong> {{ application.user.email }}</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Start Date:</label>
+            <input type="date" name="start_date" required 
+                   min="{% now 'Y-m-d' %}"
+                   style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <small style="color: #666;">Select the employee's start date</small>
+        </div>
+        <button type="submit" style="background: #2f81f7; color: white; padding: 10px 20px; border: none; cursor: pointer;">
+            Hire Applicant
+        </button>
+        <a href="{% url 'application:admin_applications' %}" style="margin-left: 10px; padding: 10px 20px; background: #666; color: white; text-decoration: none;">
+            Cancel
+        </a>
+    </form>
+</div>
+{% endblock %}

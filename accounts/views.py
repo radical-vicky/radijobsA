@@ -21,7 +21,8 @@ from jobs.models import Job
 from application.models import Application
 from tasks.models import Task
 from wallet.models import UserWallet, Transaction, WithdrawalRequest
-from notifications.models import Notification, create_notification
+from notifications.models import Notification
+from notifications.models import create_notification
 
 
 # ==================== DASHBOARD VIEWS ====================
@@ -40,15 +41,13 @@ def dashboard(request):
 @login_required
 def admin_dashboard(request):
     """Admin dashboard with platform statistics"""
-    if not request.user.is_admin:
+    if not request.user.is_superuser:
         messages.error(request, "Access denied. Admin only.")
         return redirect('accounts:dashboard')
     
-    # Get date range for filtering
     today = timezone.now().date()
     thirty_days_ago = today - timezone.timedelta(days=30)
     
-    # Basic statistics
     total_users = User.objects.count()
     total_applicants = User.objects.filter(role='applicant').count()
     total_freelancers = User.objects.filter(role='freelancer').count()
@@ -57,48 +56,35 @@ def admin_dashboard(request):
     pending_applications = Application.objects.filter(status='pending').count()
     total_applications = Application.objects.count()
     
-    # Task statistics
     total_tasks = Task.objects.count()
     completed_tasks = Task.objects.filter(status='paid').count()
     pending_tasks = Task.objects.filter(status='assigned').count()
     
-    # Revenue statistics
     total_withdrawals = WithdrawalRequest.objects.filter(status='completed').aggregate(Sum('amount'))['amount__sum'] or 0
     withdrawal_fees = WithdrawalRequest.objects.filter(status='completed').aggregate(Sum('fee'))['fee__sum'] or 0
-    subscription_revenue = 0  # Calculate from subscription payments
+    subscription_revenue = 0
     
-    # Recent data
     recent_applications = Application.objects.all().select_related('user', 'job').order_by('-created_at')[:10]
     recent_users = User.objects.all().order_by('-date_joined')[:10]
     recent_withdrawals = WithdrawalRequest.objects.filter(status='pending').order_by('-requested_at')[:10]
     
-    # Monthly trends (last 6 months)
     monthly_user_trend = []
     monthly_job_trend = []
     for i in range(6):
         month_start = timezone.now() - timezone.timedelta(days=30 * i)
         month_users = User.objects.filter(date_joined__month=month_start.month, date_joined__year=month_start.year).count()
         month_jobs = Job.objects.filter(created_at__month=month_start.month, created_at__year=month_start.year).count()
-        monthly_user_trend.append({
-            'month': month_start.strftime('%b'),
-            'count': month_users
-        })
-        monthly_job_trend.append({
-            'month': month_start.strftime('%b'),
-            'count': month_jobs
-        })
+        monthly_user_trend.append({'month': month_start.strftime('%b'), 'count': month_users})
+        monthly_job_trend.append({'month': month_start.strftime('%b'), 'count': month_jobs})
     
-    # User growth stats
     new_users_30d = User.objects.filter(date_joined__gte=thirty_days_ago).count()
     new_applicants_30d = User.objects.filter(role='applicant', date_joined__gte=thirty_days_ago).count()
     new_freelancers_30d = User.objects.filter(role='freelancer', date_joined__gte=thirty_days_ago).count()
     
-    # Get trending jobs for right sidebar
     trending_jobs = Job.objects.filter(is_active=True).order_by('-view_count')[:5]
     recent_notifications = Notification.objects.filter(user=request.user)[:5]
     
     context = {
-        # Basic stats
         'total_users': total_users,
         'total_applicants': total_applicants,
         'total_freelancers': total_freelancers,
@@ -106,34 +92,22 @@ def admin_dashboard(request):
         'total_jobs': total_jobs,
         'pending_applications': pending_applications,
         'total_applications': total_applications,
-        
-        # Task stats
         'total_tasks': total_tasks,
         'completed_tasks': completed_tasks,
         'pending_tasks': pending_tasks,
         'completion_rate': int((completed_tasks / total_tasks * 100)) if total_tasks > 0 else 0,
-        
-        # Revenue stats
         'total_withdrawals': total_withdrawals,
         'withdrawal_fees': withdrawal_fees,
         'subscription_revenue': subscription_revenue,
         'total_revenue': subscription_revenue + withdrawal_fees,
-        
-        # Recent data
         'recent_applications': recent_applications,
         'recent_users': recent_users,
         'recent_withdrawals': recent_withdrawals,
-        
-        # Trends
         'monthly_user_trend': json.dumps(list(reversed(monthly_user_trend))),
         'monthly_job_trend': json.dumps(list(reversed(monthly_job_trend))),
-        
-        # Growth stats
         'new_users_30d': new_users_30d,
         'new_applicants_30d': new_applicants_30d,
         'new_freelancers_30d': new_freelancers_30d,
-        
-        # For right sidebar
         'trending_jobs': trending_jobs,
         'recent_notifications': recent_notifications,
     }
@@ -147,95 +121,59 @@ def freelancer_dashboard(request):
         messages.error(request, "Access denied. Freelancer only.")
         return redirect('accounts:dashboard')
     
-    # Get or create wallet
     wallet, created = UserWallet.objects.get_or_create(user=request.user)
     
-    # Task statistics
     assigned_tasks = Task.objects.filter(assigned_to=request.user, status='assigned')
     in_progress_tasks = Task.objects.filter(assigned_to=request.user, status='in_progress')
     submitted_tasks = Task.objects.filter(assigned_to=request.user, status='submitted')
-    approved_tasks = Task.objects.filter(assigned_to=request.user, status='approved')
     completed_tasks = Task.objects.filter(assigned_to=request.user, status='paid')
-    revision_tasks = Task.objects.filter(assigned_to=request.user, status='revision_requested')
     
-    # Recent transactions
     recent_transactions = Transaction.objects.filter(user=request.user).order_by('-created_at')[:10]
     
-    # Recent notifications
-    recent_notifications = Notification.objects.filter(user=request.user)[:5]
-    
-    # Withdrawal statistics
     pending_withdrawals = WithdrawalRequest.objects.filter(user=request.user, status='pending').aggregate(Sum('amount'))['amount__sum'] or 0
     total_withdrawn = wallet.total_withdrawn
-    
-    # Recent completed tasks (last 5)
-    recent_completed = Task.objects.filter(assigned_to=request.user, status='paid').order_by('-paid_at')[:5]
-    
-    # For right sidebar
-    trending_jobs = Job.objects.filter(is_active=True).order_by('-view_count')[:5]
     
     context = {
         'wallet': wallet,
         'assigned_tasks': assigned_tasks,
         'in_progress_tasks': in_progress_tasks,
         'submitted_tasks': submitted_tasks,
-        'approved_tasks': approved_tasks,
         'completed_tasks': completed_tasks,
-        'revision_tasks': revision_tasks,
         'recent_transactions': recent_transactions,
-        'recent_notifications': recent_notifications,
         'pending_withdrawals': pending_withdrawals,
         'total_withdrawn': total_withdrawn,
-        'recent_completed': recent_completed,
-        
-        # Task counts
         'assigned_count': assigned_tasks.count(),
         'in_progress_count': in_progress_tasks.count(),
         'submitted_count': submitted_tasks.count(),
         'completed_count': completed_tasks.count(),
-        
-        # For right sidebar
-        'trending_jobs': trending_jobs,
-        'total_jobs': Job.objects.filter(is_active=True).count(),
-        'total_freelancers': User.objects.filter(role='freelancer').count(),
-        'active_jobs': Job.objects.filter(is_active=True).count(),
     }
     return render(request, 'dashboard/freelancer_dashboard.html', context)
 
 
 @login_required
 def applicant_dashboard(request):
-    """Applicant dashboard with applications and quiz status"""
+    """Applicant dashboard with applications and job search"""
     if request.user.role != 'applicant':
         messages.error(request, "Access denied. Applicant only.")
         return redirect('accounts:dashboard')
     
-    # Get all applications
     applications = Application.objects.filter(user=request.user).select_related('job').order_by('-created_at')
     
-    # Application statistics
     total_applications = applications.count()
     pending_applications = applications.filter(status='pending').count()
+    shortlisted_applications = applications.filter(status='shortlisted').count()
     approved_applications = applications.filter(status='approved').count()
     interview_applications = applications.filter(status='interview_scheduled').count()
     hired_applications = applications.filter(status='hired').count()
     rejected_applications = applications.filter(status='rejected').count()
     
-    # Recent applications
     recent_applications = applications[:10]
     
-    # Quiz statistics
-    quiz_taken = applications.exclude(quiz_score__isnull=True).count()
-    quiz_passed = applications.filter(quiz_score__gte=70).count()
+    upcoming_interviews = applications.filter(
+        interview_scheduled_at__isnull=False,
+        interview_scheduled_at__gte=timezone.now()
+    ).order_by('interview_scheduled_at')[:5]
     
-    # Calculate average quiz score
-    quiz_scores = applications.exclude(quiz_score__isnull=True).values_list('quiz_score', flat=True)
-    if quiz_scores:
-        avg_quiz_score = sum(quiz_scores) / len(quiz_scores)
-    else:
-        avg_quiz_score = 0
-    
-    # Job recommendations (based on previous applications)
     if applications.exists():
         skills_used = []
         for app in applications[:5]:
@@ -259,24 +197,19 @@ def applicant_dashboard(request):
         'recent_applications': recent_applications,
         'has_active_subscription': request.user.has_active_subscription,
         'subscription_expires_at': request.user.subscription_expires_at,
-        
-        # Statistics
         'total_applications': total_applications,
         'pending_applications': pending_applications,
+        'shortlisted_applications': shortlisted_applications,
         'approved_applications': approved_applications,
         'interview_applications': interview_applications,
         'hired_applications': hired_applications,
         'rejected_applications': rejected_applications,
-        
-        # Quiz stats
-        'quiz_taken': quiz_taken,
-        'quiz_passed': quiz_passed,
-        'avg_quiz_score': round(avg_quiz_score, 1),
-        
-        # Recommendations
+        'upcoming_interviews': upcoming_interviews,
         'recommended_jobs': recommended_jobs,
     }
     return render(request, 'dashboard/applicant_dashboard.html', context)
+
+
 # ==================== PROFILE VIEWS ====================
 
 @login_required
@@ -293,7 +226,6 @@ def profile(request):
     else:
         form = UserProfileForm(instance=request.user)
     
-    # Initialize variables
     total_applications = 0
     hired_count = 0
     completed_tasks = 0
@@ -307,7 +239,6 @@ def profile(request):
     wallet = None
     recent_notifications = []
     
-    # Get role-specific data
     if request.user.is_applicant:
         total_applications = Application.objects.filter(user=request.user).count()
         hired_count = Application.objects.filter(user=request.user, status='hired').count()
@@ -320,13 +251,11 @@ def profile(request):
         in_progress_tasks = Task.objects.filter(assigned_to=request.user, status='in_progress').count()
         assigned_tasks = Task.objects.filter(assigned_to=request.user, status='assigned')[:5]
         
-    elif request.user.is_admin:
+    elif request.user.is_superuser:
         total_users = User.objects.count()
         active_jobs = Job.objects.filter(is_active=True).count()
         pending_applications = Application.objects.filter(status='pending').count()
     
-    # Get recent notifications
-    from notifications.models import Notification
     recent_notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:5]
     
     context = {
@@ -344,7 +273,7 @@ def profile(request):
         'assigned_tasks': assigned_tasks,
         'wallet': wallet,
         'recent_notifications': recent_notifications,
-        'avatar_url': request.user.avatar.url if request.user.avatar else None,  # Add this line
+        'avatar_url': request.user.avatar.url if request.user.avatar else None,
     }
     return render(request, 'accounts/profile.html', context)
 
@@ -393,7 +322,6 @@ def payment_methods(request):
         payment_type = request.POST.get('payment_type')
         is_default = request.POST.get('is_default') == 'on'
         
-        # Create payment method based on type
         payment_method = UserPaymentMethod(
             user=request.user,
             payment_type=payment_type,
@@ -422,7 +350,6 @@ def payment_methods(request):
             payment_method.expiry_month = request.POST.get('expiry_month')
             payment_method.expiry_year = request.POST.get('expiry_year')
         
-        # Validate required fields
         if payment_type == 'paypal' and not payment_method.account_email:
             messages.error(request, 'PayPal email is required')
             return redirect('accounts:payment_methods')
@@ -433,9 +360,7 @@ def payment_methods(request):
             messages.error(request, 'Bank account number is required')
             return redirect('accounts:payment_methods')
         
-        # If this is the first method or is_default is True, make it default
         if is_default or not methods.exists():
-            # Remove default from all other methods
             UserPaymentMethod.objects.filter(user=request.user).update(is_default=False)
             payment_method.is_default = True
         
@@ -443,20 +368,17 @@ def payment_methods(request):
         messages.success(request, f"{dict(UserPaymentMethod.PAYMENT_TYPES).get(payment_type, payment_type)} added successfully!")
         return redirect('accounts:payment_methods')
     
-    context = {
-        'methods': methods,
-    }
+    context = {'methods': methods}
     return render(request, 'accounts/payment_methods.html', context)
+
 
 @login_required
 def set_default_payment_method(request, pk):
     """Set a payment method as default"""
     payment_method = get_object_or_404(UserPaymentMethod, pk=pk, user=request.user)
     
-    # Remove default from all other methods
     UserPaymentMethod.objects.filter(user=request.user).update(is_default=False)
     
-    # Set this as default
     payment_method.is_default = True
     payment_method.save()
     
@@ -470,7 +392,6 @@ def delete_payment_method(request, pk):
     payment_method = get_object_or_404(UserPaymentMethod, pk=pk, user=request.user)
     payment_method.delete()
     
-    # If we deleted the default and there are other methods, make another default
     if not UserPaymentMethod.objects.filter(user=request.user, is_default=True).exists():
         next_method = UserPaymentMethod.objects.filter(user=request.user).first()
         if next_method:
@@ -484,12 +405,11 @@ def delete_payment_method(request, pk):
 # ==================== ADMIN USER MANAGEMENT ====================
 
 @login_required
-@user_passes_test(lambda u: u.is_admin)
+@user_passes_test(lambda u: u.is_superuser)
 def user_list(request):
     """Admin: List all users with filters"""
     users = User.objects.all()
     
-    # Filters
     role_filter = request.GET.get('role', '')
     if role_filter:
         users = users.filter(role=role_filter)
@@ -506,7 +426,6 @@ def user_list(request):
     elif subscription_filter == 'inactive':
         users = users.filter(is_subscription_active=False)
     
-    # Search
     search_query = request.GET.get('q', '')
     if search_query:
         users = users.filter(
@@ -516,12 +435,10 @@ def user_list(request):
             Q(last_name__icontains=search_query)
         )
     
-    # Pagination
     paginator = Paginator(users, 25)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # Statistics
     stats = {
         'total': User.objects.count(),
         'admins': User.objects.filter(role='admin').count(),
@@ -542,12 +459,11 @@ def user_list(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_admin)
+@user_passes_test(lambda u: u.is_superuser)
 def user_detail(request, pk):
     """Admin: View user details"""
     user_detail = get_object_or_404(User, pk=pk)
     
-    # Get user-specific data
     wallet, created = UserWallet.objects.get_or_create(user=user_detail)
     applications = Application.objects.filter(user=user_detail).select_related('job')
     tasks = Task.objects.filter(assigned_to=user_detail)
@@ -569,7 +485,7 @@ def user_detail(request, pk):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_admin)
+@user_passes_test(lambda u: u.is_superuser)
 def user_toggle_status(request, pk):
     """Admin: Activate/deactivate user"""
     user_obj = get_object_or_404(User, pk=pk)
@@ -579,7 +495,6 @@ def user_toggle_status(request, pk):
     status = "activated" if user_obj.is_active else "deactivated"
     messages.success(request, f"User '{user_obj.email}' has been {status}.")
     
-    # Send notification email
     if not user_obj.is_active:
         send_account_suspended_email(user_obj)
     
@@ -587,7 +502,7 @@ def user_toggle_status(request, pk):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_admin)
+@user_passes_test(lambda u: u.is_superuser)
 def user_change_role(request, pk):
     """Admin: Change user role"""
     if request.method == 'POST':
@@ -601,7 +516,6 @@ def user_change_role(request, pk):
             
             messages.success(request, f"User '{user_obj.email}' role changed from {old_role} to {new_role}.")
             
-            # Create notification for user
             create_notification(
                 user=user_obj,
                 notification_type='system',
@@ -614,7 +528,7 @@ def user_change_role(request, pk):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_admin)
+@user_passes_test(lambda u: u.is_superuser)
 def user_export(request):
     """Admin: Export users to CSV"""
     response = HttpResponse(content_type='text/csv')
@@ -646,13 +560,13 @@ def send_account_suspended_email(user):
     """Send email notification when account is suspended"""
     subject = "Your RadiloxRemoteJobs account has been suspended"
     message = f"""
-    Dear {user.get_full_name() or user.username},
-    
-    Your RadiloxRemoteJobs account has been suspended. If you believe this is an error, please contact support.
-    
-    Regards,
-    RadiloxRemoteJobs Team
-    """
+Dear {user.get_full_name() or user.username},
+
+Your RadiloxRemoteJobs account has been suspended. If you believe this is an error, please contact support.
+
+Regards,
+RadiloxRemoteJobs Team
+"""
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=True)
 
 
@@ -661,7 +575,7 @@ def send_account_suspended_email(user):
 @login_required
 def get_notifications_ajax(request):
     """AJAX: Get unread notifications count"""
-    unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+    unread_count = Notification.objects.filter(user=request.user, status='unread').count()
     return JsonResponse({'unread_count': unread_count})
 
 
@@ -669,8 +583,8 @@ def get_notifications_ajax(request):
 def mark_all_notifications_read(request):
     """AJAX: Mark all notifications as read"""
     if request.method == 'POST':
-        Notification.objects.filter(user=request.user, is_read=False).update(
-            is_read=True,
+        Notification.objects.filter(user=request.user, status='unread').update(
+            status='read',
             read_at=timezone.now()
         )
         return JsonResponse({'success': True})

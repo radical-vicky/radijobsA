@@ -1,0 +1,64 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<h1>Withdrawal Requests</h1>
+<p>Pending: {{ pending_count }}</p>
+
+<div class="results">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Amount</th>
+                <th>Fee</th>
+                <th>Net Amount</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th>Requested</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for withdrawal in withdrawals %}
+            <tr>
+                <td>{{ withdrawal.id }}</td>
+                <td>{{ withdrawal.user.username }}</td>
+                <td>${{ withdrawal.amount }}</td>
+                <td>${{ withdrawal.fee }}</td>
+                <td>${{ withdrawal.net_amount }}</td>
+                <td>{{ withdrawal.get_payment_method_display }}</td>
+                <td>{{ withdrawal.get_status_display }}</td>
+                <td>{{ withdrawal.requested_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    {% if withdrawal.status == 'pending' %}
+                    <form method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="withdrawal_id" value="{{ withdrawal.id }}">
+                        <input type="hidden" name="action" value="process">
+                        <button type="submit" style="background: #2f81f7; color: white; padding: 4px 8px;">Process</button>
+                    </form>
+                    {% endif %}
+                    {% if withdrawal.status == 'processing' %}
+                    <form method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="withdrawal_id" value="{{ withdrawal.id }}">
+                        <input type="hidden" name="action" value="complete">
+                        <button type="submit" style="background: #3fb950; color: white; padding: 4px 8px;">Complete</button>
+                    </form>
+                    {% endif %}
+                    {% if withdrawal.status == 'pending' %}
+                    <form method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="withdrawal_id" value="{{ withdrawal.id }}">
+                        <input type="hidden" name="action" value="fail">
+                        <input type="text" name="reason" placeholder="Reason" style="width: 150px;">
+                        <button type="submit" style="background: #f85149; color: white; padding: 4px 8px;">Fail</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

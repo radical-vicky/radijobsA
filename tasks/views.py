@@ -3,74 +3,109 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Sum  # Add Sum here
 from django.conf import settings
 from .models import Task, TaskComment, TaskAttachment
-from .forms import TaskForm, TaskSubmitForm, TaskReviewForm, TaskCommentForm
+from .forms import TaskForm, TaskCommentForm
 from wallet.models import UserWallet, Transaction
-from notifications.models import create_notification
+from notifications.models import Notification
+
 
 # ==================== FREELANCER VIEWS ====================
 
 @login_required
 def my_tasks(request):
-    """Show all tasks assigned to the logged-in freelancer"""
-    tasks = Task.objects.filter(assigned_to=request.user).order_by('-created_at')
+    """Show all tasks assigned to the logged-in freelancer, grouped by status"""
+    all_tasks = Task.objects.filter(assigned_to=request.user).order_by('-created_at')
     
-    # Filter by status
-    status_filter = request.GET.get('status', '')
-    if status_filter:
-        tasks = tasks.filter(status=status_filter)
+    assigned_tasks = all_tasks.filter(status='assigned')
+    in_progress_tasks = all_tasks.filter(status='in_progress')
+    submitted_tasks = all_tasks.filter(status='submitted')
+    completed_tasks = all_tasks.filter(status__in=['approved', 'paid'])
     
-    # Pagination
-    paginator = Paginator(tasks, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    # History tasks (completed, paid, rejected)
+    history_tasks = all_tasks.filter(status__in=['paid', 'approved', 'rejected']).order_by('-paid_at', '-approved_at', '-created_at')
     
-    # Count by status for dashboard
-    status_counts = {
-        'assigned': Task.objects.filter(assigned_to=request.user, status='assigned').count(),
-        'in_progress': Task.objects.filter(assigned_to=request.user, status='in_progress').count(),
-        'submitted': Task.objects.filter(assigned_to=request.user, status='submitted').count(),
-        'approved': Task.objects.filter(assigned_to=request.user, status='approved').count(),
-        'paid': Task.objects.filter(assigned_to=request.user, status='paid').count(),
-        'revision_requested': Task.objects.filter(assigned_to=request.user, status='revision_requested').count(),
-    }
+    # Statistics for history
+    total_paid_tasks = all_tasks.filter(status='paid').count()
+    total_rejected_tasks = all_tasks.filter(status='rejected').count()
+    total_earnings = all_tasks.filter(status='paid').aggregate(Sum('budget_amount'))['budget_amount__sum'] or 0
+    
+    assigned_count = assigned_tasks.count()
+    in_progress_count = in_progress_tasks.count()
+    submitted_count = submitted_tasks.count()
+    completed_count = completed_tasks.count()
     
     context = {
-        'tasks': page_obj,
-        'status_counts': status_counts,
-        'current_status': status_filter,
+        'assigned_tasks': assigned_tasks,
+        'in_progress_tasks': in_progress_tasks,
+        'submitted_tasks': submitted_tasks,
+        'completed_tasks': completed_tasks,
+        'history_tasks': history_tasks,
+        'assigned_count': assigned_count,
+        'in_progress_count': in_progress_count,
+        'submitted_count': submitted_count,
+        'completed_count': completed_count,
+        'total_paid_tasks': total_paid_tasks,
+        'total_rejected_tasks': total_rejected_tasks,
+        'total_earnings': total_earnings,
     }
     return render(request, 'tasks/my_tasks.html', context)
+
 
 @login_required
 def task_detail(request, pk):
     """View detailed task information"""
     task = get_object_or_404(Task, pk=pk)
     
-    # Ensure user has permission (assigned freelancer or admin)
-    if task.assigned_to != request.user and not request.user.is_admin:
+    if task.assigned_to != request.user and not request.user.is_superuser:
         messages.error(request, "You don't have permission to view this task.")
         return redirect('tasks:my_tasks')
     
-    # Get comments
-    comments = task.comments.filter(is_admin_note=False) if not request.user.is_admin else task.comments.all()
+    comments = task.comments.filter(is_admin_note=False) if not request.user.is_superuser else task.comments.all()
     
-    # Handle comment submission
     if request.method == 'POST' and 'comment' in request.POST:
         form = TaskCommentForm(request.POST)
         if form.is_valid():
             comment = form.save(commit=False)
             comment.task = task
             comment.user = request.user
-            if request.user.is_admin:
+            if request.user.is_superuser:
                 comment.is_admin_note = 'is_admin_note' in request.POST
             comment.save()
             messages.success(request, "Comment added successfully!")
             return redirect('tasks:detail', pk=task.pk)
     
     form = TaskCommentForm()
+    
+    if request.method == 'POST' and 'action' in request.POST:
+        action = request.POST.get('action')
+        
+        if action == 'start' and task.status == 'assigned':
+            if task.start_task():
+                messages.success(request, f"Task '{task.title}' marked as in progress. Good luck!")
+            else:
+                messages.error(request, "Unable to start this task.")
+            return redirect('tasks:detail', pk=task.pk)
+        
+        elif action == 'submit':
+            submission_url = request.POST.get('submission_url', '')
+            submission_notes = request.POST.get('submission_notes', '')
+            
+            files = request.FILES.getlist('attachments')
+            for file in files:
+                TaskAttachment.objects.create(
+                    task=task,
+                    file=file,
+                    filename=file.name,
+                    uploaded_by=request.user
+                )
+            
+            if task.submit_task(submission_url, submission_notes):
+                messages.success(request, "Task submitted successfully! Waiting for admin review.")
+            else:
+                messages.error(request, "Failed to submit task.")
+            return redirect('tasks:detail', pk=task.pk)
     
     context = {
         'task': task,
@@ -79,6 +114,7 @@ def task_detail(request, pk):
     }
     return render(request, 'tasks/task_detail.html', context)
 
+
 @login_required
 def start_task(request, pk):
     """Mark task as in progress"""
@@ -86,17 +122,11 @@ def start_task(request, pk):
     
     if task.start_task():
         messages.success(request, f"Task '{task.title}' marked as in progress. Good luck!")
-        create_notification(
-            user=task.assigned_by,
-            notification_type='task',
-            title='Task Started',
-            message=f"{request.user.username} has started working on task: {task.title}",
-            link=f'/tasks/{task.id}/'
-        )
     else:
         messages.error(request, "Unable to start this task. It may already be in progress.")
     
     return redirect('tasks:detail', pk=task.pk)
+
 
 @login_required
 def submit_task(request, pk):
@@ -108,50 +138,38 @@ def submit_task(request, pk):
         return redirect('tasks:detail', pk=task.pk)
     
     if request.method == 'POST':
-        form = TaskSubmitForm(request.POST, request.FILES, instance=task)
-        if form.is_valid():
-            task = form.save(commit=False)
-            
-            # Handle file attachments
-            files = request.FILES.getlist('attachments')
-            for file in files:
-                TaskAttachment.objects.create(
-                    task=task,
-                    file=file,
-                    filename=file.name,
-                    uploaded_by=request.user
-                )
-            
-            if task.submit_task(task.submission_url, task.submission_notes):
-                messages.success(request, "Task submitted successfully! Waiting for admin review.")
-                create_notification(
-                    user=task.assigned_by,
-                    notification_type='task',
-                    title='Task Submitted',
-                    message=f"{request.user.username} has submitted task: {task.title} for review",
-                    link=f'/tasks/admin/review/{task.id}/'
-                )
-                return redirect('tasks:detail', pk=task.pk)
-            else:
-                messages.error(request, "Failed to submit task. Please try again.")
-    else:
-        form = TaskSubmitForm(instance=task)
+        submission_url = request.POST.get('submission_url', '')
+        submission_notes = request.POST.get('submission_notes', '')
+        
+        files = request.FILES.getlist('attachments')
+        for file in files:
+            TaskAttachment.objects.create(
+                task=task,
+                file=file,
+                filename=file.name,
+                uploaded_by=request.user
+            )
+        
+        if task.submit_task(submission_url, submission_notes):
+            messages.success(request, "Task submitted successfully! Waiting for admin review.")
+            return redirect('tasks:detail', pk=task.pk)
+        else:
+            messages.error(request, "Failed to submit task. Please try again.")
     
     context = {
         'task': task,
-        'form': form,
     }
     return render(request, 'tasks/submit_task.html', context)
+
 
 # ==================== ADMIN VIEWS ====================
 
 @login_required
-@user_passes_test(lambda u: u.is_admin)
+@user_passes_test(lambda u: u.is_superuser)
 def admin_tasks(request):
     """Admin view all tasks"""
     tasks = Task.objects.all().order_by('-created_at')
     
-    # Filtering
     status_filter = request.GET.get('status', '')
     freelancer_filter = request.GET.get('freelancer', '')
     job_filter = request.GET.get('job', '')
@@ -163,12 +181,10 @@ def admin_tasks(request):
     if job_filter:
         tasks = tasks.filter(job_id=job_filter)
     
-    # Pagination
     paginator = Paginator(tasks, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # Get filter options
     from accounts.models import User
     from jobs.models import Job
     freelancers = User.objects.filter(role='freelancer')
@@ -191,8 +207,9 @@ def admin_tasks(request):
     }
     return render(request, 'tasks/admin_tasks.html', context)
 
+
 @login_required
-@user_passes_test(lambda u: u.is_admin)
+@user_passes_test(lambda u: u.is_superuser)
 def assign_task(request):
     """Admin assign a new task to a freelancer"""
     if request.method == 'POST':
@@ -203,17 +220,9 @@ def assign_task(request):
             task.status = 'assigned'
             task.save()
             
+            task.assign_task(request.user)
+            
             messages.success(request, f"Task '{task.title}' assigned to {task.assigned_to.email}")
-            
-            # Send notification to freelancer
-            create_notification(
-                user=task.assigned_to,
-                notification_type='task',
-                title='New Task Assigned',
-                message=f"You have been assigned a new task: {task.title}. Budget: ${task.budget_amount}",
-                link=f'/tasks/{task.id}/'
-            )
-            
             return redirect('tasks:admin_tasks')
     else:
         form = TaskForm()
@@ -223,140 +232,81 @@ def assign_task(request):
     }
     return render(request, 'tasks/assign_task.html', context)
 
+
 @login_required
-@user_passes_test(lambda u: u.is_admin)
+@user_passes_test(lambda u: u.is_superuser)
 def review_task(request, pk):
     """Admin review submitted task"""
     task = get_object_or_404(Task, pk=pk, status='submitted')
     
     if request.method == 'POST':
-        form = TaskReviewForm(request.POST)
-        if form.is_valid():
-            action = form.cleaned_data['action']
-            feedback = form.cleaned_data.get('feedback', '')
+        action = request.POST.get('action')
+        feedback = request.POST.get('feedback', '')
+        
+        if action == 'approve':
+            task.approve_task()
+            messages.success(request, f"Task '{task.title}' approved! Ready for payment.")
             
-            if action == 'approve':
-                task.approve_task()
-                messages.success(request, f"Task '{task.title}' approved! Ready for payment.")
-                create_notification(
-                    user=task.assigned_to,
-                    notification_type='task',
-                    title='Task Approved',
-                    message=f"Your task '{task.title}' has been approved! Payment will be processed shortly.",
-                    link=f'/tasks/{task.id}/'
-                )
-                return redirect('tasks:pay_task', pk=task.pk)
-                
-            elif action == 'request_revision':
-                task.request_revision(feedback)
-                messages.warning(request, f"Revision requested for '{task.title}'. Feedback sent to freelancer.")
-                create_notification(
-                    user=task.assigned_to,
-                    notification_type='task',
-                    title='Revision Requested',
-                    message=f"Revision requested for task: {task.title}. Feedback: {feedback[:200]}",
-                    link=f'/tasks/{task.id}/'
-                )
-                
-            elif action == 'reject':
-                task.reject_task(feedback)
-                messages.error(request, f"Task '{task.title}' rejected.")
-                create_notification(
-                    user=task.assigned_to,
-                    notification_type='task',
-                    title='Task Rejected',
-                    message=f"Your task '{task.title}' has been rejected. Reason: {feedback[:200]}",
-                    link=f'/tasks/{task.id}/'
-                )
+        elif action == 'revision':
+            task.request_revision(feedback)
+            messages.warning(request, f"Revision requested for '{task.title}'. Feedback sent to freelancer.")
             
-            return redirect('tasks:admin_tasks')
-    else:
-        form = TaskReviewForm()
-    
-    context = {
-        'task': task,
-        'form': form,
-    }
-    return render(request, 'tasks/review_task.html', context)
-
-@login_required
-@user_passes_test(lambda u: u.is_admin)
-def pay_task(request, pk):
-    """Process payment for approved task"""
-    task = get_object_or_404(Task, pk=pk, status='approved')
-    
-    if request.method == 'POST':
-        # Add funds to freelancer's wallet
-        wallet, created = UserWallet.objects.get_or_create(user=task.assigned_to)
-        wallet.add_funds(task.budget_amount)
-        
-        # Create transaction record
-        transaction = Transaction.objects.create(
-            user=task.assigned_to,
-            transaction_type='task_payment',
-            amount=task.budget_amount,
-            fee=0,
-            net_amount=task.budget_amount,
-            description=f"Payment for task: {task.title} (Job: {task.job.title})",
-            reference_id=str(task.id)
-        )
-        
-        # Mark task as paid
-        task.mark_paid()
-        
-        messages.success(request, f"${task.budget_amount} has been added to {task.assigned_to.email}'s wallet.")
-        
-        # Send notification
-        create_notification(
-            user=task.assigned_to,
-            notification_type='payment',
-            title='Payment Received',
-            message=f"${task.budget_amount} has been added to your wallet for task: {task.title}",
-            link='/wallet/'
-        )
+        elif action == 'reject':
+            task.reject_task(feedback)
+            messages.error(request, f"Task '{task.title}' rejected.")
         
         return redirect('tasks:admin_tasks')
     
     context = {
         'task': task,
-        'freelancer_wallet': task.assigned_to.wallet,
     }
-    return render(request, 'tasks/pay_task.html', context)
+    return render(request, 'tasks/review_task.html', context)
+
 
 @login_required
-@user_passes_test(lambda u: u.is_admin)
+@user_passes_test(lambda u: u.is_superuser)
+def pay_task(request, pk):
+    """Process payment for approved task"""
+    task = get_object_or_404(Task, pk=pk, status='approved')
+    
+    if request.method == 'POST':
+        # This will automatically update wallet, create transaction, send notification and email
+        if task.mark_paid():
+            messages.success(request, f"✓ ${task.budget_amount} has been added to {task.assigned_to.email}'s wallet.")
+            messages.success(request, f"✓ Transaction created and notification sent.")
+        else:
+            messages.error(request, "Failed to process payment.")
+        
+        return redirect('tasks:admin_tasks')
+    
+    context = {'task': task}
+    return render(request, 'tasks/pay_task.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def task_analytics(request):
     """Admin analytics dashboard for tasks"""
-    from django.db.models import Sum, Count, Avg
-    from datetime import datetime, timedelta
+    from django.db.models import Sum, Count
+    from datetime import timedelta
     
-    # Overall stats
     total_tasks = Task.objects.count()
     total_paid = Task.objects.filter(status='paid').aggregate(Sum('budget_amount'))['budget_amount__sum'] or 0
-    avg_completion_time = Task.objects.filter(paid_at__isnull=False).aggregate(
-        avg_time=Avg('paid_at' - 'assigned_at')
-    )['avg_time']
+    total_freelancers = Task.objects.values('assigned_to').distinct().count()
     
-    # Tasks by status
     tasks_by_status = Task.objects.values('status').annotate(count=Count('id'))
-    
-    # Tasks by month (last 6 months)
     six_months_ago = timezone.now() - timedelta(days=180)
-    tasks_by_month = Task.objects.filter(created_at__gte=six_months_ago)\
-        .extra({'month': "strftime('%%Y-%%m', created_at)"})\
-        .values('month')\
-        .annotate(count=Count('id'), total_amount=Sum('budget_amount'))
+    tasks_by_month = Task.objects.filter(created_at__gte=six_months_ago)
     
-    # Top freelancers by earnings
     top_freelancers = Task.objects.filter(status='paid')\
-        .values('assigned_to__email', 'assigned_to__username')\
+        .values('assigned_to__username', 'assigned_to__email')\
         .annotate(total_earned=Sum('budget_amount'))\
         .order_by('-total_earned')[:10]
     
     context = {
         'total_tasks': total_tasks,
         'total_paid': total_paid,
-        'avg_completion_time': avg_completion_time,
+        'total_freelancers': total_freelancers,
         'tasks_by_status': tasks_by_status,
         'tasks_by_month': tasks_by_month,
         'top_freelancers': top_freelancers,

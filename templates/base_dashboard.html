@@ -561,7 +561,6 @@
             <div class="nav-section-title">More</div>
             <a href="/tasks/my-tasks/" class="nav-link">My Tasks</a>
             <a href="/wallet/" class="nav-link">Wallet</a>
-            <a href="/quiz/my/" class="nav-link">My Quizzes</a>
             <a href="/zoom/my/" class="nav-link">My Meetings</a>
             
             <!-- Account Section -->
@@ -645,7 +644,7 @@
                 <span class="stat-value">{{ user.get_full_name|default:user.username }}</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Email</span>
+                <span class="stat-label" style="margin-right: 10px;">Email</span>
                 <span class="stat-value">{{ user.email }}</span>
             </div>
             <div class="stat-row">

@@ -12,94 +12,270 @@
     }
     
     .tasks-header {
-        margin-bottom: 24px;
+        margin-bottom: 28px;
     }
     
     .header-title {
-        font-size: 24px;
-        font-weight: 600;
+        font-size: 26px;
+        font-weight: 700;
         color: #e6edf3;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
+        letter-spacing: -0.3px;
     }
     
     .header-subtitle {
         font-size: 13px;
         color: #8b949e;
+        line-height: 1.5;
     }
     
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 16px;
-        margin-bottom: 24px;
+        margin-bottom: 36px;
     }
     
     .stat-card {
         background: #161b22;
         border: 1px solid #2d2f36;
-        padding: 16px;
+        padding: 22px 16px;
         text-align: center;
+        transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+        border-color: #2f81f7;
     }
     
     .stat-number {
-        font-size: 28px;
-        font-weight: 700;
-        color: #e6edf3;
-        margin-bottom: 4px;
+        font-size: 34px;
+        font-weight: 800;
+        color: #2f81f7;
+        margin-bottom: 8px;
+        line-height: 1;
     }
     
     .stat-label {
         font-size: 11px;
         color: #8b949e;
         text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-weight: 500;
+    }
+    
+    .tasks-section {
+        margin-bottom: 36px;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 18px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #2d2f36;
+    }
+    
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e6edf3;
+        letter-spacing: -0.2px;
+    }
+    
+    .section-count {
+        font-size: 12px;
+        color: #8b949e;
+        background: #0d1117;
+        padding: 3px 10px;
+        border: 1px solid #2d2f36;
+        font-weight: 500;
     }
     
     .tasks-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .task-card {
         background: #161b22;
         border: 1px solid #2d2f36;
-    }
-    
-    .task-item {
-        padding: 16px 20px;
-        border-bottom: 1px solid #2d2f36;
+        transition: all 0.2s;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
         cursor: pointer;
-        transition: background 0.2s;
+        position: relative;
     }
     
-    .task-item:last-child {
-        border-bottom: none;
-    }
-    
-    .task-item:hover {
+    .task-card:hover {
+        border-color: #2f81f7;
         background: #1a1f2e;
+        transform: translateY(-2px);
+    }
+    
+    .task-card:hover::after {
+        content: 'Click to view details';
+        position: absolute;
+        bottom: 16px;
+        right: 24px;
+        font-size: 11px;
+        color: #2f81f7;
+        background: rgba(13, 17, 23, 0.9);
+        padding: 4px 12px;
+        pointer-events: none;
+        z-index: 5;
+    }
+    
+    .task-image-wrapper {
+        position: relative;
+        width: 100%;
+        height: 160px;
+        overflow: hidden;
+        background: #0d1117;
+    }
+    
+    .task-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .gradient-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60%;
+        background: linear-gradient(to top, #161b22 0%, rgba(22, 27, 34, 0) 100%);
+        pointer-events: none;
+    }
+    
+    .image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
+        font-size: 48px;
+        font-weight: 700;
+        color: #2f81f7;
+        position: relative;
+    }
+    
+    .placeholder-gradient {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(to top, #161b22 0%, rgba(22, 27, 34, 0) 100%);
+        pointer-events: none;
+    }
+    
+    .task-content {
+        padding: 22px 24px;
+    }
+    
+    .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 14px;
     }
     
     .task-title {
-        font-size: 16px;
-        font-weight: 500;
+        font-size: 18px;
+        font-weight: 600;
         color: #e6edf3;
-        margin-bottom: 4px;
+        line-height: 1.4;
+    }
+    
+    .task-status {
+        display: inline-block;
+        padding: 4px 14px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-assigned {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .status-in_progress {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-submitted {
+        background: rgba(163, 113, 247, 0.1);
+        color: #a371f7;
+        border: 1px solid rgba(163, 113, 247, 0.3);
+    }
+    
+    .status-approved {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .status-paid {
+        background: rgba(63, 185, 80, 0.12);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.35);
+    }
+    
+    .status-rejected {
+        background: rgba(248, 81, 73, 0.1);
+        color: #f85149;
+        border: 1px solid rgba(248, 81, 73, 0.3);
+    }
+    
+    .status-revision_requested {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
     }
     
     .task-description {
         font-size: 13px;
         color: #8b949e;
-        margin-bottom: 8px;
+        line-height: 1.6;
+        margin-bottom: 14px;
     }
     
-    .task-footer {
+    .task-meta {
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 8px;
+        gap: 16px;
+        margin-bottom: 0;
+        padding-top: 12px;
+        border-top: 1px solid #2d2f36;
     }
     
     .task-budget {
-        font-size: 14px;
-        font-weight: 600;
+        font-size: 15px;
+        font-weight: 700;
         color: #2f81f7;
+    }
+    
+    .task-budget-label {
+        font-size: 11px;
+        color: #6e7681;
+        font-weight: 400;
+        margin-right: 6px;
     }
     
     .task-deadline {
@@ -107,51 +283,175 @@
         color: #6e7681;
     }
     
-    .status-badge {
-        display: inline-block;
-        padding: 4px 12px;
+    .instruction-banner {
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        padding: 12px 20px;
+        margin-bottom: 24px;
+        border-left: 3px solid #2f81f7;
+    }
+    
+    .instruction-text {
+        font-size: 13px;
+        color: #c9d1d9;
+    }
+    
+    .instruction-text strong {
+        color: #2f81f7;
+    }
+    
+    /* History Section Styles */
+    .history-header {
+        margin-top: 48px;
+        margin-bottom: 24px;
+        padding-top: 24px;
+        border-top: 2px solid #2d2f36;
+    }
+    
+    .filter-bar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+        padding: 6px 16px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #8b949e;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .filter-btn:hover {
+        border-color: #2f81f7;
+        color: #2f81f7;
+    }
+    
+    .filter-btn.active {
+        background: #2f81f7;
+        border-color: #2f81f7;
+        color: white;
+    }
+    
+    .history-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .history-stat-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 16px;
+        text-align: center;
+    }
+    
+    .history-stat-number {
+        font-size: 24px;
+        font-weight: 700;
+        color: #2f81f7;
+        margin-bottom: 4px;
+    }
+    
+    .history-stat-label {
         font-size: 11px;
-        font-weight: 500;
-        border-radius: 20px;
+        color: #8b949e;
+        text-transform: uppercase;
     }
     
-    .status-assigned {
-        background: rgba(47, 129, 247, 0.1);
-        color: #2f81f7;
-        border: 1px solid rgba(47, 129, 247, 0.3);
-    }
-    
-    .status-in_progress {
-        background: rgba(210, 153, 34, 0.1);
-        color: #d29922;
-        border: 1px solid rgba(210, 153, 34, 0.3);
-    }
-    
-    .status-submitted {
-        background: rgba(47, 129, 247, 0.1);
-        color: #2f81f7;
-        border: 1px solid rgba(47, 129, 247, 0.3);
-    }
-    
-    .status-paid {
-        background: rgba(63, 185, 80, 0.1);
+    .total-earnings {
         color: #3fb950;
-        border: 1px solid rgba(63, 185, 80, 0.3);
     }
     
     .empty-state {
         text-align: center;
-        padding: 48px 20px;
-        color: #8b949e;
+        padding: 70px 20px;
+        background: #161b22;
+        border: 1px solid #2d2f36;
     }
     
-    @media (max-width: 640px) {
+    .empty-text {
+        font-size: 17px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 10px;
+    }
+    
+    .empty-subtext {
+        font-size: 13px;
+        color: #8b949e;
+        line-height: 1.5;
+    }
+    
+    @media (max-width: 768px) {
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
         }
         
         .header-title {
-            font-size: 20px;
+            font-size: 22px;
+        }
+        
+        .task-card {
+            padding: 0;
+        }
+        
+        .task-content {
+            padding: 18px;
+        }
+        
+        .task-header {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+        }
+        
+        .task-meta {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .task-image-wrapper {
+            height: 120px;
+        }
+        
+        .task-card:hover::after {
+            content: 'Tap to view';
+            bottom: 12px;
+            right: 16px;
+            font-size: 10px;
+        }
+        
+        .history-stats {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .filter-bar {
+            gap: 8px;
+        }
+        
+        .filter-btn {
+            padding: 4px 12px;
+            font-size: 11px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .stats-grid {
+            gap: 10px;
+        }
+        
+        .stat-card {
+            padding: 14px 12px;
         }
     }
 </style>
@@ -159,46 +459,289 @@
 <div class="tasks-container">
     <div class="tasks-header">
         <h1 class="header-title">My Tasks</h1>
-        <p class="header-subtitle">Manage your assigned tasks and track progress</p>
+        <p class="header-subtitle">Complete tasks, submit for review, and get paid</p>
     </div>
     
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-number">{{ assigned_tasks.count|default:"0" }}</div>
-            <div class="stat-label">ASSIGNED</div>
+            <div class="stat-number">{{ assigned_count|default:"0" }}</div>
+            <div class="stat-label">Assigned</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">{{ in_progress_tasks.count|default:"0" }}</div>
-            <div class="stat-label">IN PROGRESS</div>
+            <div class="stat-number">{{ in_progress_count|default:"0" }}</div>
+            <div class="stat-label">In Progress</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">{{ submitted_tasks.count|default:"0" }}</div>
-            <div class="stat-label">SUBMITTED</div>
+            <div class="stat-number">{{ submitted_count|default:"0" }}</div>
+            <div class="stat-label">Submitted</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">{{ completed_tasks.count|default:"0" }}</div>
-            <div class="stat-label">COMPLETED</div>
+            <div class="stat-number">{{ completed_count|default:"0" }}</div>
+            <div class="stat-label">Active</div>
         </div>
     </div>
     
-    <div class="tasks-list">
-        {% if assigned_tasks %}
+    {% if assigned_tasks or in_progress_tasks %}
+    <div class="instruction-banner">
+        <div class="instruction-text">
+            <strong>How to submit a task:</strong> Click on any task card below. Click Start Working. Fill in your submission details. Click Submit for Review.
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Active Tasks Sections -->
+    {% if assigned_tasks %}
+    <div class="tasks-section">
+        <div class="section-header">
+            <h3 class="section-title">Assigned</h3>
+            <span class="section-count">{{ assigned_tasks|length }}</span>
+        </div>
+        <div class="tasks-list">
             {% for task in assigned_tasks %}
-            <div class="task-item" onclick="window.location.href='/tasks/{{ task.id }}/'">
-                <div class="task-title">{{ task.title }}</div>
-                <div class="task-description">{{ task.description|truncatewords:30 }}</div>
-                <div class="task-footer">
-                    <span class="task-budget">${{ task.budget_amount }}</span>
-                    <span class="status-badge status-{{ task.status }}">{{ task.get_status_display }}</span>
+            <div class="task-card" onclick="window.location.href='{% url 'tasks:detail' task.id %}'">
+                <div class="task-image-wrapper">
+                    {% if task.get_image_url %}
+                        <img src="{{ task.get_image_url }}" alt="{{ task.title }}" class="task-image">
+                        <div class="gradient-overlay"></div>
+                    {% elif task.job.get_image_url %}
+                        <img src="{{ task.job.get_image_url }}" alt="{{ task.job.title }}" class="task-image">
+                        <div class="gradient-overlay"></div>
+                    {% else %}
+                        <div class="image-placeholder">
+                            {{ task.title|slice:":1"|upper }}
+                            <div class="placeholder-gradient"></div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="task-content">
+                    <div class="task-header">
+                        <div class="task-title">{{ task.title }}</div>
+                        <span class="task-status status-{{ task.status }}">{{ task.get_status_display }}</span>
+                    </div>
+                    <div class="task-description">{{ task.description|truncatewords:25 }}</div>
+                    <div class="task-meta">
+                        <div class="task-budget">
+                            <span class="task-budget-label">Budget</span>
+                            ${{ task.budget_amount }}
+                        </div>
+                        {% if task.deadline %}
+                        <span class="task-deadline">Due: {{ task.deadline|date:"M d, Y" }}</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% endfor %}
-        {% else %}
-            <div class="empty-state">
-                <div class="empty-text">No tasks assigned yet</div>
-            </div>
-        {% endif %}
+        </div>
     </div>
+    {% endif %}
+    
+    {% if in_progress_tasks %}
+    <div class="tasks-section">
+        <div class="section-header">
+            <h3 class="section-title">In Progress</h3>
+            <span class="section-count">{{ in_progress_tasks|length }}</span>
+        </div>
+        <div class="tasks-list">
+            {% for task in in_progress_tasks %}
+            <div class="task-card" onclick="window.location.href='{% url 'tasks:detail' task.id %}'">
+                <div class="task-image-wrapper">
+                    {% if task.get_image_url %}
+                        <img src="{{ task.get_image_url }}" alt="{{ task.title }}" class="task-image">
+                        <div class="gradient-overlay"></div>
+                    {% elif task.job.get_image_url %}
+                        <img src="{{ task.job.get_image_url }}" alt="{{ task.job.title }}" class="task-image">
+                        <div class="gradient-overlay"></div>
+                    {% else %}
+                        <div class="image-placeholder">
+                            {{ task.title|slice:":1"|upper }}
+                            <div class="placeholder-gradient"></div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="task-content">
+                    <div class="task-header">
+                        <div class="task-title">{{ task.title }}</div>
+                        <span class="task-status status-{{ task.status }}">{{ task.get_status_display }}</span>
+                    </div>
+                    <div class="task-description">{{ task.description|truncatewords:25 }}</div>
+                    <div class="task-meta">
+                        <div class="task-budget">
+                            <span class="task-budget-label">Budget</span>
+                            ${{ task.budget_amount }}
+                        </div>
+                        {% if task.deadline %}
+                        <span class="task-deadline">Due: {{ task.deadline|date:"M d, Y" }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if submitted_tasks %}
+    <div class="tasks-section">
+        <div class="section-header">
+            <h3 class="section-title">Submitted for Review</h3>
+            <span class="section-count">{{ submitted_tasks|length }}</span>
+        </div>
+        <div class="tasks-list">
+            {% for task in submitted_tasks %}
+            <div class="task-card" onclick="window.location.href='{% url 'tasks:detail' task.id %}'">
+                <div class="task-image-wrapper">
+                    {% if task.get_image_url %}
+                        <img src="{{ task.get_image_url }}" alt="{{ task.title }}" class="task-image">
+                        <div class="gradient-overlay"></div>
+                    {% elif task.job.get_image_url %}
+                        <img src="{{ task.job.get_image_url }}" alt="{{ task.job.title }}" class="task-image">
+                        <div class="gradient-overlay"></div>
+                    {% else %}
+                        <div class="image-placeholder">
+                            {{ task.title|slice:":1"|upper }}
+                            <div class="placeholder-gradient"></div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="task-content">
+                    <div class="task-header">
+                        <div class="task-title">{{ task.title }}</div>
+                        <span class="task-status status-{{ task.status }}">{{ task.get_status_display }}</span>
+                    </div>
+                    <div class="task-description">{{ task.description|truncatewords:25 }}</div>
+                    <div class="task-meta">
+                        <div class="task-budget">
+                            <span class="task-budget-label">Budget</span>
+                            ${{ task.budget_amount }}
+                        </div>
+                        <span class="task-deadline">Submitted: {{ task.submitted_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- ============================================ -->
+    <!-- TASK HISTORY / PORTFOLIO SECTION -->
+    <!-- ============================================ -->
+    <div class="history-header">
+        <h2 class="section-title">Task History & Portfolio</h2>
+        <p class="header-subtitle">View your completed tasks, earnings, and project portfolio</p>
+    </div>
+    
+    <!-- History Statistics -->
+    <div class="history-stats">
+        <div class="history-stat-card">
+            <div class="history-stat-number">{{ total_paid_tasks|default:"0" }}</div>
+            <div class="history-stat-label">Tasks Completed & Paid</div>
+        </div>
+        <div class="history-stat-card">
+            <div class="history-stat-number history-stat-number-warning">{{ total_rejected_tasks|default:"0" }}</div>
+            <div class="history-stat-label">Tasks Rejected</div>
+        </div>
+        <div class="history-stat-card">
+            <div class="history-stat-number total-earnings">${{ total_earnings|default:"0" }}</div>
+            <div class="history-stat-label">Total Earnings</div>
+        </div>
+    </div>
+    
+    <!-- Filter Buttons -->
+    <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All Completed</button>
+        <button class="filter-btn" data-filter="paid">Paid</button>
+        <button class="filter-btn" data-filter="approved">Approved</button>
+        <button class="filter-btn" data-filter="rejected">Rejected</button>
+    </div>
+    
+    <!-- History Tasks List -->
+    <div class="tasks-list" id="history-tasks-list">
+        {% for task in history_tasks %}
+        <div class="task-card" data-status="{{ task.status }}" onclick="window.location.href='{% url 'tasks:detail' task.id %}'">
+            <div class="task-image-wrapper">
+                {% if task.get_image_url %}
+                    <img src="{{ task.get_image_url }}" alt="{{ task.title }}" class="task-image">
+                    <div class="gradient-overlay"></div>
+                {% elif task.job.get_image_url %}
+                    <img src="{{ task.job.get_image_url }}" alt="{{ task.job.title }}" class="task-image">
+                    <div class="gradient-overlay"></div>
+                {% else %}
+                    <div class="image-placeholder">
+                        {{ task.title|slice:":1"|upper }}
+                        <div class="placeholder-gradient"></div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="task-content">
+                <div class="task-header">
+                    <div class="task-title">{{ task.title }}</div>
+                    <span class="task-status status-{{ task.status }}">{{ task.get_status_display }}</span>
+                </div>
+                <div class="task-description">{{ task.description|truncatewords:25 }}</div>
+                <div class="task-meta">
+                    <div class="task-budget">
+                        <span class="task-budget-label">Budget</span>
+                        ${{ task.budget_amount }}
+                    </div>
+                    {% if task.status == 'paid' and task.paid_at %}
+                    <span class="task-deadline">Completed: {{ task.paid_at|date:"M d, Y" }}</span>
+                    {% elif task.status == 'approved' and task.approved_at %}
+                    <span class="task-deadline">Approved: {{ task.approved_at|date:"M d, Y" }}</span>
+                    {% elif task.status == 'rejected' %}
+                    <span class="task-deadline">Rejected</span>
+                    {% endif %}
+                </div>
+                {% if task.revision_feedback and task.status == 'rejected' %}
+                <div style="margin-top: 8px; font-size: 11px; color: #f85149;">
+                    Reason: {{ task.revision_feedback|truncatewords:10 }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-text">No completed tasks yet</div>
+            <div class="empty-subtext">Complete and get paid for tasks to build your portfolio</div>
+        </div>
+        {% endfor %}
+    </div>
+    <!-- ============================================ -->
+    
+    {% if not assigned_tasks and not in_progress_tasks and not submitted_tasks and not completed_tasks and not history_tasks %}
+    <div class="empty-state">
+        <div class="empty-text">No tasks assigned yet</div>
+        <div class="empty-subtext">When tasks are assigned, they will appear here grouped by status</div>
+    </div>
+    {% endif %}
 </div>
+
+<!-- Filter JavaScript -->
+<script>
+    // Filter functionality for history tasks
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const historyTasks = document.querySelectorAll('#history-tasks-list .task-card');
+    
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterBtns.forEach(b => b.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const filter = this.getAttribute('data-filter');
+            
+            historyTasks.forEach(task => {
+                if (filter === 'all') {
+                    task.style.display = 'flex';
+                } else if (task.getAttribute('data-status') === filter) {
+                    task.style.display = 'flex';
+                } else {
+                    task.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
 
 {% endblock %}

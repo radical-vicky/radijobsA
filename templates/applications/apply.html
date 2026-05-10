@@ -12,7 +12,18 @@
         margin: 0 auto;
     }
     
-    /* Header */
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 13px;
+    }
+    
+    .back-link:hover {
+        color: #2f81f7;
+    }
+    
     .apply-header {
         margin-bottom: 24px;
     }
@@ -29,25 +40,11 @@
         color: #8b949e;
     }
     
-    /* Back Link */
-    .back-link {
-        display: inline-block;
-        margin-bottom: 20px;
-        color: #8b949e;
-        text-decoration: none;
-        font-size: 13px;
-    }
-    
-    .back-link:hover {
-        color: #2f81f7;
-    }
-    
-    /* Job Info Card */
     .job-info-card {
         background: #161b22;
         border: 1px solid #2d2f36;
-        margin-bottom: 24px;
         padding: 20px;
+        margin-bottom: 24px;
     }
     
     .job-title {
@@ -86,14 +83,10 @@
         color: #8b949e;
     }
     
-    /* Application Form */
-    .application-form {
+    .requirements-card {
         background: #161b22;
         border: 1px solid #2d2f36;
-        padding: 24px;
-    }
-    
-    .form-section {
+        padding: 20px;
         margin-bottom: 24px;
     }
     
@@ -106,8 +99,30 @@
         border-bottom: 1px solid #2d2f36;
     }
     
+    .requirement-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .requirement-list li {
+        padding: 10px 0;
+        border-bottom: 1px solid #2d2f36;
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .requirement-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .application-form {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 24px;
+    }
+    
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 24px;
     }
     
     .form-label {
@@ -138,24 +153,18 @@
     
     .form-textarea {
         resize: vertical;
-        min-height: 120px;
     }
     
     .help-text {
         font-size: 11px;
         color: #6e7681;
-        margin-top: 4px;
+        margin-top: 6px;
     }
     
     .error-text {
         font-size: 11px;
         color: #f85149;
-        margin-top: 4px;
-    }
-    
-    /* File Upload */
-    .file-input {
-        padding: 8px 0;
+        margin-top: 6px;
     }
     
     .file-info {
@@ -164,7 +173,6 @@
         margin-top: 4px;
     }
     
-    /* Form Actions */
     .form-actions {
         display: flex;
         gap: 12px;
@@ -181,7 +189,6 @@
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
-        transition: background 0.2s;
     }
     
     .btn-submit:hover {
@@ -199,7 +206,6 @@
         text-decoration: none;
         display: inline-block;
         text-align: center;
-        transition: all 0.2s;
     }
     
     .btn-cancel:hover {
@@ -208,12 +214,11 @@
         color: #2f81f7;
     }
     
-    /* Note */
     .note-box {
-        background: #0d1117;
-        border: 1px solid #2d2f36;
-        padding: 12px 16px;
-        margin-top: 16px;
+        background: rgba(210, 153, 34, 0.05);
+        border-left: 3px solid #d29922;
+        padding: 16px;
+        margin-top: 24px;
     }
     
     .note-text {
@@ -222,13 +227,12 @@
         line-height: 1.5;
     }
     
-    /* Responsive */
     @media (max-width: 640px) {
         .apply-container {
             padding: 0;
         }
         
-        .job-info-card, .application-form {
+        .job-info-card, .requirements-card, .application-form {
             padding: 16px;
         }
         
@@ -255,8 +259,8 @@
     
     <!-- Header -->
     <div class="apply-header">
-        <h1 class="apply-title">Apply for this position</h1>
-        <p class="apply-subtitle">Complete the form below to submit your application</p>
+        <h1 class="apply-title">Apply for {{ job.title }}</h1>
+        <p class="apply-subtitle">Submit your project to be considered for this position</p>
     </div>
     
     <!-- Job Info Card -->
@@ -271,98 +275,93 @@
         </div>
     </div>
     
+    <!-- Project Requirements -->
+    <div class="requirements-card">
+        <h3 class="section-title">Project Requirements</h3>
+        <ul class="requirement-list">
+            <li>Build a complete full-stack application based on the job description</li>
+            <li>Upload your code to GitHub or GitLab repository</li>
+            <li>Deploy your application to a live server (optional but recommended)</li>
+            <li>Include test credentials in the README file for reviewers</li>
+            <li>Prepare to present your project during the Zoom interview</li>
+        </ul>
+    </div>
+    
     <!-- Application Form -->
     <div class="application-form">
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             
-            <div class="form-section">
-                <h3 class="section-title">Personal Information</h3>
-                
-                <div class="form-group">
-                    <label class="form-label">Full Name <span class="required">*</span></label>
-                    <input type="text" name="full_name" class="form-input" value="{{ user.get_full_name|default:user.username }}" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Email Address <span class="required">*</span></label>
-                    <input type="email" name="email" class="form-input" value="{{ user.email }}" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Phone Number</label>
-                    <input type="tel" name="phone_number" class="form-input" placeholder="e.g., 0712345678" value="{{ user.phone_number|default:'' }}">
-                    <div class="help-text">Optional but recommended for interview scheduling</div>
-                </div>
+            <!-- Cover Letter -->
+            <div class="form-group">
+                <label class="form-label">Cover Letter <span class="required">*</span></label>
+                {{ form.cover_letter }}
+                {% if form.cover_letter.errors %}
+                    <div class="error-text">{{ form.cover_letter.errors.0 }}</div>
+                {% endif %}
+                <div class="help-text">Explain your approach to this project and why you are qualified</div>
             </div>
             
-            <div class="form-section">
-                <h3 class="section-title">Application Details</h3>
-                
-                <div class="form-group">
-                    <label class="form-label">Cover Letter <span class="required">*</span></label>
-                    <textarea name="cover_letter" class="form-textarea" placeholder="Tell us why you're the best candidate for this position..." required></textarea>
-                    <div class="help-text">Include your relevant experience, skills, and why you're interested in this role</div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Resume / CV <span class="required">*</span></label>
-                    <input type="file" name="resume" class="form-input file-input" accept=".pdf,.doc,.docx" required>
-                    <div class="file-info">Accepted formats: PDF, DOC, DOCX (Max 5MB)</div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Portfolio / GitHub Link</label>
-                    <input type="url" name="portfolio_url" class="form-input" placeholder="https://github.com/yourusername">
-                    <div class="help-text">Share your GitHub, portfolio, or any relevant work samples</div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">LinkedIn Profile</label>
-                    <input type="url" name="linkedin_url" class="form-input" placeholder="https://linkedin.com/in/yourusername">
-                </div>
+            <!-- Repository Link -->
+            <div class="form-group">
+                <label class="form-label">Repository Link <span class="required">*</span></label>
+                {{ form.repository_link }}
+                {% if form.repository_link.errors %}
+                    <div class="error-text">{{ form.repository_link.errors.0 }}</div>
+                {% endif %}
+                <div class="help-text">Link to your GitHub or GitLab repository containing the project code</div>
             </div>
             
-            <div class="form-section">
-                <h3 class="section-title">Additional Information</h3>
-                
-                <div class="form-group">
-                    <label class="form-label">Years of Experience</label>
-                    <select name="years_experience" class="form-select">
-                        <option value="">Select experience level</option>
-                        <option value="0-1">Less than 1 year</option>
-                        <option value="1-3">1 - 3 years</option>
-                        <option value="3-5">3 - 5 years</option>
-                        <option value="5-10">5 - 10 years</option>
-                        <option value="10+">10+ years</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Notice Period</label>
-                    <select name="notice_period" class="form-select">
-                        <option value="">Select notice period</option>
-                        <option value="immediate">Immediate</option>
-                        <option value="1-week">1 week</option>
-                        <option value="2-weeks">2 weeks</option>
-                        <option value="1-month">1 month</option>
-                        <option value="2-months">2 months</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Additional Notes</label>
-                    <textarea name="additional_notes" class="form-textarea" placeholder="Any other information you'd like to share..."></textarea>
-                </div>
+            <!-- Deployment Link -->
+            <div class="form-group">
+                <label class="form-label">Deployment Link</label>
+                {{ form.deployment_link }}
+                {% if form.deployment_link.errors %}
+                    <div class="error-text">{{ form.deployment_link.errors.0 }}</div>
+                {% endif %}
+                <div class="help-text">Optional: Link to live demo of your deployed application</div>
             </div>
             
+            <!-- Test Credentials -->
+            <div class="form-group">
+                <label class="form-label">Test Credentials</label>
+                {{ form.test_credentials }}
+                {% if form.test_credentials.errors %}
+                    <div class="error-text">{{ form.test_credentials.errors.0 }}</div>
+                {% endif %}
+                <div class="help-text">Provide test credentials for reviewers to access your deployed site</div>
+            </div>
+            
+            <!-- Project Notes -->
+            <div class="form-group">
+                <label class="form-label">Project Notes</label>
+                {{ form.project_notes }}
+                {% if form.project_notes.errors %}
+                    <div class="error-text">{{ form.project_notes.errors.0 }}</div>
+                {% endif %}
+                <div class="help-text">Any notes about your implementation, technologies used, or challenges faced</div>
+            </div>
+            
+            <!-- Project File -->
+            <div class="form-group">
+                <label class="form-label">Project Files</label>
+                {{ form.project_file }}
+                {% if form.project_file.errors %}
+                    <div class="error-text">{{ form.project_file.errors.0 }}</div>
+                {% endif %}
+                <div class="file-info">Upload project files as ZIP archive (max 25MB) - optional</div>
+            </div>
+            
+            <!-- Note Box -->
             <div class="note-box">
-                <p class="note-text">
-                    By submitting this application, you confirm that all information provided is accurate and complete.
-                    Your application will be reviewed by our hiring team, and we will contact you if you are shortlisted.
-                </p>
+                <div class="note-text">
+                    <strong>Important:</strong> Your application will be reviewed based on the quality of your project. 
+                    Make sure your repository is accessible and includes clear documentation. 
+                    Once submitted, you will receive a confirmation notification with the next steps.
+                </div>
             </div>
             
+            <!-- Form Actions -->
             <div class="form-actions">
                 <button type="submit" class="btn-submit">Submit Application</button>
                 <a href="{% url 'jobs:dashboard_job_detail' job.id %}" class="btn-cancel">Cancel</a>

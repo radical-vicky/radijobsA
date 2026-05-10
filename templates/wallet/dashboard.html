@@ -1,116 +1,186 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
 
-{% block page_title %}Wallet{% endblock %}
+{% block page_title %}My Wallet{% endblock %}
 
 {% block content %}
 
 <style>
     .wallet-container {
-        width: 100%;
-        max-width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
     }
     
     .wallet-header {
-        margin-bottom: 24px;
+        margin-bottom: 28px;
     }
     
     .header-title {
-        font-size: 24px;
-        font-weight: 600;
+        font-size: 26px;
+        font-weight: 700;
         color: #e6edf3;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
+        letter-spacing: -0.3px;
     }
     
     .header-subtitle {
         font-size: 13px;
         color: #8b949e;
-    }
-    
-    .balance-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
+        line-height: 1.5;
     }
     
     .balance-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 32px;
+        text-align: center;
+        margin-bottom: 32px;
+    }
+    
+    .balance-label {
+        font-size: 13px;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 8px;
+    }
+    
+    .balance-amount {
+        font-size: 48px;
+        font-weight: 800;
+        color: #3fb950;
+        margin-bottom: 16px;
+    }
+    
+    .balance-amount small {
+        font-size: 18px;
+        font-weight: 500;
+        color: #8b949e;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+    
+    .stat-card {
         background: #161b22;
         border: 1px solid #2d2f36;
         padding: 20px;
         text-align: center;
     }
     
-    .balance-label {
+    .stat-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: #2f81f7;
+        margin-bottom: 8px;
+    }
+    
+    .stat-label {
         font-size: 11px;
         color: #8b949e;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 8px;
     }
     
-    .balance-amount {
-        font-size: 32px;
-        font-weight: 700;
-        color: #e6edf3;
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 32px;
     }
     
-    .actions-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin-bottom: 24px;
+    .btn-primary {
+        flex: 1;
+        padding: 12px 24px;
+        background: #2f81f7;
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+        transition: background 0.2s;
+        border: none;
+        cursor: pointer;
     }
     
-    .action-btn {
+    .btn-primary:hover {
+        background: #58a6ff;
+    }
+    
+    .btn-withdraw {
+        flex: 1;
+        padding: 12px 24px;
+        background: #d29922;
+        color: #0d1117;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-withdraw:hover {
+        background: #e6a822;
+        transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+        flex: 1;
+        padding: 12px 24px;
         background: #21262d;
         border: 1px solid #3d444d;
-        padding: 12px;
-        text-align: center;
-        text-decoration: none;
         color: #e6edf3;
-        font-size: 13px;
+        text-decoration: none;
+        font-size: 14px;
         font-weight: 500;
+        text-align: center;
         transition: all 0.2s;
+        cursor: pointer;
     }
     
-    .action-btn:hover {
+    .btn-secondary:hover {
         background: #2d2f36;
         border-color: #2f81f7;
         color: #2f81f7;
     }
     
-    .section-card {
-        background: #161b22;
-        border: 1px solid #2d2f36;
-        margin-bottom: 24px;
-    }
-    
     .section-header {
-        padding: 16px 20px;
-        border-bottom: 1px solid #2d2f36;
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
+        align-items: baseline;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #2d2f36;
     }
     
     .section-title {
-        font-size: 16px;
+        font-size: 18px;
         font-weight: 600;
         color: #e6edf3;
-        margin: 0;
     }
     
-    .section-link {
+    .view-all {
         font-size: 12px;
         color: #2f81f7;
         text-decoration: none;
     }
     
+    .view-all:hover {
+        text-decoration: underline;
+    }
+    
+    .transactions-list {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
     .transaction-item {
-        padding: 14px 20px;
+        padding: 16px 20px;
         border-bottom: 1px solid #2d2f36;
         display: flex;
         justify-content: space-between;
@@ -139,91 +209,135 @@
         color: #6e7681;
     }
     
+    .transaction-reference {
+        font-size: 10px;
+        color: #6e7681;
+        margin-top: 2px;
+    }
+    
     .transaction-amount {
         font-size: 16px;
         font-weight: 600;
     }
     
-    .amount-credit {
+    .amount-positive {
         color: #3fb950;
     }
     
-    .amount-debit {
+    .amount-negative {
         color: #f85149;
     }
     
-    @media (max-width: 768px) {
-        .balance-grid {
-            grid-template-columns: 1fr;
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
+    .empty-text {
+        font-size: 16px;
+        font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .empty-subtext {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    @media (max-width: 640px) {
+        .balance-amount {
+            font-size: 32px;
         }
         
-        .actions-grid {
-            grid-template-columns: 1fr;
+        .stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
         }
         
-        .header-title {
+        .stat-number {
             font-size: 20px;
         }
         
-        .balance-amount {
-            font-size: 28px;
+        .stat-label {
+            font-size: 9px;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .transaction-item {
+            flex-direction: column;
+            align-items: flex-start;
         }
     }
 </style>
 
 <div class="wallet-container">
     <div class="wallet-header">
-        <h1 class="header-title">Wallet</h1>
-        <p class="header-subtitle">Manage your earnings and transactions</p>
+        <h1 class="header-title">My Wallet</h1>
+        <p class="header-subtitle">Manage your earnings and withdraw funds</p>
     </div>
     
-    <div class="balance-grid">
-        <div class="balance-card">
-            <div class="balance-label">Available Balance</div>
-            <div class="balance-amount">
-                ${{ wallet.balance|floatformat:2|default:"0.00" }}
-            </div>
+    <div class="balance-card">
+        <div class="balance-label">Available Balance</div>
+        <div class="balance-amount">
+            ${{ wallet.balance|floatformat:2 }}<small> USD</small>
         </div>
-        <div class="balance-card">
-            <div class="balance-label">Total Earned</div>
-            <div class="balance-amount">
-                ${{ wallet.total_earned|floatformat:2|default:"0.00" }}
-            </div>
+        <div class="balance-label">Total Earned: ${{ wallet.total_earned|floatformat:2 }}</div>
+        <div class="balance-label">Total Withdrawn: ${{ total_withdrawn|floatformat:2 }}</div>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ wallet.total_earned|floatformat:0 }}</div>
+            <div class="stat-label">Total Earned</div>
         </div>
-        <div class="balance-card">
-            <div class="balance-label">Total Withdrawn</div>
-            <div class="balance-amount">
-                ${{ wallet.total_withdrawn|floatformat:2|default:"0.00" }}
-            </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_withdrawn|floatformat:0 }}</div>
+            <div class="stat-label">Total Withdrawn</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ pending_withdrawals|default:"0" }}</div>
+            <div class="stat-label">Pending Withdrawals</div>
         </div>
     </div>
     
-    <div class="actions-grid">
-        <a href="{% url 'wallet:withdrawal_request' %}" class="action-btn">Withdraw Funds</a>
-        <a href="{% url 'wallet:withdrawal_history' %}" class="action-btn">Withdrawal History</a>
+    <div class="action-buttons">
+        <a href="{% url 'wallet:withdrawal_request' %}" class="btn-withdraw">Withdraw Funds</a>
+        <a href="{% url 'wallet:transaction_history' %}" class="btn-secondary">Transaction History</a>
+        <a href="{% url 'wallet:withdrawal_history' %}" class="btn-secondary">Withdrawal History</a>
     </div>
     
-    <div class="section-card">
-        <div class="section-header">
-            <h3 class="section-title">Recent Transactions</h3>
-            <a href="{% url 'wallet:transaction_history' %}" class="section-link">View All →</a>
-        </div>
-        
+    <div class="section-header">
+        <h3 class="section-title">Recent Transactions</h3>
+        <a href="{% url 'wallet:transaction_history' %}" class="view-all">View All</a>
+    </div>
+    
+    <div class="transactions-list">
         {% if transactions %}
-            {% for tx in transactions %}
+            {% for transaction in transactions %}
             <div class="transaction-item">
                 <div class="transaction-info">
-                    <div class="transaction-title">{{ tx.description }}</div>
-                    <div class="transaction-date">{{ tx.created_at|date:"M d, Y H:i" }}</div>
+                    <div class="transaction-title">{{ transaction.description }}</div>
+                    <div class="transaction-date">{{ transaction.created_at|date:"M d, Y g:i A" }}</div>
+                    <div class="transaction-reference">
+                        Ref: {{ transaction.reference_id|default:"N/A" }}
+                    </div>
                 </div>
-                <div class="transaction-amount {% if tx.transaction_type == 'credit' %}amount-credit{% else %}amount-debit{% endif %}">
-                    {% if tx.transaction_type == 'credit' %}+{% else %}-{% endif %} ${{ tx.amount|floatformat:2 }}
+                <div class="transaction-amount {% if transaction.transaction_type == 'task_payment' or transaction.transaction_type == 'deposit' %}amount-positive{% else %}amount-negative{% endif %}">
+                    {% if transaction.transaction_type == 'task_payment' or transaction.transaction_type == 'deposit' %}+{% endif %}
+                    ${{ transaction.amount|floatformat:2 }}
                 </div>
             </div>
             {% endfor %}
         {% else %}
-            <div style="text-align: center; padding: 40px; color: #8b949e;">
-                No transactions yet
+            <div class="empty-state">
+                <div class="empty-text">No transactions yet</div>
+                <div class="empty-subtext">When you complete tasks, payments will appear here</div>
             </div>
         {% endif %}
     </div>

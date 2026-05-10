@@ -1,31 +1,42 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
 
-{% block page_title %}Withdrawal Request{% endblock %}
+{% block page_title %}Withdraw Funds{% endblock %}
 
 {% block content %}
 
 <style>
-    .withdrawal-container {
-        width: 100%;
+    .withdraw-container {
         max-width: 600px;
         margin: 0 auto;
     }
     
-    .withdrawal-card {
-        background: #161b22;
-        border: 1px solid #2d2f36;
-        padding: 24px;
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 13px;
     }
     
-    .card-title {
+    .back-link:hover {
+        color: #2f81f7;
+    }
+    
+    .form-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 28px 32px;
+    }
+    
+    .form-title {
         font-size: 20px;
         font-weight: 600;
         color: #e6edf3;
-        margin-bottom: 4px;
+        margin-bottom: 8px;
     }
     
-    .card-subtitle {
+    .form-subtitle {
         font-size: 13px;
         color: #8b949e;
         margin-bottom: 24px;
@@ -35,20 +46,20 @@
         background: #0d1117;
         border: 1px solid #2d2f36;
         padding: 16px;
-        text-align: center;
         margin-bottom: 24px;
+        text-align: center;
     }
     
     .balance-label {
-        font-size: 11px;
+        font-size: 12px;
         color: #8b949e;
         margin-bottom: 4px;
     }
     
     .balance-amount {
-        font-size: 28px;
+        font-size: 24px;
         font-weight: 700;
-        color: #e6edf3;
+        color: #3fb950;
     }
     
     .form-group {
@@ -61,6 +72,10 @@
         font-weight: 500;
         color: #e6edf3;
         margin-bottom: 8px;
+    }
+    
+    .form-label .required {
+        color: #f85149;
     }
     
     .form-input, .form-select {
@@ -83,145 +98,95 @@
         margin-top: 4px;
     }
     
-    .fee-info {
-        background: rgba(210, 153, 34, 0.1);
-        border: 1px solid rgba(210, 153, 34, 0.3);
-        padding: 12px;
-        margin: 16px 0;
-    }
-    
-    .fee-row {
-        display: flex;
-        justify-content: space-between;
-        font-size: 13px;
-        padding: 4px 0;
-    }
-    
     .btn-submit {
         width: 100%;
         padding: 12px;
-        background: #2f81f7;
+        background: #d29922;
         border: none;
-        color: white;
+        color: #0d1117;
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
         cursor: pointer;
-        transition: background 0.2s;
+        margin-top: 8px;
     }
     
     .btn-submit:hover {
-        background: #58a6ff;
+        background: #e6a822;
     }
     
-    .no-methods {
-        background: rgba(248, 81, 73, 0.1);
-        border: 1px solid rgba(248, 81, 73, 0.3);
-        padding: 12px;
-        text-align: center;
-        margin-bottom: 16px;
+    .info-box {
+        background: rgba(210, 153, 34, 0.05);
+        border-left: 3px solid #d29922;
+        padding: 16px;
+        margin-top: 20px;
+        font-size: 12px;
+        color: #8b949e;
     }
     
     @media (max-width: 640px) {
-        .withdrawal-container {
-            padding: 0;
-        }
-        
-        .withdrawal-card {
-            padding: 16px;
-        }
-        
-        .card-title {
-            font-size: 18px;
+        .form-card {
+            padding: 20px;
         }
     }
 </style>
 
-<div class="withdrawal-container">
-    <div class="withdrawal-card">
-        <h1 class="card-title">Withdraw Funds</h1>
-        <p class="card-subtitle">Request a withdrawal to your payment method</p>
+<div class="withdraw-container">
+    <a href="{% url 'wallet:dashboard' %}" class="back-link">
+        Back to Wallet
+    </a>
+    
+    <div class="form-card">
+        <h1 class="form-title">Withdraw Funds</h1>
+        <p class="form-subtitle">Request a withdrawal to your payment method</p>
         
         <div class="balance-info">
             <div class="balance-label">Available Balance</div>
-            <div class="balance-amount">${{ wallet.balance|floatformat:2|default:"0.00" }}</div>
+            <div class="balance-amount">${{ wallet.balance|floatformat:2 }}</div>
         </div>
         
-        {% if not payment_methods %}
-        <div class="no-methods">
-            No payment methods found. Please add a payment method first.
-        </div>
-        <a href="{% url 'accounts:payment_methods' %}" class="btn-submit" style="text-align: center; display: block; text-decoration: none;">Add Payment Method</a>
-        {% else %}
         <form method="post">
             {% csrf_token %}
             
             <div class="form-group">
-                <label class="form-label">Amount ($)</label>
+                <label class="form-label">Amount <span class="required">*</span></label>
                 <input type="number" name="amount" class="form-input" step="0.01" min="{{ min_amount }}" max="{{ wallet.balance }}" required>
-                <div class="help-text">Minimum withdrawal: ${{ min_amount }}. Maximum: ${{ max_amount }}</div>
+                <div class="help-text">Minimum: ${{ min_amount }} | Maximum: ${{ max_amount }}</div>
             </div>
             
             <div class="form-group">
-                <label class="form-label">Payment Method</label>
+                <label class="form-label">Payment Method <span class="required">*</span></label>
                 <select name="payment_method" class="form-select" required>
                     <option value="">Select payment method</option>
-                    {% for method in payment_methods %}
+                    {% for method in request.user.payment_methods.all %}
+                        {% if method.is_active %}
                         <option value="{{ method.payment_type }}">
-                            {{ method.get_payment_type_display }}
-                            {% if method.payment_type == 'paypal' %}
-                                - {{ method.account_email }}
-                            {% elif method.payment_type == 'mpesa' %}
-                                - {{ method.phone_number }}
-                            {% elif method.payment_type == 'bank_account' %}
-                                - {{ method.bank_name }}
-                            {% endif %}
+                            {{ method.get_payment_type_display }} 
+                            {% if method.is_default %}(Default){% endif %}
                         </option>
+                        {% endif %}
                     {% endfor %}
                 </select>
-                <div class="help-text">
-                    <a href="{% url 'accounts:payment_methods' %}" style="color: #2f81f7;">Add new payment method</a>
-                </div>
-            </div>
-            
-            <div class="fee-info">
-                <div class="fee-row">
-                    <span>Withdrawal Amount</span>
-                    <span id="displayAmount">$0.00</span>
-                </div>
-                <div class="fee-row">
-                    <span>Fee ({{ fee_percentage }}%)</span>
-                    <span id="displayFee">$0.00</span>
-                </div>
-                <div class="fee-row">
-                    <strong>Net Amount</strong>
-                    <strong id="displayNet">$0.00</strong>
-                </div>
+                <div class="help-text">Fee: {{ fee_percentage }}% of withdrawal amount</div>
             </div>
             
             <button type="submit" class="btn-submit">Request Withdrawal</button>
+            
+            <div class="info-box">
+                <strong>Important Information:</strong><br>
+                - Withdrawals are processed within 1-3 business days<br>
+                - A {{ fee_percentage }}% processing fee applies<br>
+                - Minimum withdrawal amount is ${{ min_amount }}<br>
+                - Maximum withdrawal amount is ${{ max_amount }}
+            </div>
         </form>
+        
+        {% if not request.user.payment_methods.exists %}
+        <div class="info-box" style="margin-top: 16px; background: rgba(248, 81, 73, 0.05); border-left-color: #f85149;">
+            <strong>No payment method found!</strong><br>
+            Please add a payment method in your <a href="{% url 'accounts:payment_methods' %}" style="color: #2f81f7;">Profile Settings</a> before requesting a withdrawal.
+        </div>
         {% endif %}
     </div>
 </div>
-
-<script>
-    const amountInput = document.querySelector('input[name="amount"]');
-    const displayAmount = document.getElementById('displayAmount');
-    const displayFee = document.getElementById('displayFee');
-    const displayNet = document.getElementById('displayNet');
-    const feePercentage = {{ fee_percentage|default:3 }};
-    
-    if (amountInput) {
-        amountInput.addEventListener('input', function() {
-            const amount = parseFloat(this.value) || 0;
-            const fee = amount * (feePercentage / 100);
-            const net = amount - fee;
-            
-            displayAmount.textContent = `$${amount.toFixed(2)}`;
-            displayFee.textContent = `$${fee.toFixed(2)}`;
-            displayNet.textContent = `$${net.toFixed(2)}`;
-        });
-    }
-</script>
 
 {% endblock %}

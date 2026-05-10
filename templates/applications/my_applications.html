@@ -11,7 +11,6 @@
         max-width: 100%;
     }
     
-    /* Header */
     .applications-header {
         margin-bottom: 24px;
     }
@@ -28,98 +27,129 @@
         color: #8b949e;
     }
     
-    /* Stats Row */
-    .stats-row {
-        display: flex;
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 16px;
-        margin-bottom: 24px;
+        margin-bottom: 32px;
     }
     
     .stat-card {
-        flex: 1;
         background: #161b22;
         border: 1px solid #2d2f36;
         padding: 16px;
         text-align: center;
-        border-radius: 8px;
     }
     
     .stat-number {
         font-size: 28px;
         font-weight: 700;
-        color: #e6edf3;
+        color: #2f81f7;
         margin-bottom: 4px;
     }
     
     .stat-label {
-        font-size: 11px;
+        font-size: 12px;
         color: #8b949e;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
     }
     
-    /* Application Items */
     .applications-list {
+        background: #161b22;
         border: 1px solid #2d2f36;
-        border-radius: 8px;
-        overflow: hidden;
     }
     
     .application-item {
-        padding: 16px 20px;
+        padding: 20px;
         border-bottom: 1px solid #2d2f36;
-        cursor: pointer;
         transition: background 0.2s;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-    
-    .application-item:last-child {
-        border-bottom: none;
+        gap: 20px;
+        cursor: pointer;
     }
     
     .application-item:hover {
         background: #1a1f2e;
     }
     
-    .application-info {
+    .application-item:last-child {
+        border-bottom: none;
+    }
+    
+    /* Job Image with Gradient Overlay */
+    .job-image-wrapper {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+    
+    .job-image {
+        width: 100%;
+        height: 100%;
+        background: #0d1117;
+        overflow: hidden;
+    }
+    
+    .job-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .job-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
+        font-size: 32px;
+        font-weight: 700;
+        color: #2f81f7;
+    }
+    
+    /* Gradient overlay that blends image with card */
+    .image-gradient-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(47, 129, 247, 0.15) 0%, rgba(13, 17, 23, 0) 100%);
+        pointer-events: none;
+    }
+    
+    .application-content {
         flex: 1;
+    }
+    
+    .application-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 12px;
     }
     
     .job-title {
         font-size: 16px;
-        font-weight: 500;
+        font-weight: 600;
         color: #e6edf3;
         margin-bottom: 4px;
     }
     
-    .job-details {
+    .job-company {
         font-size: 13px;
         color: #8b949e;
-        margin-bottom: 4px;
     }
     
-    .applied-date {
-        font-size: 11px;
-        color: #6e7681;
-    }
-    
-    .quiz-score {
-        font-size: 11px;
-        color: #2f81f7;
-        margin-top: 4px;
-    }
-    
-    /* Status Badge */
     .status-badge {
         display: inline-block;
         padding: 4px 12px;
         font-size: 11px;
         font-weight: 500;
-        border-radius: 20px;
     }
     
     .status-pending {
@@ -128,16 +158,22 @@
         border: 1px solid rgba(210, 153, 34, 0.3);
     }
     
+    .status-shortlisted {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
     .status-approved {
         background: rgba(47, 129, 247, 0.1);
         color: #2f81f7;
         border: 1px solid rgba(47, 129, 247, 0.3);
     }
     
-    .status-interview {
-        background: rgba(47, 129, 247, 0.1);
-        color: #2f81f7;
-        border: 1px solid rgba(47, 129, 247, 0.3);
+    .status-interview_scheduled {
+        background: rgba(163, 113, 247, 0.1);
+        color: #a371f7;
+        border: 1px solid rgba(163, 113, 247, 0.3);
     }
     
     .status-hired {
@@ -152,147 +188,256 @@
         border: 1px solid rgba(248, 81, 73, 0.3);
     }
     
-    /* View Link */
-    .view-link {
+    .application-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 12px;
+        font-size: 12px;
+        color: #8b949e;
+    }
+    
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .detail-label {
+        color: #6e7681;
+    }
+    
+    .detail-value {
+        color: #e6edf3;
+    }
+    
+    .application-links {
+        display: flex;
+        gap: 16px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #2d2f36;
+    }
+    
+    .link-btn {
         color: #2f81f7;
         text-decoration: none;
         font-size: 12px;
     }
     
-    .view-link:hover {
+    .link-btn:hover {
         text-decoration: underline;
     }
     
-    /* Empty State */
+    .interview-info {
+        background: rgba(47, 129, 247, 0.05);
+        border-left: 3px solid #2f81f7;
+        padding: 12px;
+        margin-top: 12px;
+        font-size: 12px;
+    }
+    
+    .interview-link {
+        color: #2f81f7;
+        text-decoration: none;
+    }
+    
+    .interview-link:hover {
+        text-decoration: underline;
+    }
+    
     .empty-state {
         text-align: center;
         padding: 60px 20px;
         color: #8b949e;
-        border: 1px solid #2d2f36;
-        background: #161b22;
-        border-radius: 8px;
     }
     
     .empty-text {
-        font-size: 14px;
+        font-size: 16px;
+        font-weight: 500;
+        color: #e6edf3;
         margin-bottom: 8px;
     }
     
-    .empty-link {
-        color: #2f81f7;
+    .empty-subtext {
+        font-size: 13px;
+        color: #8b949e;
+        margin-bottom: 20px;
+    }
+    
+    .browse-btn {
+        display: inline-block;
+        padding: 10px 24px;
+        background: #2f81f7;
+        color: white;
         text-decoration: none;
         font-size: 13px;
+        font-weight: 500;
     }
     
-    .empty-link:hover {
-        text-decoration: underline;
+    .browse-btn:hover {
+        background: #58a6ff;
     }
     
-    /* Responsive */
     @media (max-width: 640px) {
-        .stats-row {
-            flex-wrap: wrap;
-        }
-        
-        .stat-card {
-            min-width: calc(50% - 8px);
-        }
-        
         .application-item {
             flex-direction: column;
-            align-items: flex-start;
+            padding: 16px;
+        }
+        
+        .job-image-wrapper {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .applications-header {
+            flex-direction: column;
+            gap: 12px;
         }
         
         .header-title {
             font-size: 20px;
         }
+        
+        .application-header {
+            flex-direction: column;
+        }
+        
+        .application-details {
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
 </style>
 
 <div class="applications-container">
-    <!-- Header -->
     <div class="applications-header">
         <h1 class="header-title">My Applications</h1>
         <p class="header-subtitle">Track the status of your job applications</p>
     </div>
     
-    <!-- Stats Row -->
-    <div class="stats-row">
+    <!-- Statistics -->
+    <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-number">{{ applications|length }}</div>
-            <div class="stat-label">TOTAL</div>
+            <div class="stat-number">{{ total_applications|default:"0" }}</div>
+            <div class="stat-label">Total Applications</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">
-                {% with pending=0 %}
-                    {% for app in applications %}
-                        {% if app.status == 'pending' %}{% endif %}
-                    {% endfor %}
-                {% endwith %}
-                {{ applications|length }}
-            </div>
-            <div class="stat-label">ACTIVE</div>
+            <div class="stat-number">{{ pending_applications|default:"0" }}</div>
+            <div class="stat-label">Pending Review</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">
-                {% with responses=0 %}
-                    {% for app in applications %}
-                        {% if app.status != 'pending' %}{% endif %}
-                    {% endfor %}
-                {% endwith %}
-                {{ applications|length }}
-            </div>
-            <div class="stat-label">RESPONSES</div>
+            <div class="stat-number">{{ shortlisted_applications|default:"0" }}</div>
+            <div class="stat-label">Shortlisted</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ hired_applications|default:"0" }}</div>
+            <div class="stat-label">Hired</div>
         </div>
     </div>
     
     <!-- Applications List -->
-    {% if applications %}
-        <div class="applications-list">
+    <div class="applications-list">
+        {% if applications %}
             {% for application in applications %}
-            <div class="application-item" data-url="{% url 'jobs:dashboard_job_detail' application.job.id %}">
-                <div class="application-info">
-                    <div class="job-title">{{ application.job.title }}</div>
-                    <div class="job-details">{{ application.job.company }} • {{ application.job.location }}</div>
-                    <div class="applied-date">Applied: {{ application.created_at|date:"F j, Y" }}</div>
-                    {% if application.quiz_score %}
-                        <div class="quiz-score">Quiz Score: {{ application.quiz_score }}%</div>
-                    {% endif %}
+            <div class="application-item" onclick="window.location.href='{% url 'application:application_detail' application.id %}'">
+                <!-- Job Image with Gradient Overlay -->
+                <div class="job-image-wrapper">
+                    <div class="job-image">
+                        {% if application.job.get_image_url %}
+                            <img src="{{ application.job.get_image_url }}" alt="{{ application.job.company }}">
+                        {% elif application.job.image %}
+                            <img src="{{ application.job.image.url }}" alt="{{ application.job.company }}">
+                        {% else %}
+                            <div class="job-image-placeholder">
+                                {{ application.job.company|slice:":1"|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="image-gradient-overlay"></div>
                 </div>
-                <div>
-                    <span class="status-badge 
-                        {% if application.status == 'pending' %}status-pending
-                        {% elif application.status == 'approved' %}status-approved
-                        {% elif application.status == 'interview_scheduled' %}status-interview
-                        {% elif application.status == 'hired' %}status-hired
-                        {% elif application.status == 'rejected' %}status-rejected
-                        {% endif %}">
-                        {{ application.get_status_display }}
-                    </span>
+                
+                <!-- Application Content -->
+                <div class="application-content">
+                    <div class="application-header">
+                        <div>
+                            <div class="job-title">{{ application.job.title }}</div>
+                            <div class="job-company">{{ application.job.company }}</div>
+                        </div>
+                        <span class="status-badge status-{{ application.status }}">
+                            {{ application.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="application-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Applied:</span>
+                            <span class="detail-value">{{ application.created_at|date:"F j, Y" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Location:</span>
+                            <span class="detail-value">{{ application.job.location }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Salary:</span>
+                            <span class="detail-value">{{ application.job.salary_range }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Interview Information (if scheduled) -->
+                    {% if application.interview_scheduled_at %}
+                    <div class="interview-info">
+                        <div class="detail-item">
+                            <span class="detail-label">Interview Date:</span>
+                            <span class="detail-value">{{ application.interview_scheduled_at|date:"F j, Y" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Time:</span>
+                            <span class="detail-value">{{ application.interview_scheduled_at|date:"g:i A" }}</span>
+                        </div>
+                        {% if application.interview_link %}
+                        <div class="detail-item">
+                            <span class="detail-label">Join Link:</span>
+                            <a href="{{ application.interview_link }}" target="_blank" class="interview-link" onclick="event.stopPropagation()">Join Meeting →</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Feedback (if rejected) -->
+                    {% if application.feedback and application.status == 'rejected' %}
+                    <div class="interview-info" style="border-left-color: #f85149;">
+                        <div class="detail-item">
+                            <span class="detail-label">Feedback:</span>
+                            <span class="detail-value">{{ application.feedback }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="application-links">
+                        <a href="{% url 'jobs:dashboard_job_detail' application.job.id %}" class="link-btn" onclick="event.stopPropagation()">View Job</a>
+                        {% if application.repository_link %}
+                        <a href="{{ application.repository_link }}" target="_blank" class="link-btn" onclick="event.stopPropagation()">View Repository</a>
+                        {% endif %}
+                        {% if application.status == 'interview_scheduled' and application.interview_link %}
+                        <a href="{{ application.interview_link }}" target="_blank" class="link-btn" onclick="event.stopPropagation()">Join Interview</a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% endfor %}
-        </div>
-    {% else %}
-        <div class="empty-state">
-            <div class="empty-text">No applications yet</div>
-            <a href="{% url 'jobs:dashboard_jobs' %}" class="empty-link">Browse Jobs →</a>
-        </div>
-    {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-text">No applications yet</div>
+                <div class="empty-subtext">You haven't applied for any jobs yet</div>
+                <a href="{% url 'jobs:dashboard_jobs' %}" class="browse-btn">Browse Jobs</a>
+            </div>
+        {% endif %}
+    </div>
 </div>
-
-<script>
-    // Make application items clickable using data-url attribute
-    document.querySelectorAll('.application-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-            // Don't trigger if clicking on a link inside
-            if (e.target.closest('a')) return;
-            const url = this.getAttribute('data-url');
-            if (url && url !== 'undefined') {
-                window.location.href = url;
-            }
-        });
-    });
-</script>
 
 {% endblock %}
