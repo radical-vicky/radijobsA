@@ -6,6 +6,13 @@
 {% block content %}
 
 <style>
+    /* Dashboard Container */
+    .dashboard-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
     /* Stats Grid */
     .stats-grid {
         display: grid;
@@ -24,7 +31,7 @@
     .stat-number {
         font-size: 32px;
         font-weight: 700;
-        color: #e6edf3;
+        color: #2f81f7;
         margin-bottom: 8px;
     }
     
@@ -135,16 +142,15 @@
         text-decoration: underline;
     }
     
-    /* Application Item */
+    /* Application Item with Image */
     .application-item {
         padding: 12px 16px;
         border-bottom: 1px solid #2d2f36;
         cursor: pointer;
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 16px;
         flex-wrap: wrap;
-        gap: 12px;
     }
     
     .application-item:last-child {
@@ -155,8 +161,41 @@
         background: #1a1f2e;
     }
     
+    /* Application Image */
+    .application-image {
+        flex-shrink: 0;
+        width: 56px;
+        height: 56px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        overflow: hidden;
+        border-radius: 6px;
+    }
+    
+    .application-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .application-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a1f2e, #0d1117);
+    }
+    
+    .application-image-placeholder svg {
+        width: 28px;
+        height: 28px;
+        color: #2f81f7;
+    }
+    
     .application-info {
         flex: 1;
+        min-width: 150px;
     }
     
     .application-title {
@@ -179,16 +218,23 @@
     
     .application-status {
         display: inline-block;
-        padding: 2px 10px;
+        padding: 4px 12px;
         font-size: 11px;
         font-weight: 500;
         border-radius: 20px;
+        white-space: nowrap;
     }
     
     .status-pending {
         background: rgba(210, 153, 34, 0.1);
         color: #d29922;
         border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .status-shortlisted {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
     }
     
     .status-approved {
@@ -240,6 +286,7 @@
         background: #0d1117;
         border: 1px solid #2d2f36;
         overflow: hidden;
+        border-radius: 6px;
     }
     
     .recommendation-image img {
@@ -248,16 +295,19 @@
         object-fit: cover;
     }
     
-    .recommendation-initial {
+    .recommendation-image-placeholder {
         width: 100%;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #21262d;
-        color: #8b949e;
-        font-size: 16px;
-        font-weight: 500;
+        background: linear-gradient(135deg, #1a1f2e, #0d1117);
+    }
+    
+    .recommendation-image-placeholder svg {
+        width: 24px;
+        height: 24px;
+        color: #2f81f7;
     }
     
     .recommendation-content {
@@ -318,45 +368,18 @@
         color: #8b949e;
     }
     
-    /* Quiz Section */
-    .quiz-section {
-        padding: 16px;
-    }
-    
-    .quiz-stats {
-        display: flex;
-        gap: 32px;
-        flex-wrap: wrap;
-    }
-    
-    .quiz-stat {
-        text-align: center;
-    }
-    
-    .quiz-stat-value {
-        font-size: 24px;
-        font-weight: 600;
-        margin-bottom: 2px;
-    }
-    
-    .quiz-stat-value.avg { color: #2f81f7; }
-    .quiz-stat-value.passed { color: #3fb950; }
-    .quiz-stat-value.taken { color: #d29922; }
-    
-    .quiz-stat-label {
-        font-size: 10px;
-        color: #8b949e;
-        letter-spacing: 0.5px;
-    }
-    
     /* Responsive */
-    @media (max-width: 900px) {
+    @media (max-width: 1000px) {
         .stats-grid {
             grid-template-columns: repeat(3, 1fr);
         }
     }
     
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            padding: 0 12px;
+        }
+        
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
@@ -372,8 +395,11 @@
         }
         
         .application-item {
-            flex-direction: column;
-            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        
+        .application-status {
+            white-space: normal;
         }
         
         .recommendation-item {
@@ -385,36 +411,31 @@
         .recommendation-image {
             width: 50px;
             height: 50px;
-            margin: 0;
         }
         
         .welcome-title {
             font-size: 20px;
         }
-        
-        .quiz-stats {
-            justify-content: center;
-        }
     }
     
-    @media (max-width: 480px) {
+    @media (max-width: 550px) {
         .stats-grid {
             grid-template-columns: 1fr;
         }
         
-        .recommendation-item {
-            flex-direction: row;
-            align-items: center;
+        .application-item {
+            flex-direction: column;
+            align-items: flex-start;
         }
         
-        .recommendation-image {
-            width: 45px;
-            height: 45px;
+        .application-image {
+            width: 50px;
+            height: 50px;
         }
     }
 </style>
 
-<div>
+<div class="dashboard-wrapper">
     <!-- Welcome Section -->
     <div class="welcome-section">
         <h1 class="welcome-title">Welcome back, {{ user.get_full_name|default:user.username }}</h1>
@@ -432,8 +453,8 @@
             <div class="stat-label">PENDING</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">{{ approved_applications|default:"0" }}</div>
-            <div class="stat-label">APPROVED</div>
+            <div class="stat-number">{{ shortlisted_applications|default:"0" }}</div>
+            <div class="stat-label">SHORTLISTED</div>
         </div>
         <div class="stat-card">
             <div class="stat-number">{{ interview_applications|default:"0" }}</div>
@@ -466,7 +487,7 @@
         </div>
     </div>
     
-    <!-- Recent Applications -->
+    <!-- Recent Applications with Images -->
     <div class="section-card">
         <div class="section-header">
             <span class="section-title">Recent Applications</span>
@@ -475,15 +496,33 @@
         
         {% if recent_applications %}
             {% for app in recent_applications %}
-            <div class="application-item" data-url="{% url 'jobs:dashboard_job_detail' app.job.id %}">
+            <div class="application-item" data-url="{% url 'application:detail' app.id %}">
+                <!-- Application Image / Thumbnail -->
+                <div class="application-image">
+                    {% if app.job.get_image_url %}
+                        <img src="{{ app.job.get_image_url }}" alt="{{ app.job.title }}">
+                    {% else %}
+                        <div class="application-image-placeholder">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Application Info -->
                 <div class="application-info">
                     <div class="application-title">{{ app.job.title }}</div>
                     <div class="application-details">{{ app.job.company }} • {{ app.job.location }}</div>
                     <div class="application-date">Applied: {{ app.created_at|date:"M d, Y" }}</div>
                 </div>
+                
+                <!-- Status Badge -->
                 <div>
                     <span class="application-status 
                         {% if app.status == 'pending' %}status-pending
+                        {% elif app.status == 'shortlisted' %}status-shortlisted
                         {% elif app.status == 'approved' %}status-approved
                         {% elif app.status == 'interview_scheduled' %}status-interview
                         {% elif app.status == 'hired' %}status-hired
@@ -513,12 +552,15 @@
             {% for job in recommended_jobs %}
             <div class="recommendation-item" data-url="{% url 'jobs:dashboard_job_detail' job.id %}">
                 <div class="recommendation-image">
-                    {% if job.image %}
-                        <img src="{{ job.image.url }}" alt="{{ job.title }}">
-                    {% elif job.image_url %}
-                        <img src="{{ job.image_url }}" alt="{{ job.title }}">
+                    {% if job.get_image_url %}
+                        <img src="{{ job.get_image_url }}" alt="{{ job.title }}">
                     {% else %}
-                        <div class="recommendation-initial">{{ job.company|slice:":1" }}</div>
+                        <div class="recommendation-image-placeholder">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
                     {% endif %}
                 </div>
                 <div class="recommendation-content">
@@ -535,31 +577,6 @@
             </div>
         {% endif %}
     </div>
-    
-    <!-- Quiz Performance -->
-    {% if quiz_taken > 0 %}
-    <div class="section-card">
-        <div class="section-header">
-            <span class="section-title">Quiz Performance</span>
-        </div>
-        <div class="quiz-section">
-            <div class="quiz-stats">
-                <div class="quiz-stat">
-                    <div class="quiz-stat-value avg">{{ avg_quiz_score }}%</div>
-                    <div class="quiz-stat-label">AVERAGE SCORE</div>
-                </div>
-                <div class="quiz-stat">
-                    <div class="quiz-stat-value passed">{{ quiz_passed }}</div>
-                    <div class="quiz-stat-label">PASSED</div>
-                </div>
-                <div class="quiz-stat">
-                    <div class="quiz-stat-value taken">{{ quiz_taken }}</div>
-                    <div class="quiz-stat-label">TAKEN</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
 </div>
 
 <script>

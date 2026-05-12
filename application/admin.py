@@ -1,35 +1,34 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.utils import timezone
-from datetime import timedelta
 from .models import Application
-from notifications.models import create_notification
 
 
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'applicant_name', 'job_title', 'status_badge', 'applied_date', 'repository_link_preview')
+    list_display = ('id', 'applicant_name', 'job_title', 'status_badge', 'project_links', 'applied_date')
     list_filter = ('status', 'created_at', 'job__job_type')
     search_fields = ('user__email', 'user__username', 'user__first_name', 'user__last_name', 'job__title')
-    readonly_fields = ('created_at', 'updated_at', 'reviewed_at', 'repository_link')
+    readonly_fields = ('created_at', 'updated_at', 'reviewed_at', 'hired_at')
     
     fieldsets = (
         ('Applicant Information', {
-            'fields': ('user',)
+            'fields': ('user', 'job', 'cover_letter')
         }),
-        ('Application Details', {
-            'fields': ('job', 'cover_letter', 'repository_link', 'deployment_link', 'test_credentials', 'project_notes', 'project_file')
+        ('Project Submission', {
+            'fields': ('repository_link', 'deployment_link', 'test_credentials', 'project_notes', 'project_file')
         }),
-        ('Status', {
+        ('Status Tracking', {
             'fields': ('status', 'feedback', 'reviewed_by', 'reviewed_at')
         }),
-        ('Interview', {
+        ('Interview Details', {
             'fields': ('interview_scheduled_at', 'interview_link', 'interview_completed'),
             'classes': ('collapse',)
         }),
-        ('Hiring', {
-            'fields': ('hired_at', 'start_date'),
+        ('Hiring Details', {
+            'fields': ('start_date', 'hired_at'),
             'classes': ('collapse',)
         }),
         ('Timestamps', {
@@ -39,46 +38,51 @@ class ApplicationAdmin(admin.ModelAdmin):
     )
     
     def applicant_name(self, obj):
-        if obj.user.get_full_name():
-            return obj.user.get_full_name()
-        return obj.user.username
+        return obj.user.get_full_name() or obj.user.username
     applicant_name.short_description = 'Applicant'
     applicant_name.admin_order_field = 'user__first_name'
     
     def job_title(self, obj):
         return obj.job.title
     job_title.short_description = 'Job'
-    job_title.admin_order_field = 'job__title'
     
     def status_badge(self, obj):
         colors = {
             'pending': '#d29922',
             'shortlisted': '#2f81f7',
             'approved': '#2f81f7',
-            'interview_scheduled': '#a371f7',
-            'interview_completed': '#3fb950',
+            'interview_scheduled': '#2f81f7',
+            'interview_completed': '#2f81f7',
             'hired': '#3fb950',
             'rejected': '#f85149',
         }
         color = colors.get(obj.status, '#8b949e')
         return format_html(
-            '<span style="background-color: {}20; color: {}; padding: 4px 8px; font-size: 11px; font-weight: 500;">{}</span>',
+            '<span style="background-color: {}20; color: {}; padding: 2px 8px; border-radius: 4px; font-size: 11px;">{}</span>',
             color, color, obj.get_status_display()
         )
     status_badge.short_description = 'Status'
+    
+    def project_links(self, obj):
+        links = []
+        if obj.repository_link:
+            links.append(f'<a href="{obj.repository_link}" target="_blank">Repository</a>')
+        if obj.deployment_link:
+            links.append(f'<a href="{obj.deployment_link}" target="_blank">Live Demo</a>')
+        
+        if links:
+            # Join with separator and mark as safe HTML
+            html_string = ' | '.join(links)
+            return mark_safe(html_string)
+        return mark_safe('<span class="text-muted">-</span>')
+    project_links.short_description = 'Project Links'
     
     def applied_date(self, obj):
         return obj.created_at.strftime('%Y-%m-%d')
     applied_date.short_description = 'Applied'
     applied_date.admin_order_field = 'created_at'
     
-    def repository_link_preview(self, obj):
-        if obj.repository_link:
-            return format_html('<a href="{}" target="_blank" style="color: #2f81f7;">View Repo</a>', obj.repository_link)
-        return '-'
-    repository_link_preview.short_description = 'Repository'
-    
-    actions = ['shortlist_selected', 'approve_selected', 'reject_selected', 'hire_selected']
+    actions = ['shortlist_selected', 'approve_selected', 'reject_selected']
     
     def shortlist_selected(self, request, queryset):
         count = 0
@@ -96,24 +100,16 @@ class ApplicationAdmin(admin.ModelAdmin):
                 obj.approve_for_interview(request.user)
                 count += 1
         self.message_user(request, f'{count} application(s) approved for interview.')
-    approve_selected.short_description = 'Approve for interview'
+    approve_selected.short_description = 'Approve selected for interview'
     
     def reject_selected(self, request, queryset):
         count = 0
-        feedback = "Not selected at this time"
         for obj in queryset:
-            if obj.status != 'hired':
-                obj.reject(request.user, feedback)
+            if obj.status in ['pending', 'shortlisted']:
+                obj.reject(request.user, 'Not selected')
                 count += 1
         self.message_user(request, f'{count} application(s) rejected.')
     reject_selected.short_description = 'Reject selected applications'
     
-    def hire_selected(self, request, queryset):
-        from django.utils import timezone
-        count = 0
-        for obj in queryset:
-            if obj.status == 'interview_completed':
-                obj.hire(timezone.now().date())
-                count += 1
-        self.message_user(request, f'{count} applicant(s) hired.')
-    hire_selected.short_description = 'Hire selected applicants'
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user', 'job', 'reviewed_by')

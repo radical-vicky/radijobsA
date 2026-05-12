@@ -8,158 +8,602 @@
 <style>
     .meetings-container {
         width: 100%;
-        max-width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
     }
     
     .meetings-header {
-        margin-bottom: 24px;
+        margin-bottom: 28px;
     }
     
     .header-title {
-        font-size: 24px;
-        font-weight: 600;
+        font-size: 26px;
+        font-weight: 700;
         color: #e6edf3;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
+        letter-spacing: -0.3px;
     }
     
     .header-subtitle {
         font-size: 13px;
         color: #8b949e;
+        line-height: 1.5;
     }
     
-    .meetings-list {
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+        margin-bottom: 36px;
+    }
+    
+    .stat-card {
         background: #161b22;
         border: 1px solid #2d2f36;
+        padding: 20px 16px;
+        text-align: center;
+        transition: all 0.2s;
     }
     
-    .meeting-item {
-        padding: 20px;
+    .stat-card:hover {
+        border-color: #2f81f7;
+        transform: translateY(-2px);
+    }
+    
+    .stat-number {
+        font-size: 32px;
+        font-weight: 700;
+        color: #2f81f7;
+        margin-bottom: 6px;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .tabs-container {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
         border-bottom: 1px solid #2d2f36;
+        padding-bottom: 0;
+        flex-wrap: wrap;
     }
     
-    .meeting-item:last-child {
-        border-bottom: none;
+    .tab-btn {
+        padding: 10px 24px;
+        background: transparent;
+        border: none;
+        color: #8b949e;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+    }
+    
+    .tab-btn:hover {
+        color: #2f81f7;
+    }
+    
+    .tab-btn.active {
+        color: #2f81f7;
+    }
+    
+    .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #2f81f7;
+    }
+    
+    .meetings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 20px;
+    }
+    
+    .meeting-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        transition: all 0.2s;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .meeting-card:hover {
+        border-color: #2f81f7;
+        transform: translateY(-2px);
     }
     
     .meeting-type {
-        display: inline-block;
-        padding: 2px 10px;
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 2;
+        padding: 4px 12px;
         font-size: 10px;
-        font-weight: 500;
-        margin-bottom: 10px;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.3px;
+        letter-spacing: 0.5px;
+        border-radius: 20px;
     }
     
     .type-interview {
-        background: rgba(47, 129, 247, 0.1);
+        background: rgba(47, 129, 247, 0.2);
         color: #2f81f7;
         border: 1px solid rgba(47, 129, 247, 0.3);
     }
     
     .type-onboarding {
+        background: rgba(63, 185, 80, 0.2);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .meeting-image {
+        position: relative;
+        width: 100%;
+        height: 140px;
+        overflow: hidden;
+        background: #0d1117;
+        cursor: pointer;
+    }
+    
+    .meeting-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .meeting-gradient {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60%;
+        background: linear-gradient(to top, #161b22 0%, rgba(22, 27, 34, 0) 100%);
+        pointer-events: none;
+    }
+    
+    .meeting-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a1f2e, #0d1117);
+        gap: 8px;
+    }
+    
+    .meeting-placeholder svg {
+        width: 48px;
+        height: 48px;
+        color: #2f81f7;
+    }
+    
+    .meeting-placeholder span {
+        font-size: 11px;
+        color: #6e7681;
+    }
+    
+    .meeting-content {
+        padding: 16px;
+        cursor: pointer;
+    }
+    
+    .meeting-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 4px;
+        line-height: 1.4;
+    }
+    
+    .meeting-job {
+        font-size: 12px;
+        color: #8b949e;
+        margin-bottom: 12px;
+    }
+    
+    .meeting-details {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px;
+        padding: 10px 0;
+        border-top: 1px solid #2d2f36;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #6e7681;
+    }
+    
+    .detail-row svg {
+        width: 14px;
+        height: 14px;
+        color: #2f81f7;
+        flex-shrink: 0;
+    }
+    
+    .detail-row span:first-child {
+        min-width: 60px;
+        color: #8b949e;
+    }
+    
+    .detail-row span:last-child {
+        color: #e6edf3;
+        font-weight: 500;
+    }
+    
+    .meeting-status-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        font-size: 10px;
+        font-weight: 500;
+        border-radius: 4px;
+        margin-bottom: 8px;
+    }
+    
+    .status-scheduled {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .status-ongoing {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-completed {
         background: rgba(63, 185, 80, 0.1);
         color: #3fb950;
         border: 1px solid rgba(63, 185, 80, 0.3);
     }
     
-    .meeting-title {
-        font-size: 16px;
-        font-weight: 500;
-        color: #e6edf3;
-        margin-bottom: 8px;
+    .status-postponed {
+        background: rgba(163, 113, 247, 0.1);
+        color: #a371f7;
+        border: 1px solid rgba(163, 113, 247, 0.3);
     }
     
-    .meeting-datetime {
-        font-size: 12px;
-        color: #8b949e;
-        margin-bottom: 12px;
+    .countdown-container {
+        margin-top: 12px;
+        padding: 8px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        border-radius: 6px;
+        text-align: center;
     }
     
-    .meeting-duration {
-        font-size: 12px;
-        color: #8b949e;
-        margin-bottom: 12px;
+    .countdown-text {
+        font-size: 10px;
+        color: #d29922;
+        margin-bottom: 4px;
+    }
+    
+    .countdown-timer {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .countdown-block {
+        text-align: center;
+    }
+    
+    .countdown-number {
+        font-size: 14px;
+        font-weight: 700;
+        color: #2f81f7;
+        font-family: monospace;
+    }
+    
+    .countdown-label {
+        font-size: 8px;
+        color: #6e7681;
+        text-transform: uppercase;
     }
     
     .join-btn {
-        display: inline-block;
-        padding: 8px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 10px 16px;
         background: #2f81f7;
-        color: white;
-        text-decoration: none;
-        font-size: 12px;
-        font-weight: 500;
-        transition: background 0.2s;
         border: none;
+        color: white;
+        font-size: 13px;
+        font-weight: 600;
         cursor: pointer;
+        text-decoration: none;
+        transition: background 0.2s;
+        text-align: center;
+        border-radius: 6px;
+        margin-top: 12px;
     }
     
     .join-btn:hover {
         background: #58a6ff;
     }
     
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
+    .join-btn.completed {
+        background: #21262d;
+        cursor: default;
         color: #8b949e;
     }
     
-    .empty-text {
-        font-size: 16px;
+    /* Postpone Reason */
+    .postpone-reason {
+        margin-top: 8px;
+        padding: 8px 10px;
+        background: rgba(163, 113, 247, 0.05);
+        border-left: 2px solid #a371f7;
+        font-size: 11px;
+        color: #c9d1d9;
+        line-height: 1.4;
+    }
+    
+    /* Admin Action Buttons */
+    .admin-actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 8px;
+    }
+    
+    .admin-reschedule-btn {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: #a371f7;
+        border: none;
+        color: white;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.2s;
+        text-align: center;
+        border-radius: 6px;
+    }
+    
+    .admin-reschedule-btn:hover {
+        background: #b380f9;
+    }
+    
+    .admin-cancel-btn {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: #21262d;
+        border: 1px solid #3d444d;
+        color: #f85149;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        border-radius: 6px;
+    }
+    
+    .admin-cancel-btn:hover {
+        background: #f85149;
+        border-color: #f85149;
+        color: white;
+    }
+    
+    /* User View for Postponed Meetings */
+    .user-postponed-message {
+        margin-top: 12px;
+        padding: 10px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        border-radius: 6px;
+        text-align: center;
+        font-size: 12px;
+        color: #a371f7;
+    }
+    
+    .contact-admin-text {
+        font-size: 11px;
+        color: #8b949e;
+        margin-top: 4px;
+        text-align: center;
+    }
+    
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        max-width: 500px;
+        width: 90%;
+        padding: 24px;
+        position: relative;
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #e6edf3;
+    }
+    
+    .modal-close {
+        background: none;
+        border: none;
+        color: #8b949e;
+        font-size: 24px;
+        cursor: pointer;
+    }
+    
+    .modal-close:hover {
+        color: #f85149;
+    }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
         font-weight: 500;
+        color: #e6edf3;
+        margin-bottom: 6px;
+    }
+    
+    .modal-input {
+        width: 100%;
+        padding: 10px 12px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+        font-size: 13px;
+    }
+    
+    .modal-textarea {
+        width: 100%;
+        padding: 10px 12px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+        font-size: 13px;
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .modal-btn {
+        width: 100%;
+        padding: 12px;
+        background: #a371f7;
+        border: none;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+    
+    .modal-btn:hover {
+        background: #b380f9;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        border-radius: 12px;
+        grid-column: 1 / -1;
+    }
+    
+    .empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        color: #3d444d;
+    }
+    
+    .empty-title {
+        font-size: 18px;
+        font-weight: 600;
         color: #e6edf3;
         margin-bottom: 8px;
     }
     
-    .empty-subtext {
+    .empty-text {
         font-size: 13px;
         color: #8b949e;
+        margin-bottom: 20px;
     }
     
-    .meeting-info-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        margin-bottom: 12px;
+    @media (max-width: 900px) {
+        .meetings-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
     }
     
-    .meeting-info-item {
-        font-size: 12px;
-        color: #8b949e;
-    }
-    
-    .meeting-info-label {
-        font-weight: 500;
-        color: #6e7681;
-        margin-right: 4px;
-    }
-    
-    .meeting-info-value {
-        color: #e6edf3;
-    }
-    
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
+        .meetings-container {
+            padding: 12px;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
         .header-title {
-            font-size: 20px;
+            font-size: 22px;
         }
         
-        .meeting-item {
-            padding: 16px;
+        .stat-number {
+            font-size: 24px;
         }
         
-        .meeting-title {
-            font-size: 15px;
+        .tabs-container {
+            gap: 4px;
         }
         
-        .join-btn {
-            width: 100%;
-            text-align: center;
+        .tab-btn {
+            padding: 8px 16px;
+            font-size: 13px;
         }
         
-        .meeting-info-row {
+        .meeting-image {
+            height: 120px;
+        }
+        
+        .meetings-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .admin-actions {
             flex-direction: column;
-            gap: 6px;
         }
     }
 </style>
@@ -170,42 +614,412 @@
         <p class="header-subtitle">Join your scheduled Zoom interviews and onboarding sessions</p>
     </div>
     
-    <div class="meetings-list">
-        {% if meetings %}
-            {% for meeting in meetings %}
-            <div class="meeting-item">
-                <div>
-                    <span class="meeting-type type-{{ meeting.type|lower }}">
-                        {{ meeting.type|upper }}
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ upcoming_count|default:"0" }}</div>
+            <div class="stat-label">Upcoming</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ ongoing_count|default:"0" }}</div>
+            <div class="stat-label">Ongoing</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ postponed_count|default:"0" }}</div>
+            <div class="stat-label">Postponed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ past_count|default:"0" }}</div>
+            <div class="stat-label">Past</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_count|default:"0" }}</div>
+            <div class="stat-label">Total</div>
+        </div>
+    </div>
+    
+    <div class="tabs-container">
+        <button class="tab-btn active" data-tab="upcoming">Upcoming Meetings</button>
+        <button class="tab-btn" data-tab="ongoing">Ongoing Meetings</button>
+        <button class="tab-btn" data-tab="postponed">Postponed Meetings</button>
+        <button class="tab-btn" data-tab="past">Past Meetings</button>
+    </div>
+    
+    <!-- Upcoming Meetings -->
+    <div id="upcoming-meetings" class="meetings-grid">
+        {% if upcoming_meetings %}
+            {% for meeting in upcoming_meetings %}
+            <div class="meeting-card">
+                <span class="meeting-type type-{{ meeting.type|lower }}">
+                    {{ meeting.type }}
+                </span>
+                <div class="meeting-image" onclick="window.open('{{ meeting.join_url }}', '_blank')">
+                    {% if meeting.image_url %}
+                        <img src="{{ meeting.image_url }}" alt="{{ meeting.title }}">
+                        <div class="meeting-gradient"></div>
+                    {% else %}
+                        <div class="meeting-placeholder">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            <span>{{ meeting.type|slice:":1"|upper }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="meeting-content" onclick="window.open('{{ meeting.join_url }}', '_blank')">
+                    <span class="meeting-status-badge status-{{ meeting.status }}">
+                        {{ meeting.status|title }}
                     </span>
+                    <h3 class="meeting-title">{{ meeting.title }}</h3>
+                    <div class="meeting-job">{{ meeting.job_title }}</div>
+                    <div class="meeting-details">
+                        <div class="detail-row">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Date</span>
+                            <span>{{ meeting.start_time|date:"F j, Y" }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M12 22a10 10 0 100-20 10 10 0 000 20z"/>
+                            </svg>
+                            <span>Time</span>
+                            <span>{{ meeting.start_time|date:"g:i A" }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M12 22a10 10 0 100-20 10 10 0 000 20z"/>
+                            </svg>
+                            <span>Duration</span>
+                            <span>{{ meeting.duration }} minutes</span>
+                        </div>
+                    </div>
+                    <div class="countdown-container" id="countdown-{{ forloop.counter }}" data-time="{{ meeting.start_time.isoformat }}">
+                        <div class="countdown-text">Starts in:</div>
+                        <div class="countdown-timer">
+                            <div class="countdown-block"><div class="countdown-number" id="days-{{ forloop.counter }}">--</div><div class="countdown-label">Days</div></div>
+                            <div class="countdown-block"><div class="countdown-number" id="hours-{{ forloop.counter }}">--</div><div class="countdown-label">Hrs</div></div>
+                            <div class="countdown-block"><div class="countdown-number" id="mins-{{ forloop.counter }}">--</div><div class="countdown-label">Mins</div></div>
+                            <div class="countdown-block"><div class="countdown-number" id="secs-{{ forloop.counter }}">--</div><div class="countdown-label">Secs</div></div>
+                        </div>
+                    </div>
+                    <a href="{{ meeting.join_url }}" target="_blank" class="join-btn" onclick="event.stopPropagation()">Join Meeting</a>
                 </div>
-                <div class="meeting-title">{{ meeting.title }}</div>
-                <div class="meeting-info-row">
-                    <div class="meeting-info-item">
-                        <span class="meeting-info-label">Date:</span>
-                        <span class="meeting-info-value">{{ meeting.start_time|date:"F j, Y" }}</span>
-                    </div>
-                    <div class="meeting-info-item">
-                        <span class="meeting-info-label">Time:</span>
-                        <span class="meeting-info-value">{{ meeting.start_time|date:"g:i A" }}</span>
-                    </div>
-                    <div class="meeting-info-item">
-                        <span class="meeting-info-label">Duration:</span>
-                        <span class="meeting-info-value">{{ meeting.duration }} minutes</span>
-                    </div>
-                </div>
-                <a href="{{ meeting.join_url }}" target="_blank" class="join-btn">
-                    Join Meeting
-                </a>
             </div>
             {% endfor %}
         {% else %}
             <div class="empty-state">
-                <div class="empty-text">No meetings scheduled</div>
-                <div class="empty-subtext">When your application is approved and interview is scheduled, you will see meetings here</div>
+                <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                <div class="empty-title">No upcoming meetings</div>
+                <div class="empty-text">When interviews are scheduled, they will appear here</div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Ongoing Meetings -->
+    <div id="ongoing-meetings" class="meetings-grid" style="display: none;">
+        {% if ongoing_meetings %}
+            {% for meeting in ongoing_meetings %}
+            <div class="meeting-card">
+                <span class="meeting-type type-{{ meeting.type|lower }}">{{ meeting.type }}</span>
+                <div class="meeting-image" onclick="window.open('{{ meeting.join_url }}', '_blank')">
+                    {% if meeting.image_url %}
+                        <img src="{{ meeting.image_url }}" alt="{{ meeting.title }}">
+                        <div class="meeting-gradient"></div>
+                    {% else %}
+                        <div class="meeting-placeholder">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            <span>{{ meeting.type|slice:":1"|upper }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="meeting-content" onclick="window.open('{{ meeting.join_url }}', '_blank')">
+                    <span class="meeting-status-badge status-ongoing">Live Now</span>
+                    <h3 class="meeting-title">{{ meeting.title }}</h3>
+                    <div class="meeting-job">{{ meeting.job_title }}</div>
+                    <div class="meeting-details">
+                        <div class="detail-row">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Started</span>
+                            <span>{{ meeting.start_time|date:"g:i A" }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M12 22a10 10 0 100-20 10 10 0 000 20z"/>
+                            </svg>
+                            <span>Duration</span>
+                            <span>{{ meeting.duration }} minutes</span>
+                        </div>
+                    </div>
+                    <a href="{{ meeting.join_url }}" target="_blank" class="join-btn" onclick="event.stopPropagation()">Join Now</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                <div class="empty-title">No ongoing meetings</div>
+                <div class="empty-text">Active meetings will appear here</div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Postponed Meetings -->
+    <div id="postponed-meetings" class="meetings-grid" style="display: none;">
+        {% if postponed_meetings %}
+            {% for meeting in postponed_meetings %}
+            <div class="meeting-card" style="opacity: 0.8;">
+                <span class="meeting-type type-{{ meeting.type|lower }}">{{ meeting.type }}</span>
+                <div class="meeting-image">
+                    {% if meeting.image_url %}
+                        <img src="{{ meeting.image_url }}" alt="{{ meeting.title }}">
+                        <div class="meeting-gradient"></div>
+                    {% else %}
+                        <div class="meeting-placeholder">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            <span>{{ meeting.type|slice:":1"|upper }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="meeting-content">
+                    <span class="meeting-status-badge status-postponed">Postponed</span>
+                    <h3 class="meeting-title">{{ meeting.title }}</h3>
+                    <div class="meeting-job">{{ meeting.job_title }}</div>
+                    <div class="meeting-details">
+                        <div class="detail-row">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Original Date</span>
+                            <span>{{ meeting.start_time|date:"F j, Y \a\t g:i A" }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if meeting.postpone_reason %}
+                    <div class="postpone-reason">
+                        <strong>Reason:</strong> {{ meeting.postpone_reason }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.is_superuser or user.is_staff %}
+                        <!-- Admin View - Can reschedule and cancel -->
+                        <div class="admin-actions">
+                            <button class="admin-reschedule-btn" onclick="openRescheduleModal({{ meeting.id }})">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                Reschedule
+                            </button>
+                            <form action="/zoom_integration/cancel/{{ meeting.id }}/" method="post" style="flex: 1;">
+                                {% csrf_token %}
+                                <button type="submit" class="admin-cancel-btn">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <!-- User View - Can only see message -->
+                        <div class="user-postponed-message">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18" style="display: inline-block; margin-right: 6px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            This meeting has been postponed
+                            <div class="contact-admin-text">Please contact admin for updates</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3M12 22a10 10 0 100-20 10 10 0 000 20z"/>
+                </svg>
+                <div class="empty-title">No postponed meetings</div>
+                <div class="empty-text">Postponed meetings will appear here</div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Past Meetings -->
+    <div id="past-meetings" class="meetings-grid" style="display: none;">
+        {% if past_meetings %}
+            {% for meeting in past_meetings %}
+            <div class="meeting-card" style="opacity: 0.7;">
+                <span class="meeting-type type-{{ meeting.type|lower }}">{{ meeting.type }}</span>
+                <div class="meeting-image">
+                    {% if meeting.image_url %}
+                        <img src="{{ meeting.image_url }}" alt="{{ meeting.title }}">
+                        <div class="meeting-gradient"></div>
+                    {% else %}
+                        <div class="meeting-placeholder">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            <span>{{ meeting.type|slice:":1"|upper }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="meeting-content">
+                    <span class="meeting-status-badge status-completed">Completed</span>
+                    <h3 class="meeting-title">{{ meeting.title }}</h3>
+                    <div class="meeting-job">{{ meeting.job_title }}</div>
+                    <div class="meeting-details">
+                        <div class="detail-row">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Date</span>
+                            <span>{{ meeting.start_time|date:"F j, Y" }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M12 22a10 10 0 100-20 10 10 0 000 20z"/>
+                            </svg>
+                            <span>Time</span>
+                            <span>{{ meeting.start_time|date:"g:i A" }}</span>
+                        </div>
+                    </div>
+                    <div class="join-btn completed" style="cursor: default;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Completed
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <div class="empty-title">No past meetings</div>
+                <div class="empty-text">Completed meetings will appear here</div>
             </div>
         {% endif %}
     </div>
 </div>
+
+<!-- Reschedule Modal (Admin Only) -->
+<div id="rescheduleModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Reschedule Meeting</h3>
+            <button class="modal-close" onclick="closeRescheduleModal()">&times;</button>
+        </div>
+        <form action="{% url 'zoom_integration:reschedule' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="meeting_id" id="reschedule_meeting_id">
+            <div class="form-group">
+                <label class="form-label">New Date <span style="color: #f85149;">*</span></label>
+                <input type="date" name="new_date" class="modal-input" id="reschedule_date" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">New Time <span style="color: #f85149;">*</span></label>
+                <input type="time" name="new_time" class="modal-input" id="reschedule_time" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Postponement Reason <span style="color: #f85149;">*</span></label>
+                <textarea name="postpone_reason" class="modal-textarea" placeholder="Please provide a reason for rescheduling..." required></textarea>
+            </div>
+            <button type="submit" class="modal-btn">Reschedule Meeting</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const upcomingDiv = document.getElementById('upcoming-meetings');
+    const ongoingDiv = document.getElementById('ongoing-meetings');
+    const postponedDiv = document.getElementById('postponed-meetings');
+    const pastDiv = document.getElementById('past-meetings');
+    
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const tab = this.getAttribute('data-tab');
+            upcomingDiv.style.display = 'none';
+            ongoingDiv.style.display = 'none';
+            postponedDiv.style.display = 'none';
+            pastDiv.style.display = 'none';
+            
+            if (tab === 'upcoming') {
+                upcomingDiv.style.display = 'grid';
+            } else if (tab === 'ongoing') {
+                ongoingDiv.style.display = 'grid';
+            } else if (tab === 'postponed') {
+                postponedDiv.style.display = 'grid';
+            } else {
+                pastDiv.style.display = 'grid';
+            }
+        });
+    });
+    
+    function updateAllCountdowns() {
+        const countdownContainers = document.querySelectorAll('[id^="countdown-"]');
+        countdownContainers.forEach(container => {
+            const startTimeStr = container.getAttribute('data-time');
+            if (!startTimeStr) return;
+            const startTime = new Date(startTimeStr);
+            const now = new Date();
+            const diff = startTime - now;
+            if (diff <= 0) {
+                container.style.display = 'none';
+                return;
+            }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            const idSuffix = container.id.split('-').pop();
+            const daysSpan = document.getElementById(`days-${idSuffix}`);
+            const hoursSpan = document.getElementById(`hours-${idSuffix}`);
+            const minsSpan = document.getElementById(`mins-${idSuffix}`);
+            const secsSpan = document.getElementById(`secs-${idSuffix}`);
+            if (daysSpan) daysSpan.textContent = days.toString().padStart(2, '0');
+            if (hoursSpan) hoursSpan.textContent = hours.toString().padStart(2, '0');
+            if (minsSpan) minsSpan.textContent = minutes.toString().padStart(2, '0');
+            if (secsSpan) secsSpan.textContent = seconds.toString().padStart(2, '0');
+        });
+    }
+    
+    function openRescheduleModal(meetingId) {
+        document.getElementById('reschedule_meeting_id').value = meetingId;
+        document.getElementById('rescheduleModal').style.display = 'flex';
+        
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('reschedule_date').min = today;
+    }
+    
+    function closeRescheduleModal() {
+        document.getElementById('rescheduleModal').style.display = 'none';
+    }
+    
+    window.onclick = function(event) {
+        const modal = document.getElementById('rescheduleModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    setInterval(updateAllCountdowns, 1000);
+    updateAllCountdowns();
+</script>
 
 {% endblock %}

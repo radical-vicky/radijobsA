@@ -7,39 +7,12 @@
 
 <style>
     .apply-container {
-        width: 100%;
         max-width: 800px;
         margin: 0 auto;
+        padding: 20px;
     }
     
-    .back-link {
-        display: inline-block;
-        margin-bottom: 20px;
-        color: #8b949e;
-        text-decoration: none;
-        font-size: 13px;
-    }
-    
-    .back-link:hover {
-        color: #2f81f7;
-    }
-    
-    .apply-header {
-        margin-bottom: 24px;
-    }
-    
-    .apply-title {
-        font-size: 24px;
-        font-weight: 600;
-        color: #e6edf3;
-        margin-bottom: 4px;
-    }
-    
-    .apply-subtitle {
-        font-size: 13px;
-        color: #8b949e;
-    }
-    
+    /* Job Info Card */
     .job-info-card {
         background: #161b22;
         border: 1px solid #2d2f36;
@@ -48,7 +21,7 @@
     }
     
     .job-title {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 600;
         color: #e6edf3;
         margin-bottom: 8px;
@@ -61,36 +34,19 @@
     }
     
     .job-location {
-        font-size: 13px;
+        font-size: 12px;
         color: #6e7681;
-        margin-bottom: 12px;
     }
     
-    .job-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 8px;
-    }
-    
-    .job-tag {
-        display: inline-block;
-        padding: 4px 12px;
-        font-size: 11px;
-        font-weight: 500;
-        background: #0d1117;
-        border: 1px solid #2d2f36;
-        color: #8b949e;
-    }
-    
+    /* Project Requirements Card */
     .requirements-card {
-        background: #161b22;
+        background: #0d1117;
         border: 1px solid #2d2f36;
         padding: 20px;
         margin-bottom: 24px;
     }
     
-    .section-title {
+    .requirements-title {
         font-size: 16px;
         font-weight: 600;
         color: #e6edf3;
@@ -102,27 +58,38 @@
     .requirement-list {
         list-style: none;
         padding: 0;
+        margin: 0;
     }
     
     .requirement-list li {
-        padding: 10px 0;
-        border-bottom: 1px solid #2d2f36;
-        font-size: 13px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 0;
         color: #8b949e;
+        font-size: 13px;
+        border-bottom: 1px solid #2d2f36;
     }
     
     .requirement-list li:last-child {
         border-bottom: none;
     }
     
-    .application-form {
+    .requirement-icon {
+        color: #2f81f7;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    
+    /* Form Styles */
+    .form-card {
         background: #161b22;
         border: 1px solid #2d2f36;
         padding: 24px;
     }
     
     .form-group {
-        margin-bottom: 24px;
+        margin-bottom: 20px;
     }
     
     .form-label {
@@ -130,49 +97,81 @@
         font-size: 13px;
         font-weight: 500;
         color: #e6edf3;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
     
-    .form-label .required {
+    .form-label span {
         color: #f85149;
+        margin-left: 2px;
     }
     
-    .form-input, .form-textarea, .form-select {
+    .form-label small {
+        font-size: 11px;
+        font-weight: normal;
+        color: #6e7681;
+        margin-left: 8px;
+    }
+    
+    .form-input, .form-textarea, .form-file {
         width: 100%;
         padding: 10px 12px;
         background: #0d1117;
         border: 1px solid #2d2f36;
         color: #e6edf3;
         font-size: 13px;
+        transition: all 0.2s;
     }
     
-    .form-input:focus, .form-textarea:focus, .form-select:focus {
+    .form-input:focus, .form-textarea:focus {
         outline: none;
         border-color: #2f81f7;
     }
     
     .form-textarea {
         resize: vertical;
+        min-height: 100px;
+    }
+    
+    .form-file {
+        padding: 8px;
+    }
+    
+    .form-file::-webkit-file-upload-button {
+        background: #21262d;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+        padding: 6px 12px;
+        margin-right: 12px;
+        cursor: pointer;
     }
     
     .help-text {
         font-size: 11px;
         color: #6e7681;
-        margin-top: 6px;
-    }
-    
-    .error-text {
-        font-size: 11px;
-        color: #f85149;
-        margin-top: 6px;
-    }
-    
-    .file-info {
-        font-size: 11px;
-        color: #6e7681;
         margin-top: 4px;
     }
     
+    .error-text {
+        font-size: 12px;
+        color: #f85149;
+        margin-top: 4px;
+    }
+    
+    /* Deadline Warning */
+    .deadline-warning {
+        background: rgba(210, 153, 34, 0.1);
+        border-left: 3px solid #d29922;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+    }
+    
+    .deadline-warning p {
+        font-size: 12px;
+        color: #d29922;
+        margin: 0;
+    }
+    
+    /* Form Actions */
     .form-actions {
         display: flex;
         gap: 12px;
@@ -182,13 +181,15 @@
     }
     
     .btn-submit {
-        padding: 10px 24px;
+        flex: 1;
+        padding: 12px 24px;
         background: #2f81f7;
         border: none;
         color: white;
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
+        transition: background 0.2s;
     }
     
     .btn-submit:hover {
@@ -196,7 +197,8 @@
     }
     
     .btn-cancel {
-        padding: 10px 24px;
+        flex: 1;
+        padding: 12px 24px;
         background: #21262d;
         border: 1px solid #3d444d;
         color: #e6edf3;
@@ -204,8 +206,8 @@
         font-weight: 500;
         cursor: pointer;
         text-decoration: none;
-        display: inline-block;
         text-align: center;
+        transition: all 0.2s;
     }
     
     .btn-cancel:hover {
@@ -214,30 +216,18 @@
         color: #2f81f7;
     }
     
-    .note-box {
-        background: rgba(210, 153, 34, 0.05);
-        border-left: 3px solid #d29922;
-        padding: 16px;
-        margin-top: 24px;
-    }
-    
-    .note-text {
-        font-size: 12px;
-        color: #8b949e;
-        line-height: 1.5;
-    }
-    
+    /* Responsive */
     @media (max-width: 640px) {
         .apply-container {
-            padding: 0;
+            padding: 12px;
         }
         
-        .job-info-card, .requirements-card, .application-form {
+        .job-info-card, .requirements-card, .form-card {
             padding: 16px;
         }
         
-        .apply-title {
-            font-size: 20px;
+        .job-title {
+            font-size: 18px;
         }
         
         .form-actions {
@@ -246,128 +236,94 @@
         
         .btn-submit, .btn-cancel {
             width: 100%;
-            text-align: center;
         }
     }
 </style>
 
 <div class="apply-container">
-    <!-- Back Link -->
-    <a href="{% url 'jobs:dashboard_job_detail' job.id %}" class="back-link">
-        ← Back to Job Details
-    </a>
-    
-    <!-- Header -->
-    <div class="apply-header">
-        <h1 class="apply-title">Apply for {{ job.title }}</h1>
-        <p class="apply-subtitle">Submit your project to be considered for this position</p>
-    </div>
-    
-    <!-- Job Info Card -->
+    <!-- Job Info -->
     <div class="job-info-card">
-        <h2 class="job-title">{{ job.title }}</h2>
+        <h1 class="job-title">{{ job.title }}</h1>
         <div class="job-company">{{ job.company }}</div>
         <div class="job-location">{{ job.location }}</div>
-        <div class="job-tags">
-            <span class="job-tag">{{ job.get_job_type_display }}</span>
-            <span class="job-tag">{{ job.get_experience_level_display }}</span>
-            <span class="job-tag">{{ job.salary_range }}</span>
-        </div>
     </div>
+    
+    <!-- Deadline Warning -->
+    {% if job.application_deadline and not job.is_application_deadline_passed %}
+    <div class="deadline-warning">
+        <p>⚠️ Applications must be submitted before {{ job.application_deadline|date:"F j, Y \a\t g:i A" }}</p>
+    </div>
+    {% endif %}
     
     <!-- Project Requirements -->
     <div class="requirements-card">
-        <h3 class="section-title">Project Requirements</h3>
+        <h2 class="requirements-title">Project Requirements</h2>
         <ul class="requirement-list">
-            <li>Build a complete full-stack application based on the job description</li>
-            <li>Upload your code to GitHub or GitLab repository</li>
-            <li>Deploy your application to a live server (optional but recommended)</li>
-            <li>Include test credentials in the README file for reviewers</li>
-            <li>Prepare to present your project during the Zoom interview</li>
+            <li><span class="requirement-icon">✓</span> Complete the full-stack project as described in the job posting</li>
+            <li><span class="requirement-icon">✓</span> Push your code to a public GitHub/GitLab repository</li>
+            <li><span class="requirement-icon">✓</span> Deploy your application (optional but recommended)</li>
+            <li><span class="requirement-icon">✓</span> Include test credentials in your README.md file</li>
+            <li><span class="requirement-icon">✓</span> Be prepared to present your project during Zoom interview</li>
         </ul>
     </div>
     
     <!-- Application Form -->
-    <div class="application-form">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            
-            <!-- Cover Letter -->
-            <div class="form-group">
-                <label class="form-label">Cover Letter <span class="required">*</span></label>
-                {{ form.cover_letter }}
-                {% if form.cover_letter.errors %}
-                    <div class="error-text">{{ form.cover_letter.errors.0 }}</div>
-                {% endif %}
-                <div class="help-text">Explain your approach to this project and why you are qualified</div>
-            </div>
-            
-            <!-- Repository Link -->
-            <div class="form-group">
-                <label class="form-label">Repository Link <span class="required">*</span></label>
-                {{ form.repository_link }}
-                {% if form.repository_link.errors %}
-                    <div class="error-text">{{ form.repository_link.errors.0 }}</div>
-                {% endif %}
-                <div class="help-text">Link to your GitHub or GitLab repository containing the project code</div>
-            </div>
-            
-            <!-- Deployment Link -->
-            <div class="form-group">
-                <label class="form-label">Deployment Link</label>
-                {{ form.deployment_link }}
-                {% if form.deployment_link.errors %}
-                    <div class="error-text">{{ form.deployment_link.errors.0 }}</div>
-                {% endif %}
-                <div class="help-text">Optional: Link to live demo of your deployed application</div>
-            </div>
-            
-            <!-- Test Credentials -->
-            <div class="form-group">
-                <label class="form-label">Test Credentials</label>
-                {{ form.test_credentials }}
-                {% if form.test_credentials.errors %}
-                    <div class="error-text">{{ form.test_credentials.errors.0 }}</div>
-                {% endif %}
-                <div class="help-text">Provide test credentials for reviewers to access your deployed site</div>
-            </div>
-            
-            <!-- Project Notes -->
-            <div class="form-group">
-                <label class="form-label">Project Notes</label>
-                {{ form.project_notes }}
-                {% if form.project_notes.errors %}
-                    <div class="error-text">{{ form.project_notes.errors.0 }}</div>
-                {% endif %}
-                <div class="help-text">Any notes about your implementation, technologies used, or challenges faced</div>
-            </div>
-            
-            <!-- Project File -->
-            <div class="form-group">
-                <label class="form-label">Project Files</label>
-                {{ form.project_file }}
-                {% if form.project_file.errors %}
-                    <div class="error-text">{{ form.project_file.errors.0 }}</div>
-                {% endif %}
-                <div class="file-info">Upload project files as ZIP archive (max 25MB) - optional</div>
-            </div>
-            
-            <!-- Note Box -->
-            <div class="note-box">
-                <div class="note-text">
-                    <strong>Important:</strong> Your application will be reviewed based on the quality of your project. 
-                    Make sure your repository is accessible and includes clear documentation. 
-                    Once submitted, you will receive a confirmation notification with the next steps.
-                </div>
-            </div>
-            
-            <!-- Form Actions -->
-            <div class="form-actions">
-                <button type="submit" class="btn-submit">Submit Application</button>
-                <a href="{% url 'jobs:dashboard_job_detail' job.id %}" class="btn-cancel">Cancel</a>
-            </div>
-        </form>
-    </div>
+    <form method="post" enctype="multipart/form-data" class="form-card">
+        {% csrf_token %}
+        
+        <!-- Cover Letter -->
+        <div class="form-group">
+            <label class="form-label">Cover Letter <span>*</span></label>
+            <textarea name="cover_letter" class="form-textarea" required 
+                      placeholder="Tell us about your experience, why you're interested in this role, and your approach to the project..."></textarea>
+            <div class="help-text">Explain your relevant experience and project approach</div>
+        </div>
+        
+        <!-- Repository Link -->
+        <div class="form-group">
+            <label class="form-label">Repository Link <span>*</span></label>
+            <input type="url" name="repository_link" class="form-input" required 
+                   placeholder="https://github.com/username/project-repo">
+            <div class="help-text">Link to your public GitHub/GitLab repository containing the project code</div>
+        </div>
+        
+        <!-- Deployment Link (Optional) -->
+        <div class="form-group">
+            <label class="form-label">Deployment Link <small>(Optional)</small></label>
+            <input type="url" name="deployment_link" class="form-input" 
+                   placeholder="https://your-project.vercel.app">
+            <div class="help-text">Live demo URL (Netlify, Vercel, Render, etc.)</div>
+        </div>
+        
+        <!-- Test Credentials -->
+        <div class="form-group">
+            <label class="form-label">Test Credentials</label>
+            <textarea name="test_credentials" class="form-textarea" rows="3"
+                      placeholder="Email: test@example.com&#10;Password: Test123!&#10;or provide instructions for accessing the demo"></textarea>
+            <div class="help-text">Provide login credentials for reviewers to test your deployed application</div>
+        </div>
+        
+        <!-- Project Notes -->
+        <div class="form-group">
+            <label class="form-label">Project Notes <small>(Optional)</small></label>
+            <textarea name="project_notes" class="form-textarea" rows="4"
+                      placeholder="Any additional information about your implementation, technologies used, challenges faced, or special features..."></textarea>
+            <div class="help-text">Share any relevant details about your project</div>
+        </div>
+        
+        <!-- Project File Upload -->
+        <div class="form-group">
+            <label class="form-label">Project Files <small>(Optional)</small></label>
+            <input type="file" name="project_file" class="form-file" accept=".zip,.rar,.pdf,.txt">
+            <div class="help-text">Upload project files as ZIP (max 25MB)</div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">Submit Application</button>
+            <a href="{% url 'jobs:dashboard_job_detail' job.id %}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
 </div>
 
 {% endblock %}

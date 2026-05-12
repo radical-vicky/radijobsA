@@ -6,39 +6,99 @@
 {% block content %}
 
 <style>
-    .status-container {
+    .subscription-container {
         width: 100%;
-        max-width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
         padding: 20px;
     }
     
-    .status-card {
-        background: #161b22;
-        border: 1px solid #2d2f36;
-        max-width: 500px;
-        margin: 0 auto;
-        overflow: hidden;
+    .subscription-header {
+        margin-bottom: 28px;
     }
     
-    .status-header {
-        padding: 32px 24px;
+    .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #e6edf3;
+        margin-bottom: 6px;
+        letter-spacing: -0.3px;
+    }
+    
+    .header-subtitle {
+        font-size: 13px;
+        color: #8b949e;
+        line-height: 1.5;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 36px;
+    }
+    
+    .stat-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 20px 16px;
         text-align: center;
+        transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+        border-color: #2f81f7;
+        transform: translateY(-2px);
+    }
+    
+    .stat-number {
+        font-size: 32px;
+        font-weight: 700;
+        color: #2f81f7;
+        margin-bottom: 6px;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .subscription-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        margin-bottom: 24px;
+    }
+    
+    .card-header {
+        padding: 20px 24px;
         border-bottom: 1px solid #2d2f36;
         background: #0d1117;
     }
     
-    .status-title {
-        font-size: 24px;
-        font-weight: 600;
-        color: #e6edf3;
-        margin-bottom: 16px;
+    .plan-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2f81f7;
+        margin-bottom: 8px;
+    }
+    
+    .plan-price {
+        font-size: 14px;
+        color: #8b949e;
+    }
+    
+    .card-content {
+        padding: 20px 24px;
     }
     
     .status-badge {
         display: inline-block;
-        padding: 6px 16px;
-        font-size: 13px;
-        font-weight: 500;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 20px;
     }
     
     .status-active {
@@ -47,59 +107,100 @@
         border: 1px solid rgba(63, 185, 80, 0.3);
     }
     
-    .status-inactive {
+    .status-expired {
+        background: rgba(248, 81, 73, 0.1);
+        color: #f85149;
+        border: 1px solid rgba(248, 81, 73, 0.3);
+    }
+    
+    .status-cancelled {
+        background: rgba(139, 148, 158, 0.1);
+        color: #8b949e;
+        border: 1px solid rgba(139, 148, 158, 0.3);
+    }
+    
+    .status-pending {
         background: rgba(210, 153, 34, 0.1);
         color: #d29922;
         border: 1px solid rgba(210, 153, 34, 0.3);
     }
     
-    .info-section {
-        padding: 24px;
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
     }
     
     .info-row {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        padding: 12px 0;
+        align-items: baseline;
+        padding: 10px 0;
         border-bottom: 1px solid #2d2f36;
     }
     
-    .info-row:last-child {
-        border-bottom: none;
-    }
-    
     .info-label {
-        font-size: 13px;
+        font-size: 12px;
         color: #8b949e;
+        min-width: 120px;
     }
     
     .info-value {
         font-size: 13px;
         color: #e6edf3;
         font-weight: 500;
+        text-align: right;
     }
     
-    .action-section {
-        padding: 24px;
-        text-align: center;
+    .features-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 12px;
+        margin: 20px 0;
+    }
+    
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+    }
+    
+    .feature-item svg {
+        width: 16px;
+        height: 16px;
+        color: #2f81f7;
+        flex-shrink: 0;
+    }
+    
+    .feature-text {
+        font-size: 12px;
+        color: #8b949e;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 20px;
         border-top: 1px solid #2d2f36;
     }
     
-    .btn {
-        display: inline-block;
-        padding: 10px 24px;
-        font-size: 13px;
-        font-weight: 500;
-        text-decoration: none;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    
     .btn-primary {
+        flex: 1;
+        padding: 12px 24px;
         background: #2f81f7;
-        color: white;
         border: none;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        transition: background 0.2s;
+        border-radius: 6px;
     }
     
     .btn-primary:hover {
@@ -107,107 +208,366 @@
     }
     
     .btn-danger {
-        background: #21262d;
-        border: 1px solid #3d444d;
+        flex: 1;
+        padding: 12px 24px;
+        background: rgba(248, 81, 73, 0.1);
+        border: 1px solid rgba(248, 81, 73, 0.3);
         color: #f85149;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s;
+        border-radius: 6px;
     }
     
     .btn-danger:hover {
-        background: #2d2f36;
+        background: rgba(248, 81, 73, 0.2);
         border-color: #f85149;
     }
     
-    @media (max-width: 640px) {
-        .status-container {
+    .history-section {
+        margin-top: 32px;
+    }
+    
+    .history-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .payments-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .payments-table th {
+        text-align: left;
+        padding: 12px;
+        background: #0d1117;
+        color: #8b949e;
+        font-size: 12px;
+        font-weight: 500;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .payments-table td {
+        padding: 12px;
+        color: #e6edf3;
+        font-size: 13px;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .payments-table tr:hover td {
+        background: #1a1f2e;
+    }
+    
+    .payment-status {
+        display: inline-block;
+        padding: 2px 8px;
+        font-size: 10px;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+    
+    .payment-success {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .payment-pending {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .payment-failed {
+        background: rgba(248, 81, 73, 0.1);
+        color: #f85149;
+        border: 1px solid rgba(248, 81, 73, 0.3);
+    }
+    
+    .payment-pending-verification {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .refresh-btn {
+        background: #21262d;
+        border: 1px solid #3d444d;
+        color: #e6edf3;
+        padding: 6px 12px;
+        font-size: 12px;
+        cursor: pointer;
+        border-radius: 6px;
+        margin-left: 12px;
+    }
+    
+    .refresh-btn:hover {
+        background: #2d2f36;
+        border-color: #2f81f7;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        border-radius: 12px;
+    }
+    
+    .empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        color: #3d444d;
+    }
+    
+    .empty-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .empty-text {
+        font-size: 13px;
+        color: #8b949e;
+        margin-bottom: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .subscription-container {
             padding: 12px;
         }
         
-        .status-header {
-            padding: 24px 16px;
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
         }
         
-        .status-title {
-            font-size: 20px;
+        .info-grid {
+            grid-template-columns: 1fr;
         }
         
-        .info-section, .action-section {
-            padding: 20px;
+        .info-row {
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .info-value {
+            text-align: left;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .features-list {
+            grid-template-columns: 1fr;
+        }
+        
+        .payments-table {
+            display: block;
+            overflow-x: auto;
         }
     }
 </style>
 
-<div class="status-container">
-    <div class="status-card">
-        <div class="status-header">
-            <h1 class="status-title">Subscription Status</h1>
-            {% if user.has_active_subscription %}
-                <div class="status-badge status-active">Active</div>
+<div class="subscription-container">
+    <div class="subscription-header">
+        <h1 class="header-title">Subscription Status</h1>
+        <p class="header-subtitle">Manage your subscription plan and payment history</p>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">${{ total_spent|default:"0" }}</div>
+            <div class="stat-label">Total Spent</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ payments_count|default:"0" }}</div>
+            <div class="stat-label">Payments Made</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ active_subscription_count|default:"0" }}</div>
+            <div class="stat-label">Active Subscriptions</div>
+        </div>
+    </div>
+    
+    <div class="subscription-card">
+    <div class="card-header">
+        <div class="plan-name">
+            {% if has_active_subscription %}
+                Pro Plan
             {% else %}
-                <div class="status-badge status-inactive">Inactive</div>
+                No Active Subscription
             {% endif %}
         </div>
+        <div class="plan-price">
+            {% if has_active_subscription %}
+                $19 / month
+            {% else %}
+                <a href="{% url 'subscriptions:subscribe' %}" style="color: #2f81f7;">Subscribe now</a> to start applying for jobs
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-content">
+        <div class="info-row" style="border-bottom: none; padding-bottom: 0;">
+            <span class="info-label">Status</span>
+            <span class="info-value">
+                {% if has_active_subscription %}
+                    <span class="status-badge status-active">Active</span>
+                {% elif subscription_cancelled %}
+                    <span class="status-badge status-cancelled">Cancelled</span>
+                {% elif subscription_expired %}
+                    <span class="status-badge status-expired">Expired</span>
+                {% else %}
+                    <span class="status-badge status-pending">No Subscription</span>
+                {% endif %}
+            </span>
+        </div>
         
-        <div class="info-section">
+        <div class="info-grid" style="margin-top: 20px;">
             <div class="info-row">
-                <span class="info-label">Plan</span>
-                <span class="info-value">Premium Monthly</span>
+                <span class="info-label">Plan Type</span>
+                <span class="info-value">Pro Monthly</span>
             </div>
-            
             <div class="info-row">
                 <span class="info-label">Price</span>
                 <span class="info-value">$19 / month</span>
             </div>
-            
-            {% if user.has_active_subscription %}
-                {% if user.subscription_started_at %}
-                <div class="info-row">
-                    <span class="info-label">Started On</span>
-                    <span class="info-value">{{ user.subscription_started_at|date:"F j, Y" }}</span>
-                </div>
-                {% endif %}
-                
-                {% if user.subscription_expires_at %}
-                <div class="info-row">
-                    <span class="info-label">Expires On</span>
-                    <span class="info-value">{{ user.subscription_expires_at|date:"F j, Y" }}</span>
-                </div>
-                {% endif %}
-                
-                <div class="info-row">
-                    <span class="info-label">Days Remaining</span>
-                    <span class="info-value">
-                        {% if user.subscription_expires_at %}
-                            {{ user.subscription_expires_at|timeuntil }}
-                        {% else %}
-                            Unlimited
-                        {% endif %}
-                    </span>
-                </div>
-            {% else %}
-                <div class="info-row">
-                    <span class="info-label">Status</span>
-                    <span class="info-value">No active subscription</span>
-                </div>
+            {% if subscription_start_date %}
+            <div class="info-row">
+                <span class="info-label">Start Date</span>
+                <span class="info-value">{{ subscription_start_date|date:"F j, Y" }}</span>
+            </div>
+            {% endif %}
+            {% if subscription_expires_at %}
+            <div class="info-row">
+                <span class="info-label">Expires On</span>
+                <span class="info-value">{{ subscription_expires_at|date:"F j, Y" }}</span>
+            </div>
+            {% endif %}
+            {% if days_remaining > 0 %}
+            <div class="info-row">
+                <span class="info-label">Days Remaining</span>
+                <span class="info-value">{{ days_remaining }} days</span>
+            </div>
             {% endif %}
         </div>
         
-        <div class="action-section">
-            {% if user.has_active_subscription %}
-                <form method="post" action="{% url 'subscriptions:cancel' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Cancel Subscription</button>
-                </form>
-                <p style="font-size: 11px; color: #6e7681; margin-top: 12px;">
-                    Your subscription will remain active until the expiration date above.
-                </p>
+        <div class="features-list">
+            <div class="feature-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="feature-text">Unlimited job applications</span>
+            </div>
+            <div class="feature-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="feature-text">Priority support</span>
+            </div>
+            <div class="feature-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="feature-text">Project-based hiring</span>
+            </div>
+            <div class="feature-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="feature-text">Zoom interview scheduling</span>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            {% if has_active_subscription %}
+                <a href="{% url 'subscriptions:cancel' %}" class="btn-danger" onclick="return confirm('Are you sure you want to cancel your subscription?')">Cancel Subscription</a>
             {% else %}
-                <a href="{% url 'subscriptions:subscribe' %}" class="btn btn-primary">Subscribe Now</a>
-                <p style="font-size: 11px; color: #6e7681; margin-top: 12px;">
-                    Get unlimited job applications and premium features for $19/month
-                </p>
+                <a href="{% url 'subscriptions:subscribe' %}" class="btn-primary">Subscribe Now</a>
             {% endif %}
         </div>
     </div>
 </div>
+    
+    <div class="history-section">
+        <div class="history-title" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Payment History</span>
+            <button class="refresh-btn" onclick="location.reload();">Refresh Status</button>
+        </div>
+        
+        {% if payments %}
+            <table class="payments-table">
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Amount</th>
+                        <th>Payment Method</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>
+                            {% if payment.transaction_id %}
+                                {{ payment.transaction_id|truncatechars:16 }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>${{ payment.amount }}</td>
+                        <td>{{ payment.get_payment_method_display }}</td>
+                        <td>
+                            <span class="payment-status 
+                                {% if payment.status == 'completed' %}payment-success
+                                {% elif payment.status == 'pending' %}payment-pending
+                                {% elif payment.status == 'failed' %}payment-failed
+                                {% elif payment.status == 'pending_verification' %}payment-pending-verification
+                                {% else %}payment-pending{% endif %}">
+                                {{ payment.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ payment.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                <div class="empty-title">No payment history</div>
+                <div class="empty-text">Your payment transactions will appear here</div>
+                <a href="{% url 'subscriptions:subscribe' %}" class="btn-primary" style="display: inline-block; width: auto; padding: 8px 24px;">Subscribe Now</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Auto-refresh pending payments every 10 seconds
+    function checkPendingPayments() {
+        const pendingRows = document.querySelectorAll('.payment-pending');
+        if (pendingRows.length > 0) {
+            location.reload();
+        }
+    }
+    
+    // Check for pending payments every 30 seconds
+    setInterval(checkPendingPayments, 30000);
+</script>
 
 {% endblock %}

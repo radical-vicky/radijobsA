@@ -1,0 +1,530 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Saved Jobs - RadiloxRemoteJobs{% endblock %}
+
+{% block content %}
+
+<style>
+    .saved-header {
+        background: linear-gradient(135deg, #0d1117 0%, #151b23 100%);
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .stats-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .stat-card {
+        flex: 1;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 20px 16px;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 32px;
+        font-weight: 700;
+        color: #2f81f7;
+    }
+    
+    .stat-label {
+        font-size: 12px;
+        color: #8b949e;
+        margin-top: 4px;
+    }
+    
+    .saved-jobs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+    }
+    
+    .saved-job-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        transition: all 0.2s ease;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .saved-job-card:hover {
+        border-color: #2f81f7;
+        transform: translateY(-2px);
+    }
+    
+    .remove-save-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        background: rgba(13, 17, 23, 0.8);
+        backdrop-filter: blur(4px);
+        border: 1px solid #2d2f36;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 10;
+    }
+    
+    .remove-save-btn:hover {
+        background: #2f81f7;
+        border-color: #2f81f7;
+    }
+    
+    .remove-save-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: #e6edf3;
+        stroke-width: 1.5;
+    }
+    
+    .remove-save-btn:hover svg {
+        stroke: white;
+        fill: white;
+    }
+    
+    .card-image {
+        width: 100%;
+        height: 140px;
+        overflow: hidden;
+        background: #0d1117;
+        position: relative;
+    }
+    
+    .card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .image-gradient {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: linear-gradient(to top, #161b22 0%, rgba(22, 27, 34, 0) 100%);
+        pointer-events: none;
+    }
+    
+    .image-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #1a1f2e, #0d1117);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        font-weight: 700;
+        color: #2f81f7;
+    }
+    
+    .card-content {
+        padding: 16px;
+    }
+    
+    .company-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    
+    .company-icon {
+        width: 32px;
+        height: 32px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        color: #2f81f7;
+        overflow: hidden;
+    }
+    
+    .company-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .company-name {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .job-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 10px;
+        line-height: 1.4;
+    }
+    
+    .job-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 12px;
+        font-size: 12px;
+        color: #6e7681;
+    }
+    
+    .skills-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    
+    .skill-tag {
+        padding: 4px 10px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        font-size: 11px;
+        color: #8b949e;
+    }
+    
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #2d2f36;
+    }
+    
+    .job-type-badge {
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 500;
+    }
+    
+    .badge-fulltime {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .badge-freelance {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .badge-parttime {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .salary {
+        font-size: 15px;
+        font-weight: 600;
+        color: #2f81f7;
+    }
+    
+    /* Deadline Badge */
+    .deadline-badge {
+        margin-top: 12px;
+        padding-top: 8px;
+        border-top: 1px solid #2d2f36;
+    }
+    
+    .deadline-text {
+        font-size: 11px;
+        color: #d29922;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .deadline-passed-badge {
+        font-size: 11px;
+        color: #f85149;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
+    .empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        color: #3d444d;
+    }
+    
+    .empty-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .empty-text {
+        font-size: 14px;
+        color: #8b949e;
+        margin-bottom: 20px;
+    }
+    
+    .toast-message {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #161b22;
+        border: 1px solid #2f81f7;
+        padding: 10px 20px;
+        border-radius: 6px;
+        color: #e6edf3;
+        font-size: 13px;
+        z-index: 1000;
+        animation: fadeInOut 3s ease;
+    }
+    
+    @keyframes fadeInOut {
+        0% { opacity: 0; transform: translateY(20px); }
+        15% { opacity: 1; transform: translateY(0); }
+        85% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(20px); }
+    }
+    
+    @media (max-width: 768px) {
+        .saved-jobs-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-row {
+            flex-direction: column;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+        }
+    }
+</style>
+
+<!-- Header -->
+<section class="saved-header py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2">
+                Saved Jobs
+            </h1>
+            <p class="text-sm text-github-fg-muted max-w-xl mx-auto">
+                Jobs you've saved for later
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-number">{{ saved_jobs_count|default:"0" }}</div>
+                <div class="stat-label">SAVED JOBS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_applications|default:"0" }}</div>
+                <div class="stat-label">TOTAL APPLICATIONS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ pending_applications|default:"0" }}</div>
+                <div class="stat-label">PENDING REVIEW</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Saved Jobs Grid -->
+<section class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if saved_jobs %}
+            <div class="saved-jobs-grid">
+                {% for saved in saved_jobs %}
+                <div class="saved-job-card" id="job-card-{{ saved.job.id }}">
+                    <!-- Remove Save Button -->
+                    <div class="remove-save-btn" onclick="event.stopPropagation(); removeSavedJob(this, {{ saved.job.id }})">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Image Section -->
+                    <div class="card-image" onclick="window.location.href='{% url 'jobs:detail' saved.job.id %}'">
+                        {% if saved.job.get_image_url %}
+                            <img src="{{ saved.job.get_image_url }}" alt="{{ saved.job.title }}">
+                            <div class="image-gradient"></div>
+                        {% else %}
+                            <div class="image-placeholder">
+                                {{ saved.job.company|slice:":1"|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Content Section -->
+                    <div class="card-content" onclick="window.location.href='{% url 'jobs:detail' saved.job.id %}'">
+                        <!-- Company Row -->
+                        <div class="company-row">
+                            <div class="company-icon">
+                                {% if saved.job.get_company_logo_url %}
+                                    <img src="{{ saved.job.get_company_logo_url }}" alt="{{ saved.job.company }}">
+                                {% else %}
+                                    {{ saved.job.company|slice:":1"|upper }}
+                                {% endif %}
+                            </div>
+                            <div class="company-name">{{ saved.job.company }}</div>
+                        </div>
+                        
+                        <!-- Job Title -->
+                        <h3 class="job-title">{{ saved.job.title }}</h3>
+                        
+                        <!-- Meta Info -->
+                        <div class="job-meta">
+                            <span>{{ saved.job.location }}</span>
+                            <span>Saved {{ saved.saved_at|timesince }} ago</span>
+                        </div>
+                        
+                        <!-- Skills -->
+                        {% if saved.job.skills_required %}
+                        <div class="skills-row">
+                            {% for skill in saved.job.skills_required|slice:":3" %}
+                            <span class="skill-tag">{{ skill }}</span>
+                            {% endfor %}
+                            {% if saved.job.skills_required|length > 3 %}
+                            <span class="skill-tag">+{{ saved.job.skills_required|length|add:"-3" }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Deadline Info -->
+                        {% if saved.job.application_deadline %}
+                            {% if saved.job.is_application_deadline_passed %}
+                                <div class="deadline-badge">
+                                    <div class="deadline-passed-badge">
+                                        Deadline Passed
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="deadline-badge">
+                                    <div class="deadline-text">
+                                        Apply by: {{ saved.job.application_deadline|date:"M d, Y" }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                        
+                        <!-- Footer -->
+                        <div class="card-footer">
+                            <span class="job-type-badge 
+                                {% if saved.job.job_type == 'fulltime' %}badge-fulltime
+                                {% elif saved.job.job_type == 'freelance' %}badge-freelance
+                                {% else %}badge-parttime{% endif %}">
+                                {{ saved.job.get_job_type_display }}
+                            </span>
+                            <span class="salary">{{ saved.job.salary_range }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                </svg>
+                <h3 class="empty-title">No saved jobs yet</h3>
+                <p class="empty-text">Save jobs you're interested in and they'll appear here</p>
+                <a href="{% url 'jobs:list' %}" class="search-btn">Browse Jobs</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    const csrftoken = getCookie('csrftoken');
+    
+    async function removeSavedJob(btn, jobId) {
+        event.stopPropagation();
+        
+        try {
+            const response = await fetch(`/jobs/unsave/${jobId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'unsaved') {
+                const card = document.getElementById(`job-card-${jobId}`);
+                if (card) {
+                    card.style.transition = 'opacity 0.3s ease';
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        card.remove();
+                        if (document.querySelectorAll('.saved-job-card').length === 0) {
+                            window.location.reload();
+                        }
+                    }, 300);
+                }
+                showToast('Job removed from saved list');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Failed to remove job');
+        }
+    }
+    
+    function showToast(message) {
+        let toast = document.querySelector('.toast-message');
+        if (toast) toast.remove();
+        
+        toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.remove(), 3000);
+    }
+</script>
+
+{% endblock %}

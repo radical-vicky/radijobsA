@@ -169,6 +169,11 @@
             <nav class="hidden md:flex items-center gap-6">
                 <a href="{% url 'home:home' %}" class="text-sm font-medium text-github-fg-muted hover:text-white transition">Home</a>
                 <a href="{% url 'jobs:list' %}" class="text-sm font-medium text-github-fg-muted hover:text-white transition">Jobs</a>
+                
+                {% if user.is_authenticated %}
+                <a href="{% url 'jobs:saved_jobs' %}" class="text-sm font-medium text-github-fg-muted hover:text-white transition">Saved Jobs</a>
+                {% endif %}
+                
                 <a href="{% url 'home:about' %}" class="text-sm font-medium text-github-fg-muted hover:text-white transition">About</a>
                 <a href="{% url 'home:contact' %}" class="text-sm font-medium text-github-fg-muted hover:text-white transition">Contact</a>
                 <a href="{% url 'home:faq' %}" class="text-sm font-medium text-github-fg-muted hover:text-white transition">FAQ</a>
@@ -198,6 +203,11 @@
             <div class="space-y-3">
                 <a href="{% url 'home:home' %}" class="block text-github-fg-muted hover:text-white py-2">Home</a>
                 <a href="{% url 'jobs:list' %}" class="block text-github-fg-muted hover:text-white py-2">Jobs</a>
+                
+                {% if user.is_authenticated %}
+                <a href="{% url 'jobs:saved_jobs' %}" class="block text-github-fg-muted hover:text-white py-2">Saved Jobs</a>
+                {% endif %}
+                
                 <a href="{% url 'home:about' %}" class="block text-github-fg-muted hover:text-white py-2">About</a>
                 <a href="{% url 'home:contact' %}" class="block text-github-fg-muted hover:text-white py-2">Contact</a>
                 <a href="{% url 'home:faq' %}" class="block text-github-fg-muted hover:text-white py-2">FAQ</a>
@@ -268,6 +278,9 @@
                 <ul class="space-y-3">
                     <li><a href="{% url 'home:home' %}" class="text-github-fg-muted hover:text-white text-sm transition">Home</a></li>
                     <li><a href="{% url 'jobs:list' %}" class="text-github-fg-muted hover:text-white text-sm transition">Jobs</a></li>
+                    {% if user.is_authenticated %}
+                    <li><a href="{% url 'jobs:saved_jobs' %}" class="text-github-fg-muted hover:text-white text-sm transition">Saved Jobs</a></li>
+                    {% endif %}
                     <li><a href="{% url 'home:about' %}" class="text-github-fg-muted hover:text-white text-sm transition">About</a></li>
                     <li><a href="{% url 'home:contact' %}" class="text-github-fg-muted hover:text-white text-sm transition">Contact</a></li>
                 </ul>

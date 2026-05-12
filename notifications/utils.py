@@ -47,3 +47,19 @@ def send_notification_email_sync(notification_id):
 # @shared_task
 # def send_notification_email(notification_id):
 #     send_notification_email_sync(notification_id)
+
+
+from .models import Notification
+
+def create_notification(user, notification_type, title, message, link=None, metadata=None):
+    """Create a notification for a user"""
+    notification = Notification.objects.create(
+        user=user,
+        notification_type=notification_type,
+        title=title,
+        message=message,
+        link=link,
+        metadata=metadata or {},
+        status='unread'
+    )
+    return notification

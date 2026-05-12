@@ -13,7 +13,6 @@
         overflow: hidden;
     }
     
-    /* Gradient overlay for image connection */
     .job-header::before {
         content: '';
         position: absolute;
@@ -25,7 +24,6 @@
         pointer-events: none;
     }
     
-    /* Hero Image Section with Gradient Blend */
     .hero-image-section {
         position: relative;
         width: 100%;
@@ -52,7 +50,6 @@
         object-fit: cover;
     }
     
-    /* Gradient overlay that connects image to content */
     .hero-gradient-overlay {
         position: absolute;
         bottom: 0;
@@ -63,7 +60,6 @@
         pointer-events: none;
     }
     
-    /* Alternative: Image with gradient background when no image */
     .hero-gradient-bg {
         width: 100%;
         height: 100%;
@@ -98,14 +94,50 @@
         }
     }
     
-    /* Content Section - Pulled up slightly to overlap gradient */
+    .save-btn-hero {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        z-index: 25;
+        width: 40px;
+        height: 40px;
+        background: rgba(13, 17, 23, 0.8);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(61, 68, 77, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .save-btn-hero:hover {
+        background: #2f81f7;
+        border-color: #2f81f7;
+    }
+    
+    .save-btn-hero.saved {
+        background: #2f81f7;
+        border-color: #2f81f7;
+    }
+    
+    .save-icon-hero {
+        width: 20px;
+        height: 20px;
+        color: #e6edf3;
+        stroke-width: 1.5;
+    }
+    
+    .save-btn-hero.saved .save-icon-hero {
+        fill: #e6edf3;
+    }
+    
     .job-content-section {
         margin-top: -40px;
         position: relative;
         z-index: 10;
     }
     
-    /* Sharp corners - NO border-radius */
     .info-card {
         background: #161b22;
         border: 1px solid #2d2f36;
@@ -128,6 +160,29 @@
     
     .apply-btn:hover {
         background: #58a6ff;
+    }
+    
+    .apply-btn-disabled {
+        background: #21262d;
+        color: #8b949e;
+        font-weight: 500;
+        padding: 12px 32px;
+        display: inline-block;
+        cursor: not-allowed;
+    }
+    
+    .apply-btn-subscribe {
+        background: #d29922;
+        color: white;
+        font-weight: 500;
+        padding: 12px 32px;
+        transition: all 0.2s;
+        display: inline-block;
+        text-decoration: none;
+    }
+    
+    .apply-btn-subscribe:hover {
+        background: #e6a336;
     }
     
     .skill-tag {
@@ -188,7 +243,6 @@
         border: 1px solid rgba(139, 148, 158, 0.3);
     }
     
-    /* Similar jobs card */
     .job-card {
         background: #161b22;
         border: 1px solid #2d2f36;
@@ -200,7 +254,6 @@
         border-color: #2f81f7;
     }
     
-    /* Meta items - text only */
     .job-meta-item {
         display: inline-flex;
         align-items: center;
@@ -209,7 +262,76 @@
         font-size: 13px;
     }
     
-    /* Divider */
+    /* Deadline Countdown Styles */
+    .deadline-section {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .deadline-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: #8b949e;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .countdown-timer {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+    }
+    
+    .countdown-block {
+        text-align: center;
+        min-width: 70px;
+    }
+    
+    .countdown-number {
+        font-size: 36px;
+        font-weight: 700;
+        color: #2f81f7;
+        font-family: monospace;
+        line-height: 1;
+    }
+    
+    .countdown-label {
+        font-size: 10px;
+        color: #8b949e;
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .deadline-warning {
+        background: rgba(210, 153, 34, 0.1);
+        border-left: 3px solid #d29922;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+    }
+    
+    .deadline-warning p {
+        font-size: 12px;
+        color: #d29922;
+        margin: 0;
+    }
+    
+    .deadline-passed {
+        background: rgba(248, 81, 73, 0.1);
+        border-left: 3px solid #f85149;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+    }
+    
+    .deadline-passed p {
+        font-size: 12px;
+        color: #f85149;
+        margin: 0;
+    }
+    
     .border-github-border {
         border-color: #2d2f36;
     }
@@ -230,8 +352,25 @@
         color: #e6edf3;
     }
     
-    .bg-github-accent {
-        background-color: #2f81f7;
+    .toast-message {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #161b22;
+        border: 1px solid #2f81f7;
+        padding: 10px 20px;
+        border-radius: 6px;
+        color: #e6edf3;
+        font-size: 13px;
+        z-index: 1000;
+        animation: fadeInOut 3s ease;
+    }
+    
+    @keyframes fadeInOut {
+        0% { opacity: 0; transform: translateY(20px); }
+        15% { opacity: 1; transform: translateY(0); }
+        85% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(20px); }
     }
 </style>
 
@@ -242,7 +381,7 @@
     </a>
 </div>
 
-<!-- Hero Image Section with Gradient Connection -->
+<!-- Hero Image Section -->
 <div class="hero-image-section">
     {% if job.get_image_url %}
         <img src="{{ job.get_image_url }}" alt="{{ job.title }}" class="hero-image">
@@ -252,13 +391,20 @@
             <div class="company-initial">{{ job.company|slice:":1"|upper }}</div>
         </div>
     {% endif %}
+    
+    <!-- Save Button -->
+    <div class="save-btn-hero {% if is_saved %}saved{% endif %}" onclick="toggleSaveJob(this, {{ job.id }})">
+        <svg class="save-icon-hero" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+        </svg>
+    </div>
 </div>
 
 <!-- Job Header -->
 <section class="job-header py-6">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-wrap justify-between items-start gap-4">
-            <!-- Job Title and Meta -->
             <div class="flex-1">
                 <div class="flex flex-wrap items-center gap-2 mb-3">
                     <span class="job-tag 
@@ -268,9 +414,7 @@
                         {{ job.get_job_type_display }}
                     </span>
                     {% if job.is_featured %}
-                    <span class="job-tag job-tag-featured">
-                        Featured
-                    </span>
+                    <span class="job-tag job-tag-featured">Featured</span>
                     {% endif %}
                     <span class="job-tag job-tag-experience">
                         {{ job.get_experience_level_display }}
@@ -281,28 +425,70 @@
                 <p class="text-lg text-github-fg-muted">{{ job.company }}</p>
                 
                 <div class="flex flex-wrap gap-4 mt-3">
-                    <span class="job-meta-item">
-                        {{ job.location }}
-                    </span>
-                    <span class="job-meta-item">
-                        Posted {{ job.created_at|timesince }} ago
-                    </span>
-                    <span class="job-meta-item">
-                        {{ job.view_count|default:"0" }} views
-                    </span>
+                    <span class="job-meta-item">{{ job.location }}</span>
+                    <span class="job-meta-item">Posted {{ job.created_at|timesince }} ago</span>
+                    <span class="job-meta-item">{{ job.view_count|default:"0" }} views</span>
                 </div>
             </div>
             
             <!-- Apply Button -->
             <div class="flex-shrink-0">
-                <a href="{% url 'account_signup' %}" class="apply-btn">
-                    Apply Now
-                </a>
-                <p class="text-xs text-github-fg-muted mt-2 text-center">Sign up to apply</p>
+                {% if job.is_application_deadline_passed %}
+                    <div class="apply-btn-disabled">Applications Closed</div>
+                    <p class="text-xs text-github-fg-muted mt-2 text-center">Deadline has passed</p>
+                {% elif user.is_authenticated %}
+                    {% if has_applied %}
+                        <div class="apply-btn-disabled">Already Applied ({{ application_status|title }})</div>
+                        <p class="text-xs text-github-fg-muted mt-2 text-center">Your application is being reviewed</p>
+                    {% elif user.has_active_subscription %}
+                        <a href="{% url 'application:apply' job.id %}" class="apply-btn">Apply Now</a>
+                        <p class="text-xs text-github-fg-muted mt-2 text-center">Submit your project before deadline</p>
+                    {% else %}
+                        <a href="{% url 'subscriptions:subscribe' %}" class="apply-btn-subscribe">Subscribe to Apply ($19/month)</a>
+                        <p class="text-xs text-github-fg-muted mt-2 text-center">Active subscription required</p>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'account_login' %}?next={{ request.path }}" class="apply-btn">Login to Apply</a>
+                    <p class="text-xs text-github-fg-muted mt-2 text-center">Sign in to submit your application</p>
+                {% endif %}
             </div>
         </div>
     </div>
 </section>
+
+<!-- Deadline & Countdown Timer -->
+{% if job.application_deadline %}
+    {% if job.is_application_deadline_passed %}
+        <div class="deadline-passed">
+            <p>Application deadline has passed. This job is no longer accepting applications.</p>
+        </div>
+    {% else %}
+        <div class="deadline-section">
+            <div class="deadline-title">Time Left to Apply</div>
+            <div class="countdown-timer" id="countdown-timer" data-deadline="{{ job.application_deadline.isoformat }}">
+                <div class="countdown-block">
+                    <div class="countdown-number" id="countdown-days">--</div>
+                    <div class="countdown-label">Days</div>
+                </div>
+                <div class="countdown-block">
+                    <div class="countdown-number" id="countdown-hours">--</div>
+                    <div class="countdown-label">Hours</div>
+                </div>
+                <div class="countdown-block">
+                    <div class="countdown-number" id="countdown-minutes">--</div>
+                    <div class="countdown-label">Minutes</div>
+                </div>
+                <div class="countdown-block">
+                    <div class="countdown-number" id="countdown-seconds">--</div>
+                    <div class="countdown-label">Seconds</div>
+                </div>
+            </div>
+            <div class="deadline-warning" style="margin-top: 16px; margin-bottom: 0;">
+                <p>Applications must be submitted before {{ job.application_deadline|date:"F j, Y \a\t g:i A" }}</p>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
 
 <!-- Job Details Content -->
 <section class="job-content-section py-8">
@@ -310,13 +496,11 @@
         <div class="grid lg:grid-cols-3 gap-8">
             <!-- Main Content -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Salary Card -->
                 <div class="info-card p-6">
                     <h2 class="text-xl font-semibold text-white mb-4">Salary Range</h2>
                     <p class="text-2xl font-bold text-github-accent">{{ job.salary_range }}</p>
                 </div>
                 
-                <!-- Job Description -->
                 <div class="info-card p-6">
                     <h2 class="text-xl font-semibold text-white mb-4">Job Description</h2>
                     <div class="text-github-fg-muted leading-relaxed space-y-4">
@@ -324,7 +508,6 @@
                     </div>
                 </div>
                 
-                <!-- Requirements -->
                 <div class="info-card p-6">
                     <h2 class="text-xl font-semibold text-white mb-4">Requirements</h2>
                     <div class="text-github-fg-muted leading-relaxed space-y-4">
@@ -332,7 +515,6 @@
                     </div>
                 </div>
                 
-                <!-- Project Brief -->
                 {% if job.project_brief %}
                 <div class="info-card p-6 border-l-4 border-l-orange-500">
                     <h2 class="text-xl font-semibold text-white mb-4">Project Brief</h2>
@@ -348,7 +530,6 @@
             
             <!-- Sidebar -->
             <div class="space-y-6">
-                <!-- Skills Card -->
                 {% if job.skills_required %}
                 <div class="info-card p-6">
                     <h2 class="text-xl font-semibold text-white mb-4">Required Skills</h2>
@@ -360,7 +541,17 @@
                 </div>
                 {% endif %}
                 
-                <!-- Job Info Card -->
+                {% if job.categories.all %}
+                <div class="info-card p-6">
+                    <h2 class="text-xl font-semibold text-white mb-4">Categories</h2>
+                    <div class="flex flex-wrap gap-2">
+                        {% for category in job.categories.all %}
+                        <a href="{% url 'jobs:category' category.slug %}" class="skill-tag">{{ category.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
                 <div class="info-card p-6">
                     <h2 class="text-xl font-semibold text-white mb-4">Job Information</h2>
                     <div class="space-y-3">
@@ -380,10 +571,15 @@
                             <span class="text-github-fg-muted">Posted Date</span>
                             <span class="text-white font-medium">{{ job.created_at|date:"F j, Y" }}</span>
                         </div>
+                        {% if job.application_deadline and not job.is_application_deadline_passed %}
+                        <div class="flex justify-between py-2">
+                            <span class="text-github-fg-muted">Apply Before</span>
+                            <span class="text-white font-medium">{{ job.application_deadline|date:"F j, Y" }}</span>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 
-                <!-- Hiring Process Card -->
                 <div class="info-card p-6">
                     <h2 class="text-xl font-semibold text-white mb-4">Hiring Process</h2>
                     <div class="space-y-4">
@@ -392,8 +588,8 @@
                                 <span class="text-xs font-bold text-github-accent">1</span>
                             </div>
                             <div>
-                                <p class="font-medium text-white">Apply with Profile</p>
-                                <p class="text-xs text-github-fg-muted">Submit your application</p>
+                                <p class="font-medium text-white">Apply with Project</p>
+                                <p class="text-xs text-github-fg-muted">Submit your application with project</p>
                             </div>
                         </div>
                         <div class="flex gap-3 items-start">
@@ -401,8 +597,8 @@
                                 <span class="text-xs font-bold text-github-accent">2</span>
                             </div>
                             <div>
-                                <p class="font-medium text-white">Technical Quiz</p>
-                                <p class="text-xs text-github-fg-muted">Auto-graded assessment</p>
+                                <p class="font-medium text-white">Application Review</p>
+                                <p class="text-xs text-github-fg-muted">Project evaluation by admin</p>
                             </div>
                         </div>
                         <div class="flex gap-3 items-start">
@@ -410,8 +606,8 @@
                                 <span class="text-xs font-bold text-github-accent">3</span>
                             </div>
                             <div>
-                                <p class="font-medium text-white">Build Project</p>
-                                <p class="text-xs text-github-fg-muted">Complete from job ad</p>
+                                <p class="font-medium text-white">Interview</p>
+                                <p class="text-xs text-github-fg-muted">Live Zoom interview</p>
                             </div>
                         </div>
                         <div class="flex gap-3 items-start">
@@ -419,17 +615,8 @@
                                 <span class="text-xs font-bold text-github-accent">4</span>
                             </div>
                             <div>
-                                <p class="font-medium text-white">Live Zoom Interview</p>
-                                <p class="text-xs text-github-fg-muted">Present your project</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-3 items-start">
-                            <div class="w-6 h-6 bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <span class="text-xs font-bold text-green-500">5</span>
-                            </div>
-                            <div>
                                 <p class="font-medium text-white">Get Hired</p>
-                                <p class="text-xs text-github-fg-muted">Start earning</p>
+                                <p class="text-xs text-github-fg-muted">Start working and earning</p>
                             </div>
                         </div>
                     </div>
@@ -467,5 +654,110 @@
     </div>
 </section>
 {% endif %}
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    const csrftoken = getCookie('csrftoken');
+    
+    // Toggle Save Job
+    async function toggleSaveJob(btn, jobId) {
+        event.stopPropagation();
+        
+        const isSaved = btn.classList.contains('saved');
+        const url = isSaved ? `/jobs/unsave/${jobId}/` : `/jobs/save/${jobId}/`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'saved') {
+                btn.classList.add('saved');
+                showToast('Job saved to your list');
+            } else if (data.status === 'unsaved') {
+                btn.classList.remove('saved');
+                showToast('Job removed from saved list');
+            } else if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Please login to save jobs');
+            setTimeout(() => {
+                window.location.href = '/accounts/login/';
+            }, 1500);
+        }
+    }
+    
+    // Countdown Timer
+    function updateCountdown() {
+        const timerElement = document.getElementById('countdown-timer');
+        if (!timerElement) return;
+        
+        const deadlineStr = timerElement.dataset.deadline;
+        if (!deadlineStr) return;
+        
+        const deadline = new Date(deadlineStr);
+        const now = new Date();
+        const diff = deadline - now;
+        
+        if (diff <= 0) {
+            document.getElementById('countdown-days').textContent = '00';
+            document.getElementById('countdown-hours').textContent = '00';
+            document.getElementById('countdown-minutes').textContent = '00';
+            document.getElementById('countdown-seconds').textContent = '00';
+            return;
+        }
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        document.getElementById('countdown-days').textContent = days.toString().padStart(2, '0');
+        document.getElementById('countdown-hours').textContent = hours.toString().padStart(2, '0');
+        document.getElementById('countdown-minutes').textContent = minutes.toString().padStart(2, '0');
+        document.getElementById('countdown-seconds').textContent = seconds.toString().padStart(2, '0');
+    }
+    
+    // Start countdown timer if element exists
+    if (document.getElementById('countdown-timer')) {
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+    }
+    
+    // Show Toast Notification
+    function showToast(message) {
+        let toast = document.querySelector('.toast-message');
+        if (toast) toast.remove();
+        
+        toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.remove(), 3000);
+    }
+</script>
 
 {% endblock %}

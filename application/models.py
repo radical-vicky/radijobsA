@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.urls import reverse
 
 
 class Application(models.Model):
@@ -52,6 +53,9 @@ class Application(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.job.title} - {self.get_status_display()}"
     
+    def get_absolute_url(self):
+        return reverse('application:detail', args=[self.id])
+    
     def shortlist(self, reviewer):
         """Shortlist the application after project review"""
         self.status = 'shortlisted'
@@ -59,18 +63,17 @@ class Application(models.Model):
         self.reviewed_by = reviewer
         self.save()
         
-        from notifications.models import Notification
-        notification = Notification.objects.create(
+        from notifications.utils import create_notification
+        create_notification(
             user=self.user,
             notification_type='application',
             title='Application Shortlisted',
             message=f'Congratulations! Your application for {self.job.title} has been shortlisted. Your project is being reviewed.',
-            link=f'/applications/my/{self.id}/',
-            status='unread'
+            link=f'/applications/detail/{self.id}/'
         )
         
         self._send_email('shortlisted')
-        return notification
+        return True
     
     def approve_for_interview(self, reviewer):
         """Approve for interview after project meets requirements"""
@@ -79,18 +82,17 @@ class Application(models.Model):
         self.reviewed_by = reviewer
         self.save()
         
-        from notifications.models import Notification
-        notification = Notification.objects.create(
+        from notifications.utils import create_notification
+        create_notification(
             user=self.user,
             notification_type='application',
             title='Congratulations! You Qualify for Interview',
             message=f'Great news! Your project for {self.job.title} has been reviewed and approved. You now qualify for the interview stage.',
-            link=f'/applications/my/{self.id}/',
-            status='unread'
+            link=f'/applications/detail/{self.id}/'
         )
         
         self._send_email('approved')
-        return notification
+        return True
     
     def reject(self, reviewer, feedback):
         """Reject application with feedback"""
@@ -100,22 +102,22 @@ class Application(models.Model):
         self.feedback = feedback
         self.save()
         
-        from notifications.models import Notification
-        notification = Notification.objects.create(
+        from notifications.utils import create_notification
+        create_notification(
             user=self.user,
             notification_type='application',
             title='Application Update - Not Selected',
             message=f'Thank you for applying to {self.job.title}. Unfortunately, your application was not selected at this time.',
-            link=f'/applications/my/{self.id}/',
-            status='unread'
+            link=f'/applications/detail/{self.id}/'
         )
         
         self._send_email('rejected')
-        return notification
+        return True
     
     def schedule_interview(self, interview_datetime, zoom_link=None):
-        """Schedule Zoom interview - creates real Zoom meeting if no link provided"""
+        """Schedule Zoom interview - creates real Zoom meeting and ZoomMeeting record"""
         from zoom_integration.services import create_meeting
+        from zoom_integration.models import ZoomMeeting
         
         # If no zoom_link provided, create a real Zoom meeting
         if not zoom_link:
@@ -127,32 +129,71 @@ class Application(models.Model):
             
             if meeting.get('success'):
                 zoom_link = meeting['join_url']
+                meeting_id = meeting.get('meeting_id')
                 print(f"✓ Real Zoom meeting created: {zoom_link}")
+                
+                # Create ZoomMeeting record
+                ZoomMeeting.objects.create(
+                    user=self.user,
+                    application=self,
+                    meeting_id=meeting_id,
+                    topic=f"Interview: {self.job.title}",
+                    meeting_type='interview',
+                    start_time=interview_datetime,
+                    duration_minutes=60,
+                    join_url=zoom_link,
+                    status='scheduled'
+                )
             else:
-                # Fallback link
-                zoom_link = f"https://zoom.us/j/fallback-{self.id}"
-                print(f"⚠️ Using fallback link: {zoom_link}")
+                # Fallback - still create a record with fallback link
+                zoom_link = zoom_link or f"https://zoom.us/j/fallback-{self.id}"
+                print(f"⚠️ Zoom meeting creation failed, using fallback: {zoom_link}")
+                
+                # Create ZoomMeeting record with fallback
+                ZoomMeeting.objects.create(
+                    user=self.user,
+                    application=self,
+                    meeting_id=f"fallback-{self.id}",
+                    topic=f"Interview: {self.job.title}",
+                    meeting_type='interview',
+                    start_time=interview_datetime,
+                    duration_minutes=60,
+                    join_url=zoom_link,
+                    status='scheduled'
+                )
+        else:
+            # Zoom link provided directly - create record
+            ZoomMeeting.objects.create(
+                user=self.user,
+                application=self,
+                meeting_id=f"manual-{self.id}",
+                topic=f"Interview: {self.job.title}",
+                meeting_type='interview',
+                start_time=interview_datetime,
+                duration_minutes=60,
+                join_url=zoom_link,
+                status='scheduled'
+            )
         
         self.status = 'interview_scheduled'
         self.interview_scheduled_at = interview_datetime
         self.interview_link = zoom_link
         self.save()
         
-        # Create notification
-        from notifications.models import Notification
-        notification = Notification.objects.create(
+        # Create in-app notification
+        from notifications.utils import create_notification
+        create_notification(
             user=self.user,
             notification_type='interview',
             title='Interview Scheduled',
-            message=f'Your interview for {self.job.title} has been scheduled for {interview_datetime.strftime("%B %d, %Y at %H:%M")}. Please use the provided Zoom link to join and present your project.',
-            link=zoom_link,
-            status='unread'
+            message=f'Your interview for {self.job.title} has been scheduled for {interview_datetime.strftime("%B %d, %Y at %H:%M")}. Please use the provided Zoom link to join.',
+            link=zoom_link
         )
         
         # Send email
         self._send_interview_email(interview_datetime, zoom_link)
         
-        return notification
+        return True
     
     def complete_interview(self):
         """Mark interview as completed"""
@@ -160,20 +201,27 @@ class Application(models.Model):
         self.interview_completed = True
         self.save()
         
-        from notifications.models import Notification
-        notification = Notification.objects.create(
+        # Update ZoomMeeting status
+        try:
+            from zoom_integration.models import ZoomMeeting
+            meeting = ZoomMeeting.objects.filter(application=self, status='scheduled').first()
+            if meeting:
+                meeting.status = 'completed'
+                meeting.save()
+        except:
+            pass
+        
+        from notifications.utils import create_notification
+        create_notification(
             user=self.user,
             notification_type='interview',
             title='Interview Completed',
             message=f'Your interview for {self.job.title} has been marked as completed. Our team will review and get back to you soon.',
-            link=f'/applications/my/{self.id}/',
-            status='unread'
+            link=f'/applications/detail/{self.id}/'
         )
         
-        # Send interview completion email
         self._send_interview_completed_email()
-        
-        return notification
+        return True
     
     def hire(self, start_date):
         """Hire the applicant"""
@@ -182,21 +230,17 @@ class Application(models.Model):
         self.start_date = start_date
         self.save()
         
-        # Create notification
-        from notifications.models import Notification
-        notification = Notification.objects.create(
+        from notifications.utils import create_notification
+        create_notification(
             user=self.user,
             notification_type='application',
             title='You\'re Hired!',
             message=f'Congratulations! You have been hired for {self.job.title}! Your start date is {start_date.strftime("%B %d, %Y")}.',
-            link=f'/applications/my/{self.id}/',
-            status='unread'
+            link=f'/applications/detail/{self.id}/'
         )
         
-        # Send hiring email
         self._send_hiring_email(start_date)
-        
-        return notification
+        return True
     
     def _send_email(self, email_type):
         """Send email notifications immediately"""

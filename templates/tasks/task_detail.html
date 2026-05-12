@@ -1,64 +1,76 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
 
-{% block page_title %}{{ task.title }}{% endblock %}
+{% block page_title %}Task Details - {{ task.title }}{% endblock %}
 
 {% block content %}
 
 <style>
-    .task-container {
-        max-width: 1000px;
+    .detail-container {
+        width: 100%;
+        max-width: 1200px;
         margin: 0 auto;
+        padding: 20px;
     }
     
+    /* Back Link */
     .back-link {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         margin-bottom: 20px;
         color: #8b949e;
         text-decoration: none;
         font-size: 13px;
+        transition: color 0.2s;
     }
     
     .back-link:hover {
         color: #2f81f7;
     }
     
-    .task-hero {
-        position: relative;
-        width: 100%;
-        height: 320px;
-        overflow: hidden;
-        background: #0d1117;
-        margin-bottom: 0;
+    /* Main Layout */
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 24px;
     }
     
-    .task-hero-image {
+    @media (max-width: 900px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Main Content Card */
+    .main-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        overflow: hidden;
+    }
+    
+    /* Hero Image Section - Full Width Cover */
+    .hero-section {
+        position: relative;
+        width: 100%;
+        height: 220px;
+        overflow: hidden;
+        background: #0d1117;
+    }
+    
+    .hero-image {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
     
-    .hero-gradient-blend {
+    .hero-gradient {
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        height: 100%;
-        background: linear-gradient(to bottom, 
-            rgba(13, 17, 23, 0) 0%,
-            rgba(13, 17, 23, 0) 40%,
-            rgba(22, 27, 34, 0.8) 70%,
-            #161b22 100%);
-        pointer-events: none;
-    }
-    
-    .hero-accent-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, rgba(47, 129, 247, 0.15) 0%, rgba(13, 17, 23, 0) 60%);
+        height: 50%;
+        background: linear-gradient(to top, #161b22 0%, rgba(22, 27, 34, 0) 100%);
         pointer-events: none;
     }
     
@@ -66,230 +78,245 @@
         width: 100%;
         height: 100%;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
-        font-size: 80px;
-        font-weight: 700;
+        background: linear-gradient(135deg, #1a1f2e, #0d1117);
+        gap: 12px;
+    }
+    
+    .hero-placeholder svg {
+        width: 64px;
+        height: 64px;
         color: #2f81f7;
-        position: relative;
     }
     
-    .hero-placeholder-gradient {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 100%;
-        background: linear-gradient(to bottom, rgba(13, 17, 23, 0) 60%, #161b22 100%);
-        pointer-events: none;
-    }
-    
-    .task-card {
-        background: #161b22;
-        border: 1px solid #2d2f36;
-        margin-top: -40px;
-        position: relative;
-        z-index: 10;
-    }
-    
-    .task-header {
-        padding: 28px 32px;
-        border-bottom: 1px solid #2d2f36;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 20px;
-    }
-    
-    .task-title-section {
-        flex: 1;
-    }
-    
-    .task-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: #e6edf3;
-        margin-bottom: 12px;
-        line-height: 1.3;
-    }
-    
-    .task-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        margin-top: 8px;
-    }
-    
-    .meta-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        color: #8b949e;
-    }
-    
-    .meta-label {
+    .hero-placeholder span {
+        font-size: 14px;
         color: #6e7681;
     }
     
-    .meta-value {
-        color: #e6edf3;
-        font-weight: 500;
+    /* Task Header - Overlay on Image */
+    .task-header-overlay {
+        position: relative;
+        padding: 24px;
+        margin-top: -80px;
+        z-index: 2;
     }
     
-    .status-badge {
+    .task-info-large {
+        background: rgba(22, 27, 34, 0.95);
+        backdrop-filter: blur(8px);
+        padding: 20px;
+        border: 1px solid rgba(61, 68, 77, 0.5);
+    }
+    
+    .task-status-badge {
         display: inline-block;
-        padding: 6px 16px;
+        padding: 4px 12px;
         font-size: 12px;
         font-weight: 600;
+        border-radius: 20px;
+        margin-bottom: 12px;
+    }
+    
+    .status-assigned { background: rgba(210, 153, 34, 0.2); color: #d29922; border: 1px solid rgba(210, 153, 34, 0.4); }
+    .status-in_progress { background: rgba(47, 129, 247, 0.2); color: #2f81f7; border: 1px solid rgba(47, 129, 247, 0.4); }
+    .status-submitted { background: rgba(163, 113, 247, 0.2); color: #a371f7; border: 1px solid rgba(163, 113, 247, 0.4); }
+    .status-approved { background: rgba(63, 185, 80, 0.2); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.4); }
+    .status-paid { background: rgba(63, 185, 80, 0.2); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.4); }
+    .status-rejected { background: rgba(248, 81, 73, 0.2); color: #f85149; border: 1px solid rgba(248, 81, 73, 0.4); }
+    
+    .task-title-large {
+        font-size: 24px;
+        font-weight: 700;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    
+    .task-job-link {
+        font-size: 14px;
+        color: #2f81f7;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .task-job-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Countdown Timer */
+    .countdown-container {
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        padding: 16px 20px;
+        margin: 20px 24px;
+        text-align: center;
+    }
+    
+    .countdown-title {
+        font-size: 12px;
+        color: #8b949e;
+        margin-bottom: 12px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     
-    .status-assigned {
-        background: rgba(210, 153, 34, 0.1);
-        color: #d29922;
-        border: 1px solid rgba(210, 153, 34, 0.3);
+    .countdown-timer {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
     }
     
-    .status-in_progress {
-        background: rgba(47, 129, 247, 0.1);
+    .countdown-block {
+        text-align: center;
+        min-width: 70px;
+    }
+    
+    .countdown-number {
+        font-size: 32px;
+        font-weight: 700;
         color: #2f81f7;
-        border: 1px solid rgba(47, 129, 247, 0.3);
+        font-family: monospace;
+        line-height: 1;
     }
     
-    .status-submitted {
-        background: rgba(163, 113, 247, 0.1);
-        color: #a371f7;
-        border: 1px solid rgba(163, 113, 247, 0.3);
+    .countdown-label {
+        font-size: 10px;
+        color: #6e7681;
+        text-transform: uppercase;
+        margin-top: 4px;
     }
     
-    .status-approved {
-        background: rgba(63, 185, 80, 0.1);
-        color: #3fb950;
-        border: 1px solid rgba(63, 185, 80, 0.3);
-    }
-    
-    .status-paid {
-        background: rgba(63, 185, 80, 0.12);
-        color: #3fb950;
-        border: 1px solid rgba(63, 185, 80, 0.35);
-    }
-    
-    .status-revision_requested {
-        background: rgba(210, 153, 34, 0.1);
+    .countdown-warning {
+        margin-top: 12px;
+        font-size: 11px;
         color: #d29922;
-        border: 1px solid rgba(210, 153, 34, 0.3);
     }
     
-    .task-section {
-        padding: 28px 32px;
+    .countdown-warning.urgent {
+        color: #f85149;
+    }
+    
+    /* Detail Sections */
+    .detail-section {
+        padding: 20px 24px;
         border-bottom: 1px solid #2d2f36;
     }
     
-    .task-section:last-child {
+    .detail-section:last-child {
         border-bottom: none;
     }
     
     .section-title {
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 600;
         color: #e6edf3;
-        margin-bottom: 20px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #2d2f36;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
     
-    .task-description {
-        background: #0d1117;
-        padding: 20px;
+    .section-title svg {
+        width: 20px;
+        height: 20px;
+        color: #2f81f7;
+    }
+    
+    .section-content {
         font-size: 14px;
-        color: #c9d1d9;
-        line-height: 1.7;
-        white-space: pre-wrap;
+        color: #8b949e;
+        line-height: 1.6;
     }
     
+    /* Info Grid */
     .info-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
     }
     
-    .info-item {
+    .info-row {
         display: flex;
-        flex-direction: column;
-        gap: 6px;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 10px 0;
+        border-bottom: 1px solid #2d2f36;
     }
     
     .info-label {
-        font-size: 11px;
-        color: #6e7681;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-weight: 500;
+        font-size: 12px;
+        color: #8b949e;
+        min-width: 120px;
     }
     
     .info-value {
-        font-size: 15px;
+        font-size: 13px;
         color: #e6edf3;
         font-weight: 500;
+        text-align: right;
+        word-break: break-word;
     }
     
-    .btn-success {
-        padding: 12px 24px;
-        background: #3fb950;
-        color: white;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
-        border: none;
-        cursor: pointer;
-        transition: background 0.2s;
-        display: inline-block;
-        text-align: center;
-        width: 100%;
-        border-radius: 6px;
-    }
-    
-    .btn-success:hover {
-        background: #56d364;
-    }
-    
-    .btn-success:disabled {
-        background: #21262d;
-        cursor: not-allowed;
+    /* Action Buttons */
+    .action-buttons {
+        padding: 20px 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        border-top: 1px solid #2d2f36;
+        background: #0d1117;
     }
     
     .btn-primary {
+        flex: 1;
         padding: 12px 24px;
         background: #2f81f7;
-        color: white;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
         border: none;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
         cursor: pointer;
-        transition: background 0.2s;
-        display: inline-block;
         text-align: center;
-        width: 100%;
-        border-radius: 6px;
-        margin-top: 10px;
+        text-decoration: none;
+        transition: background 0.2s;
     }
     
     .btn-primary:hover {
         background: #58a6ff;
     }
     
-    .btn-primary:disabled {
-        background: #3fb950;
-        cursor: default;
+    .btn-secondary {
+        flex: 1;
+        padding: 12px 24px;
+        background: #21262d;
+        border: 1px solid #3d444d;
+        color: #e6edf3;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .btn-secondary:hover {
+        background: #2d2f36;
+        border-color: #2f81f7;
+        color: #2f81f7;
+    }
+    
+    /* Submission Form */
+    .submission-form {
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        margin: 20px 24px;
+        padding: 20px;
     }
     
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 16px;
     }
     
     .form-label {
@@ -297,7 +324,7 @@
         font-size: 13px;
         font-weight: 500;
         color: #e6edf3;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
     
     .form-input, .form-textarea {
@@ -307,6 +334,7 @@
         border: 1px solid #2d2f36;
         color: #e6edf3;
         font-size: 13px;
+        transition: all 0.2s;
     }
     
     .form-input:focus, .form-textarea:focus {
@@ -319,461 +347,414 @@
         min-height: 100px;
     }
     
-    .submit-form {
-        background: #0d1117;
-        padding: 24px;
-        margin-top: 20px;
-        border: 1px solid #2d2f36;
-    }
-    
-    .countdown-box {
-        background: rgba(210, 153, 34, 0.1);
-        border-left: 3px solid #d29922;
-        padding: 16px;
-        margin-bottom: 20px;
-        font-size: 13px;
-    }
-    
-    .countdown-timer {
-        font-family: monospace;
-        font-size: 24px;
-        font-weight: 700;
-        color: #d29922;
-        margin-top: 8px;
-    }
-    
-    .countdown-warning {
-        background: rgba(248, 81, 73, 0.1);
+    /* Feedback Box */
+    .feedback-box {
+        background: rgba(248, 81, 73, 0.05);
         border-left: 3px solid #f85149;
-    }
-    
-    .countdown-warning .countdown-timer {
-        color: #f85149;
-    }
-    
-    .completion-box {
-        background: rgba(63, 185, 80, 0.1);
-        border-left: 3px solid #3fb950;
         padding: 16px;
+        margin-top: 16px;
+    }
+    
+    /* Sidebar Card */
+    .sidebar-card {
+        background: #161b22;
+        border: 1px solid #2d2f36;
         margin-bottom: 20px;
-        font-size: 13px;
     }
     
-    .completion-text {
-        color: #3fb950;
-        font-weight: 500;
-        margin-top: 8px;
-    }
-    
-    .comments-list {
-        margin-top: 20px;
-    }
-    
-    .comment-item {
-        background: #0d1117;
+    .sidebar-header {
         padding: 16px;
-        margin-bottom: 12px;
+        border-bottom: 1px solid #2d2f36;
+        font-weight: 600;
+        color: #e6edf3;
     }
     
-    .comment-header {
+    .sidebar-content {
+        padding: 16px;
+    }
+    
+    .sidebar-item {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 8px;
-        padding-bottom: 8px;
+        padding: 10px 0;
         border-bottom: 1px solid #2d2f36;
     }
     
-    .comment-author {
+    .sidebar-item:last-child {
+        border-bottom: none;
+    }
+    
+    .sidebar-label {
+        font-size: 12px;
+        color: #8b949e;
+    }
+    
+    .sidebar-value {
         font-size: 13px;
-        font-weight: 600;
+        color: #e6edf3;
+        font-weight: 500;
+    }
+    
+    .sidebar-value.accent {
         color: #2f81f7;
     }
     
-    .comment-date {
-        font-size: 11px;
-        color: #6e7681;
-    }
-    
-    .comment-text {
-        font-size: 13px;
-        color: #c9d1d9;
-        line-height: 1.5;
-    }
-    
-    .comment-form {
-        margin-top: 24px;
-        padding-top: 24px;
-        border-top: 1px solid #2d2f36;
-    }
-    
+    /* Responsive */
     @media (max-width: 768px) {
-        .task-hero {
-            height: 200px;
+        .detail-container {
+            padding: 12px;
         }
         
-        .task-header {
-            padding: 20px;
+        .hero-section {
+            height: 160px;
         }
         
-        .task-section {
-            padding: 20px;
+        .task-header-overlay {
+            margin-top: -60px;
+            padding: 16px;
         }
         
-        .task-title {
-            font-size: 20px;
+        .task-info-large {
+            padding: 16px;
         }
         
-        .hero-placeholder {
-            font-size: 48px;
+        .task-title-large {
+            font-size: 18px;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
         }
         
         .countdown-timer {
-            font-size: 18px;
+            gap: 10px;
+        }
+        
+        .countdown-block {
+            min-width: 50px;
+        }
+        
+        .countdown-number {
+            font-size: 22px;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
         }
     }
 </style>
 
-<div class="task-container">
+<div class="detail-container">
+    <!-- Back Link -->
     <a href="{% url 'tasks:my_tasks' %}" class="back-link">
-        Back to My Tasks
+        ← Back to My Tasks
     </a>
     
-    <div class="task-hero">
-        {% if task.get_image_url %}
-            <img src="{{ task.get_image_url }}" alt="{{ task.title }}" class="task-hero-image">
-            <div class="hero-gradient-blend"></div>
-            <div class="hero-accent-overlay"></div>
-        {% elif task.job.get_image_url %}
-            <img src="{{ task.job.get_image_url }}" alt="{{ task.job.title }}" class="task-hero-image">
-            <div class="hero-gradient-blend"></div>
-            <div class="hero-accent-overlay"></div>
-        {% else %}
-            <div class="hero-placeholder">
-                {{ task.title|slice:":1"|upper }}
-                <div class="hero-placeholder-gradient"></div>
-            </div>
-        {% endif %}
-    </div>
-    
-    <div class="task-card">
-        
-        <!-- Header -->
-        <div class="task-header">
-            <div class="task-title-section">
-                <h1 class="task-title">{{ task.title }}</h1>
-                <div class="task-meta">
-                    <div class="meta-item">
-                        <span class="meta-label">Job:</span>
-                        <span class="meta-value">{{ task.job.title }}</span>
+    <div class="detail-grid">
+        <!-- Main Content -->
+        <div class="main-card">
+            <!-- Hero Image Section - Full Width Cover -->
+            <div class="hero-section">
+                {% if task.get_image_url %}
+                    <img src="{{ task.get_image_url }}" alt="{{ task.title }}" class="hero-image">
+                    <div class="hero-gradient"></div>
+                {% elif task.job.get_image_url %}
+                    <img src="{{ task.job.get_image_url }}" alt="{{ task.job.title }}" class="hero-image">
+                    <div class="hero-gradient"></div>
+                {% else %}
+                    <div class="hero-placeholder">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <span>{{ task.job.company|slice:":1"|upper }}</span>
                     </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Assigned:</span>
-                        <span class="meta-value">{{ task.assigned_at|date:"M d, Y H:i" }}</span>
-                    </div>
-                    {% if task.deadline %}
-                    <div class="meta-item">
-                        <span class="meta-label">Deadline:</span>
-                        <span class="meta-value">{{ task.deadline|date:"M d, Y H:i" }}</span>
-                    </div>
-                    {% endif %}
-                    {% if task.submitted_at %}
-                    <div class="meta-item">
-                        <span class="meta-label">Submitted:</span>
-                        <span class="meta-value">{{ task.submitted_at|date:"M d, Y H:i" }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            <span class="status-badge status-{{ task.status }}">
-                {{ task.get_status_display }}
-            </span>
-        </div>
-        
-        <!-- Countdown Timer (only if not submitted and deadline exists) -->
-        {% if task.deadline and task.status != 'submitted' and task.status != 'approved' and task.status != 'paid' %}
-        <div class="task-section" id="countdown-section">
-            <h3 class="section-title">Time Remaining</h3>
-            <div class="countdown-box" id="countdown-box">
-                <div>Deadline for submission:</div>
-                <div class="countdown-timer" id="countdown-timer">Loading...</div>
-            </div>
-        </div>
-        {% endif %}
-        
-        <!-- Completion Message with Time Taken (if submitted) -->
-        {% if task.status == 'submitted' %}
-        <div class="task-section">
-            <div class="completion-box">
-                <div><strong>Task Submitted Successfully</strong></div>
-                <div class="completion-text">Submitted on: {{ task.submitted_at|date:"F j, Y g:i A" }}</div>
-                <div class="completion-text" id="time-taken-submitted"></div>
-                <div class="completion-text">Waiting for admin review</div>
-            </div>
-        </div>
-        {% endif %}
-        
-        {% if task.status == 'approved' or task.status == 'paid' %}
-        <div class="task-section">
-            <div class="completion-box" style="border-left-color: #3fb950;">
-                <div><strong>Task Completed</strong></div>
-                {% if task.submitted_at %}
-                <div class="completion-text">Submitted on: {{ task.submitted_at|date:"F j, Y g:i A" }}</div>
-                <div class="completion-text" id="time-taken-completed"></div>
-                {% endif %}
-                {% if task.approved_at %}
-                <div class="completion-text">Approved on: {{ task.approved_at|date:"F j, Y g:i A" }}</div>
-                {% endif %}
-                {% if task.paid_at %}
-                <div class="completion-text">Paid on: {{ task.paid_at|date:"F j, Y g:i A" }}</div>
                 {% endif %}
             </div>
-        </div>
-        {% endif %}
-        
-        <!-- Task Info -->
-        <div class="task-section">
-            <h3 class="section-title">Task Information</h3>
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Budget</span>
-                    <span class="info-value">${{ task.budget_amount }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Assigned By</span>
-                    <span class="info-value">{{ task.assigned_by.get_full_name|default:task.assigned_by.username }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Assigned To</span>
-                    <span class="info-value">{{ task.assigned_to.get_full_name|default:task.assigned_to.username }}</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Description -->
-        <div class="task-section">
-            <h3 class="section-title">Description</h3>
-            <div class="task-description">{{ task.description|linebreaks }}</div>
-        </div>
-        
-        <!-- ============================================ -->
-        <!-- SUBMIT TASK SECTION - Shows only if not submitted -->
-        <!-- ============================================ -->
-        {% if task.status != 'submitted' and task.status != 'approved' and task.status != 'paid' %}
-        <div class="task-section">
-            <h3 class="section-title">Submit Your Work</h3>
             
-            <!-- Start Working Button -->
-            <form method="post" style="margin-bottom: 30px;">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="start">
-                <button type="submit" class="btn-success" id="start-working-btn">Start Working</button>
-            </form>
+            <!-- Task Header - Overlay on Image -->
+            <div class="task-header-overlay">
+                <div class="task-info-large">
+                    <span class="task-status-badge status-{{ task.status }}">
+                        {{ task.get_status_display }}
+                    </span>
+                    <h1 class="task-title-large">{{ task.title }}</h1>
+                    <a href="{% url 'jobs:dashboard_job_detail' task.job.id %}" class="task-job-link">
+                        {{ task.job.company }} - {{ task.job.title }}
+                    </a>
+                </div>
+            </div>
             
-            <!-- Submission Form -->
-            <div class="submit-form" id="submit-form">
+            <!-- Countdown Timer -->
+            {% if task.deadline and task.status != 'completed' and task.status != 'paid' %}
+            <div class="countdown-container" id="countdown-container" data-deadline="{{ task.deadline.isoformat }}">
+                <div class="countdown-title">Time Left to Complete</div>
+                <div class="countdown-timer">
+                    <div class="countdown-block">
+                        <div class="countdown-number" id="countdown-days">--</div>
+                        <div class="countdown-label">Days</div>
+                    </div>
+                    <div class="countdown-block">
+                        <div class="countdown-number" id="countdown-hours">--</div>
+                        <div class="countdown-label">Hours</div>
+                    </div>
+                    <div class="countdown-block">
+                        <div class="countdown-number" id="countdown-minutes">--</div>
+                        <div class="countdown-label">Minutes</div>
+                    </div>
+                    <div class="countdown-block">
+                        <div class="countdown-number" id="countdown-seconds">--</div>
+                        <div class="countdown-label">Seconds</div>
+                    </div>
+                </div>
+                <div class="countdown-warning" id="countdown-warning"></div>
+            </div>
+            {% endif %}
+            
+            <!-- Task Description -->
+            <div class="detail-section">
+                <div class="section-title">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h7"/>
+                    </svg>
+                    Task Description
+                </div>
+                <div class="section-content">
+                    {{ task.description|linebreaks }}
+                </div>
+            </div>
+            
+            <!-- Submission Form (for in_progress tasks) -->
+            {% if task.status == 'in_progress' %}
+            <div class="submission-form">
+                <h3 class="section-title" style="margin-bottom: 16px;">Submit Your Work</h3>
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <input type="hidden" name="action" value="submit">
                     <div class="form-group">
-                        <label class="form-label">Submission URL (GitHub Repository or Live Demo)</label>
-                        <input type="url" name="submission_url" class="form-input" placeholder="https://github.com/yourusername/project">
-                        <div style="font-size: 11px; color: #6e7681; margin-top: 4px;">Paste your GitHub repository link or live demo URL</div>
+                        <label class="form-label">Submission Link <span style="color: #f85149;">*</span></label>
+                        <input type="url" name="submission_link" class="form-input" 
+                               placeholder="https://github.com/username/project" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Submission Notes</label>
-                        <textarea name="submission_notes" class="form-textarea" placeholder="Describe what you have completed, any challenges faced, or additional information for the reviewer"></textarea>
+                        <textarea name="submission_notes" class="form-textarea" 
+                                  placeholder="Describe what you've completed, any challenges faced, or additional information..."></textarea>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Attachments</label>
-                        <input type="file" name="attachments" multiple class="form-input">
-                        <div style="font-size: 11px; color: #6e7681; margin-top: 4px;">Upload screenshots, documentation, or other relevant files (optional)</div>
+                        <label class="form-label">Attach File (Optional)</label>
+                        <input type="file" name="attachment" class="form-input">
+                        <div class="countdown-warning" style="margin-top: 4px; font-size: 10px;">Max file size: 10MB</div>
                     </div>
-                    <button type="submit" class="btn-primary" id="submit-review-btn">Submit for Review</button>
+                    <button type="submit" name="action" value="submit" class="btn-primary" style="width: 100%;">
+                        Submit for Review
+                    </button>
                 </form>
             </div>
-        </div>
-        {% else %}
-        <!-- Show message that task is already submitted/completed -->
-        <div class="task-section">
-            <div class="completion-box" style="background: rgba(47, 129, 247, 0.05); border-left-color: #2f81f7;">
-                <div><strong>Task Already {% if task.status == 'submitted' %}Submitted{% else %}Completed{% endif %}</strong></div>
-                <div class="completion-text">You cannot submit this task again.</div>
-            </div>
-        </div>
-        {% endif %}
-        <!-- ============================================ -->
-        
-        <!-- Comments Section -->
-        <div class="task-section">
-            <h3 class="section-title">Comments and Discussion</h3>
+            {% endif %}
             
-            <div class="comments-list">
-                {% for comment in comments %}
-                <div class="comment-item {% if comment.is_admin_note %}admin-note{% endif %}">
-                    <div class="comment-header">
-                        <span class="comment-author">
-                            {{ comment.user.get_full_name|default:comment.user.username }}
-                            {% if comment.is_admin_note %}(Admin Note){% endif %}
+            <!-- Submitted Info -->
+            {% if task.submission_link %}
+            <div class="detail-section">
+                <div class="section-title">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Your Submission
+                </div>
+                <div class="info-grid">
+                    <div class="info-row">
+                        <span class="info-label">Submission Link</span>
+                        <span class="info-value">
+                            <a href="{{ task.submission_link }}" target="_blank" style="color: #2f81f7;">{{ task.submission_link|truncatechars:40 }}</a>
                         </span>
-                        <span class="comment-date">{{ comment.created_at|date:"M d, Y g:i A" }}</span>
                     </div>
-                    <div class="comment-text">{{ comment.comment|linebreaks }}</div>
-                </div>
-                {% empty %}
-                <div style="text-align: center; padding: 40px; color: #8b949e;">
-                    No comments yet. Be the first to comment.
-                </div>
-                {% endfor %}
-            </div>
-            
-            <div class="comment-form">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label class="form-label">Add a Comment</label>
-                        <textarea name="comment" class="form-textarea" placeholder="Write your comment here" required></textarea>
-                    </div>
-                    {% if request.user.is_superuser %}
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" name="is_admin_note" style="width: auto;">
-                            <span class="form-label" style="margin-bottom: 0;">Admin Note (only visible to admins)</span>
-                        </label>
+                    {% if task.submission_notes %}
+                    <div class="info-row">
+                        <span class="info-label">Notes</span>
+                        <span class="info-value">{{ task.submission_notes|truncatewords:20 }}</span>
                     </div>
                     {% endif %}
-                    <button type="submit" class="btn-primary" style="width: auto;">Post Comment</button>
-                </form>
+                    {% if task.submitted_at %}
+                    <div class="info-row">
+                        <span class="info-label">Submitted</span>
+                        <span class="info-value">{{ task.submitted_at|date:"F j, Y \a\t g:i A" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Feedback from Admin -->
+            {% if task.revision_feedback %}
+            <div class="detail-section">
+                <div class="section-title">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                    </svg>
+                    Admin Feedback
+                </div>
+                <div class="feedback-box">
+                    <div class="section-content">
+                        {{ task.revision_feedback|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                {% if task.status == 'assigned' %}
+                    <form method="post" style="flex: 1;">
+                        {% csrf_token %}
+                        <button type="submit" name="action" value="start" class="btn-primary">
+                            Start Working
+                        </button>
+                    </form>
+                {% elif task.status == 'in_progress' %}
+                    <button class="btn-primary" onclick="document.querySelector('.submission-form').scrollIntoView({behavior: 'smooth'})">
+                        Submit for Review
+                    </button>
+                {% elif task.status == 'submitted' %}
+                    <div class="btn-secondary" style="cursor: default; text-align: center;">
+                        ⏳ Awaiting Review
+                    </div>
+                {% elif task.status == 'rejected' %}
+                    <form method="post" style="flex: 1;">
+                        {% csrf_token %}
+                        <button type="submit" name="action" value="start" class="btn-primary">
+                            Revise & Resubmit
+                        </button>
+                    </form>
+                {% elif task.status == 'approved' %}
+                    <div class="btn-secondary" style="cursor: default; text-align: center; background: rgba(63,185,80,0.1); border-color: #3fb950; color: #3fb950;">
+                        ✓ Approved - Payment Pending
+                    </div>
+                {% elif task.status == 'paid' %}
+                    <div class="btn-secondary" style="cursor: default; text-align: center; background: rgba(63,185,80,0.1); border-color: #3fb950; color: #3fb950;">
+                        ✓ Paid - Task Complete
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div>
+            <!-- Task Details -->
+            <div class="sidebar-card">
+                <div class="sidebar-header">Task Details</div>
+                <div class="sidebar-content">
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Budget</span>
+                        <span class="sidebar-value accent">${{ task.budget_amount }}</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Assigned By</span>
+                        <span class="sidebar-value">{{ task.assigned_by.get_full_name|default:task.assigned_by.username }}</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Assigned Date</span>
+                        <span class="sidebar-value">{{ task.assigned_at|date:"M d, Y" }}</span>
+                    </div>
+                    {% if task.deadline %}
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Deadline</span>
+                        <span class="sidebar-value {% if task.is_overdue %}status-rejected{% endif %}">
+                            {{ task.deadline|date:"M d, Y" }}
+                            {% if task.is_overdue %} <span style="color: #f85149;">(Overdue)</span>{% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                    {% if task.completed_at %}
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Completed</span>
+                        <span class="sidebar-value">{{ task.completed_at|date:"M d, Y" }}</span>
+                    </div>
+                    {% endif %}
+                    {% if task.paid_at %}
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Paid Date</span>
+                        <span class="sidebar-value">{{ task.paid_at|date:"M d, Y" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Job Information -->
+            <div class="sidebar-card">
+                <div class="sidebar-header">Job Information</div>
+                <div class="sidebar-content">
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Company</span>
+                        <span class="sidebar-value">{{ task.job.company }}</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Position</span>
+                        <span class="sidebar-value">{{ task.job.title }}</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Location</span>
+                        <span class="sidebar-value">{{ task.job.location }}</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Job Type</span>
+                        <span class="sidebar-value">{{ task.job.get_job_type_display }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Countdown Timer JavaScript -->
-{% if task.deadline and task.status != 'submitted' and task.status != 'approved' and task.status != 'paid' %}
 <script>
-    const deadlineStr = "{{ task.deadline|date:'Y-m-d H:i:s'}}";
-    const deadline = new Date(deadlineStr.replace(' ', 'T'));
-    let timerInterval;
-    
+    // Countdown Timer
     function updateCountdown() {
+        const container = document.getElementById('countdown-container');
+        if (!container) return;
+        
+        const deadlineStr = container.dataset.deadline;
+        if (!deadlineStr) return;
+        
+        const deadline = new Date(deadlineStr);
         const now = new Date();
-        const distance = deadline - now;
+        const diff = deadline - now;
         
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
-        const countdownElement = document.getElementById('countdown-timer');
-        const countdownBox = document.getElementById('countdown-box');
-        
-        if (distance < 0) {
-            clearInterval(timerInterval);
-            countdownElement.innerHTML = "DEADLINE PASSED";
-            countdownBox.style.background = 'rgba(248, 81, 73, 0.1)';
-            countdownBox.style.borderLeftColor = '#f85149';
-            countdownElement.style.color = '#f85149';
-            
-            const submitBtn = document.getElementById('submit-review-btn');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.style.background = '#21262d';
-                submitBtn.style.cursor = 'not-allowed';
+        if (diff <= 0) {
+            document.getElementById('countdown-days').textContent = '00';
+            document.getElementById('countdown-hours').textContent = '00';
+            document.getElementById('countdown-minutes').textContent = '00';
+            document.getElementById('countdown-seconds').textContent = '00';
+            const warning = document.getElementById('countdown-warning');
+            if (warning) {
+                warning.textContent = '⚠️ Deadline has passed!';
+                warning.classList.add('urgent');
             }
             return;
         }
         
-        if (distance < 900000) {
-            countdownBox.classList.add('countdown-warning');
-            countdownBox.style.background = 'rgba(248, 81, 73, 0.1)';
-            countdownBox.style.borderLeftColor = '#f85149';
-            countdownElement.style.color = '#f85149';
-        } else if (distance < 3600000) {
-            countdownBox.style.background = 'rgba(210, 153, 34, 0.1)';
-            countdownBox.style.borderLeftColor = '#d29922';
-        }
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
         
-        let display = '';
-        if (days > 0) display += days + 'd ';
-        if (hours > 0 || days > 0) display += hours + 'h ';
-        if (minutes > 0 || hours > 0 || days > 0) display += minutes + 'm ';
-        display += seconds + 's';
+        document.getElementById('countdown-days').textContent = days.toString().padStart(2, '0');
+        document.getElementById('countdown-hours').textContent = hours.toString().padStart(2, '0');
+        document.getElementById('countdown-minutes').textContent = minutes.toString().padStart(2, '0');
+        document.getElementById('countdown-seconds').textContent = seconds.toString().padStart(2, '0');
         
-        countdownElement.innerHTML = display;
-    }
-    
-    updateCountdown();
-    timerInterval = setInterval(updateCountdown, 1000);
-</script>
-{% endif %}
-
-<!-- Time Taken Calculation JavaScript -->
-{% if task.submitted_at %}
-<script>
-    function formatTimeTaken(assignedDate, submittedDate) {
-        const assigned = new Date(assignedDate);
-        const submitted = new Date(submittedDate);
-        const diffMs = submitted - assigned;
-        
-        if (diffMs < 0) return '0 seconds';
-        
-        const diffSeconds = Math.floor(diffMs / 1000);
-        const diffMinutes = Math.floor(diffSeconds / 60);
-        const diffHours = Math.floor(diffMinutes / 60);
-        const diffDays = Math.floor(diffHours / 24);
-        
-        if (diffDays > 0) {
-            return diffDays + ' day' + (diffDays !== 1 ? 's' : '');
-        } else if (diffHours > 0) {
-            return diffHours + ' hour' + (diffHours !== 1 ? 's' : '');
-        } else if (diffMinutes > 0) {
-            return diffMinutes + ' minute' + (diffMinutes !== 1 ? 's' : '');
-        } else {
-            return diffSeconds + ' second' + (diffSeconds !== 1 ? 's' : '');
+        const warning = document.getElementById('countdown-warning');
+        if (warning && days === 0 && hours < 24) {
+            warning.textContent = '⚠️ Less than 24 hours remaining!';
+            warning.classList.add('urgent');
+        } else if (warning && days === 0 && hours < 1) {
+            warning.textContent = '⚠️ Less than 1 hour remaining!';
+            warning.classList.add('urgent');
         }
     }
     
-    const assignedAt = "{{ task.assigned_at|date:'Y-m-d H:i:s'}}";
-    const submittedAt = "{{ task.submitted_at|date:'Y-m-d H:i:s'}}";
-    
-    if (assignedAt && submittedAt) {
-        const timeTakenElement1 = document.getElementById('time-taken-submitted');
-        const timeTakenElement2 = document.getElementById('time-taken-completed');
-        const timeTaken = formatTimeTaken(assignedAt, submittedAt);
-        
-        if (timeTakenElement1) {
-            timeTakenElement1.innerHTML = 'Time taken to complete: ' + timeTaken;
-        }
-        if (timeTakenElement2) {
-            timeTakenElement2.innerHTML = 'Time taken to complete: ' + timeTaken;
-        }
-    }
-</script>
-{% endif %}
-
-<!-- Disable Start Working button if already in progress or submitted -->
-<script>
-    const currentStatus = "{{ task.status }}";
-    const startBtn = document.getElementById('start-working-btn');
-    
-    if (currentStatus === 'in_progress' || currentStatus === 'submitted' || currentStatus === 'approved' || currentStatus === 'paid') {
-        if (startBtn) {
-            startBtn.disabled = true;
-            startBtn.style.background = '#21262d';
-            startBtn.style.cursor = 'not-allowed';
-            startBtn.textContent = 'Already Started';
-        }
-    }
-    
-    // If task is submitted, also disable any remaining form elements
-    if (currentStatus === 'submitted' || currentStatus === 'approved' || currentStatus === 'paid') {
-        const submitForm = document.getElementById('submit-form');
-        if (submitForm) {
-            const inputs = submitForm.querySelectorAll('input, textarea, button');
-            inputs.forEach(input => {
-                input.disabled = true;
-            });
-        }
+    // Start countdown if element exists
+    if (document.getElementById('countdown-container')) {
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
     }
 </script>
 

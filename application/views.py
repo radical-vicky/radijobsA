@@ -216,13 +216,13 @@ def admin_schedule_interview(request, pk):
         )
         
         if meeting.get('success'):
-            # Use the real Zoom meeting link
+            # Schedule interview with real Zoom link (this creates ZoomMeeting record internally)
             application.schedule_interview(interview_datetime, meeting['join_url'])
+            
             messages.success(request, f'✓ Interview scheduled successfully!')
             messages.success(request, f'✓ Zoom meeting created: {meeting["join_url"]}')
             messages.success(request, f'✓ Notification and email sent to {application.user.email}')
         else:
-            # No fallback - just show error
             error_message = meeting.get('error', 'Unknown error')
             messages.error(request, f'✗ Failed to create Zoom meeting: {error_message}')
             messages.error(request, 'Please check your Zoom API credentials and try again.')
@@ -239,7 +239,7 @@ def admin_complete_interview(request, pk):
     """Mark interview as completed"""
     application = get_object_or_404(Application, pk=pk)
     application.complete_interview()
-    messages.success(request, f'Interview marked as completed.')
+    messages.success(request, f'Interview marked as completed for {application.user.username}.')
     return redirect('application:admin_applications')
 
 

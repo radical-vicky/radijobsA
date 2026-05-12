@@ -7,98 +7,111 @@
 
 <style>
     .detail-container {
-        max-width: 900px;
+        max-width: 1000px;
         margin: 0 auto;
+        padding: 20px;
     }
     
     .back-link {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         margin-bottom: 20px;
         color: #8b949e;
         text-decoration: none;
         font-size: 13px;
+        transition: color 0.2s;
     }
     
     .back-link:hover {
         color: #2f81f7;
     }
     
+    /* Main Card */
     .detail-card {
         background: #161b22;
         border: 1px solid #2d2f36;
-    }
-    
-    /* Job Image Banner with Gradient */
-    .job-image-banner {
-        position: relative;
-        width: 100%;
-        height: 160px;
         overflow: hidden;
-        background: #0d1117;
     }
     
-    .job-image-banner img {
+    /* Job Header with Image */
+    .job-header-section {
+        display: flex;
+        gap: 24px;
+        padding: 24px;
+        border-bottom: 1px solid #2d2f36;
+        background: #0d1117;
+        flex-wrap: wrap;
+    }
+    
+    .job-image-large {
+        flex-shrink: 0;
+        width: 120px;
+        height: 120px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        overflow: hidden;
+    }
+    
+    .job-image-large img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
     
-    .job-image-placeholder {
+    .job-image-placeholder-large {
         width: 100%;
         height: 100%;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
-        font-size: 48px;
-        font-weight: 700;
+        background: linear-gradient(135deg, #1a1f2e, #0d1117);
+        gap: 8px;
+    }
+    
+    .job-image-placeholder-large svg {
+        width: 48px;
+        height: 48px;
         color: #2f81f7;
     }
     
-    /* Gradient overlay for image */
-    .banner-gradient-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 80px;
-        background: linear-gradient(to top, #161b22 0%, rgba(22, 27, 34, 0) 100%);
-        pointer-events: none;
-    }
-    
-    .detail-header {
-        padding: 24px;
-        border-bottom: 1px solid #2d2f36;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 16px;
-    }
-    
-    .job-title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #e6edf3;
-        margin-bottom: 8px;
-    }
-    
-    .job-company {
-        font-size: 14px;
-        color: #8b949e;
-        margin-bottom: 4px;
-    }
-    
-    .job-location {
-        font-size: 13px;
+    .job-image-placeholder-large span {
+        font-size: 12px;
         color: #6e7681;
     }
     
-    .status-badge {
+    .job-info-large {
+        flex: 1;
+    }
+    
+    .job-title-large {
+        font-size: 22px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 6px;
+    }
+    
+    .job-company-large {
+        font-size: 14px;
+        color: #8b949e;
+        margin-bottom: 10px;
+    }
+    
+    .job-meta-large {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        font-size: 12px;
+        color: #6e7681;
+    }
+    
+    .status-badge-large {
         display: inline-block;
         padding: 4px 12px;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 500;
+        border-radius: 20px;
     }
     
     .status-pending {
@@ -120,9 +133,15 @@
     }
     
     .status-interview_scheduled {
-        background: rgba(163, 113, 247, 0.1);
-        color: #a371f7;
-        border: 1px solid rgba(163, 113, 247, 0.3);
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .status-interview_completed {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
     }
     
     .status-hired {
@@ -137,8 +156,9 @@
         border: 1px solid rgba(248, 81, 73, 0.3);
     }
     
+    /* Detail Sections */
     .detail-section {
-        padding: 24px;
+        padding: 20px 24px;
         border-bottom: 1px solid #2d2f36;
     }
     
@@ -147,242 +167,351 @@
     }
     
     .section-title {
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 600;
         color: #e6edf3;
-        margin-bottom: 16px;
-        padding-bottom: 8px;
-        border-bottom: 1px solid #2d2f36;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .section-title svg {
+        width: 18px;
+        height: 18px;
+        color: #2f81f7;
+    }
+    
+    .section-content {
+        font-size: 13px;
+        color: #8b949e;
+        line-height: 1.6;
     }
     
     .info-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 16px;
     }
     
-    .info-item {
+    .info-row {
         display: flex;
-        flex-direction: column;
-        gap: 4px;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px solid #2d2f36;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
     }
     
     .info-label {
-        font-size: 11px;
-        color: #6e7681;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
+        font-size: 12px;
+        color: #8b949e;
+        min-width: 120px;
     }
     
     .info-value {
-        font-size: 14px;
+        font-size: 13px;
         color: #e6edf3;
+        font-weight: 500;
+        text-align: right;
         word-break: break-word;
     }
     
-    .info-value a {
+    .project-link {
         color: #2f81f7;
         text-decoration: none;
+        word-break: break-all;
     }
     
-    .info-value a:hover {
+    .project-link:hover {
         text-decoration: underline;
     }
     
-    .cover-letter {
+    .feedback-box {
         background: #0d1117;
-        padding: 16px;
-        font-size: 13px;
-        color: #8b949e;
-        line-height: 1.6;
-        white-space: pre-wrap;
-    }
-    
-    .interview-info {
-        background: rgba(47, 129, 247, 0.05);
-        border-left: 3px solid #2f81f7;
-        padding: 16px;
-        margin-top: 16px;
-    }
-    
-    .feedback-info {
-        background: rgba(248, 81, 73, 0.05);
         border-left: 3px solid #f85149;
         padding: 16px;
-        margin-top: 16px;
+        margin-top: 8px;
     }
     
-    @media (max-width: 640px) {
+    .interview-box {
+        background: #0d1117;
+        border-left: 3px solid #2f81f7;
+        padding: 16px;
+        margin-top: 8px;
+    }
+    
+    .hired-box {
+        background: #0d1117;
+        border-left: 3px solid #3fb950;
+        padding: 16px;
+        margin-top: 8px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
         .detail-container {
-            padding: 0;
+            padding: 12px;
         }
         
-        .detail-header {
-            padding: 16px;
+        .job-header-section {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
         }
         
-        .detail-section {
-            padding: 16px;
+        .job-info-large {
+            text-align: center;
         }
         
-        .job-title {
-            font-size: 18px;
+        .job-meta-large {
+            justify-content: center;
         }
         
         .info-grid {
             grid-template-columns: 1fr;
         }
         
-        .job-image-banner {
-            height: 120px;
+        .info-row {
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .info-value {
+            text-align: left;
+        }
+        
+        .detail-section {
+            padding: 16px;
+        }
+        
+        .job-image-large {
+            width: 100px;
+            height: 100px;
         }
     }
 </style>
 
 <div class="detail-container">
-    <!-- Back Link -->
     <a href="{% url 'application:my_applications' %}" class="back-link">
         ← Back to My Applications
     </a>
     
-    <!-- Detail Card -->
     <div class="detail-card">
-        <!-- Job Image Banner with Gradient -->
-        <div class="job-image-banner">
-            {% if application.job.get_image_url %}
-                <img src="{{ application.job.get_image_url }}" alt="{{ application.job.company }}">
-                <div class="banner-gradient-overlay"></div>
-            {% elif application.job.image %}
-                <img src="{{ application.job.image.url }}" alt="{{ application.job.company }}">
-                <div class="banner-gradient-overlay"></div>
-            {% else %}
-                <div class="job-image-placeholder">
-                    {{ application.job.company|slice:":1"|upper }}
-                </div>
-            {% endif %}
-        </div>
-        
-        <!-- Header -->
-        <div class="detail-header">
-            <div>
-                <div class="job-title">{{ application.job.title }}</div>
-                <div class="job-company">{{ application.job.company }}</div>
-                <div class="job-location">{{ application.job.location }}</div>
+        <!-- Job Header with Image -->
+        <div class="job-header-section">
+            <div class="job-image-large">
+                {% if application.job.get_image_url %}
+                    <img src="{{ application.job.get_image_url }}" alt="{{ application.job.title }}">
+                {% else %}
+                    <div class="job-image-placeholder-large">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <span>{{ application.job.company|slice:":1"|upper }}</span>
+                    </div>
+                {% endif %}
             </div>
-            <span class="status-badge status-{{ application.status }}">
-                {{ application.get_status_display }}
-            </span>
+            <div class="job-info-large">
+                <h1 class="job-title-large">{{ application.job.title }}</h1>
+                <div class="job-company-large">{{ application.job.company }}</div>
+                <div class="job-meta-large">
+                    <span>{{ application.job.location }}</span>
+                    <span>Applied: {{ application.created_at|date:"M d, Y" }}</span>
+                    <span>
+                        <span class="status-badge-large status-{{ application.status }}">
+                            {{ application.get_status_display }}
+                        </span>
+                    </span>
+                </div>
+            </div>
         </div>
         
-        <!-- Application Info -->
+        <!-- Application Information -->
         <div class="detail-section">
-            <h3 class="section-title">Application Information</h3>
+            <div class="section-title">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Application Information
+            </div>
             <div class="info-grid">
-                <div class="info-item">
+                <div class="info-row">
+                    <span class="info-label">Application ID</span>
+                    <span class="info-value">#{{ application.id }}</span>
+                </div>
+                <div class="info-row">
                     <span class="info-label">Applied Date</span>
-                    <span class="info-value">{{ application.created_at|date:"F j, Y" }}</span>
+                    <span class="info-value">{{ application.created_at|date:"F j, Y \a\t g:i A" }}</span>
                 </div>
-                <div class="info-item">
+                {% if application.reviewed_at %}
+                <div class="info-row">
+                    <span class="info-label">Reviewed Date</span>
+                    <span class="info-value">{{ application.reviewed_at|date:"F j, Y \a\t g:i A" }}</span>
+                </div>
+                {% endif %}
+                {% if application.updated_at != application.created_at %}
+                <div class="info-row">
                     <span class="info-label">Last Updated</span>
-                    <span class="info-value">{{ application.updated_at|date:"F j, Y" }}</span>
+                    <span class="info-value">{{ application.updated_at|date:"F j, Y \a\t g:i A" }}</span>
                 </div>
-                <div class="info-item">
-                    <span class="info-label">Salary Range</span>
-                    <span class="info-value">{{ application.job.salary_range }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Job Type</span>
-                    <span class="info-value">{{ application.job.get_job_type_display }}</span>
-                </div>
+                {% endif %}
             </div>
         </div>
         
         <!-- Cover Letter -->
         <div class="detail-section">
-            <h3 class="section-title">Cover Letter</h3>
-            <div class="cover-letter">{{ application.cover_letter|linebreaks }}</div>
+            <div class="section-title">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                Cover Letter
+            </div>
+            <div class="section-content">
+                {{ application.cover_letter|linebreaks }}
+            </div>
         </div>
         
         <!-- Project Details -->
         <div class="detail-section">
-            <h3 class="section-title">Project Details</h3>
+            <div class="section-title">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                </svg>
+                Project Details
+            </div>
             <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Repository Link</span>
+                <div class="info-row">
+                    <span class="info-label">Repository</span>
                     <span class="info-value">
-                        <a href="{{ application.repository_link }}" target="_blank">{{ application.repository_link }}</a>
+                        <a href="{{ application.repository_link }}" target="_blank" class="project-link">
+                            {{ application.repository_link }}
+                        </a>
                     </span>
                 </div>
                 {% if application.deployment_link %}
-                <div class="info-item">
-                    <span class="info-label">Deployment Link</span>
+                <div class="info-row">
+                    <span class="info-label">Live Demo</span>
                     <span class="info-value">
-                        <a href="{{ application.deployment_link }}" target="_blank">{{ application.deployment_link }}</a>
+                        <a href="{{ application.deployment_link }}" target="_blank" class="project-link">
+                            {{ application.deployment_link }}
+                        </a>
                     </span>
                 </div>
                 {% endif %}
                 {% if application.test_credentials %}
-                <div class="info-item">
+                <div class="info-row">
                     <span class="info-label">Test Credentials</span>
-                    <span class="info-value">{{ application.test_credentials|linebreaks }}</span>
-                </div>
-                {% endif %}
-                {% if application.project_notes %}
-                <div class="info-item">
-                    <span class="info-label">Project Notes</span>
-                    <span class="info-value">{{ application.project_notes|linebreaks }}</span>
+                    <span class="info-value" style="white-space: pre-wrap;">{{ application.test_credentials }}</span>
                 </div>
                 {% endif %}
             </div>
-        </div>
-        
-        <!-- Interview Information -->
-        {% if application.interview_scheduled_at %}
-        <div class="detail-section">
-            <h3 class="section-title">Interview Information</h3>
-            <div class="interview-info">
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">Date</span>
-                        <span class="info-value">{{ application.interview_scheduled_at|date:"F j, Y" }}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Time</span>
-                        <span class="info-value">{{ application.interview_scheduled_at|date:"g:i A" }}</span>
-                    </div>
-                    {% if application.interview_link %}
-                    <div class="info-item">
-                        <span class="info-label">Meeting Link</span>
-                        <span class="info-value">
-                            <a href="{{ application.interview_link }}" target="_blank">Join Interview →</a>
-                        </span>
-                    </div>
-                    {% endif %}
-                </div>
+            {% if application.project_notes %}
+            <div class="section-content" style="margin-top: 16px;">
+                <strong style="color: #e6edf3;">Additional Notes:</strong><br>
+                {{ application.project_notes|linebreaks }}
             </div>
+            {% endif %}
+            {% if application.project_file %}
+            <div class="info-row" style="margin-top: 12px;">
+                <span class="info-label">Attached File</span>
+                <span class="info-value">
+                    <a href="{{ application.project_file.url }}" target="_blank" class="project-link">
+                        Download Project File
+                    </a>
+                </span>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
         
         <!-- Feedback (if rejected) -->
-        {% if application.feedback and application.status == 'rejected' %}
+        {% if application.feedback %}
         <div class="detail-section">
-            <h3 class="section-title">Feedback</h3>
-            <div class="feedback-info">{{ application.feedback }}</div>
+            <div class="section-title">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                </svg>
+                Feedback from Admin
+            </div>
+            <div class="feedback-box">
+                <div class="section-content">
+                    {{ application.feedback|linebreaks }}
+                </div>
+            </div>
         </div>
         {% endif %}
         
-        <!-- Hiring Information -->
-        {% if application.status == 'hired' and application.start_date %}
+        <!-- Interview Details -->
+        {% if application.interview_link %}
         <div class="detail-section">
-            <h3 class="section-title">Hiring Information</h3>
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Hired Date</span>
-                    <span class="info-value">{{ application.hired_at|date:"F j, Y" }}</span>
+            <div class="section-title">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                Interview Details
+            </div>
+            <div class="interview-box">
+                <div class="info-grid">
+                    <div class="info-row">
+                        <span class="info-label">Interview Date</span>
+                        <span class="info-value">{{ application.interview_scheduled_at|date:"F j, Y \a\t g:i A" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Zoom Link</span>
+                        <span class="info-value">
+                            <a href="{{ application.interview_link }}" target="_blank" class="project-link">
+                                Join Interview →
+                            </a>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Status</span>
+                        <span class="info-value">
+                            {% if application.interview_completed %}
+                                <span style="color: #3fb950;">Completed</span>
+                            {% else %}
+                                <span style="color: #d29922;">Scheduled</span>
+                            {% endif %}
+                        </span>
+                    </div>
                 </div>
-                <div class="info-item">
-                    <span class="info-label">Start Date</span>
-                    <span class="info-value">{{ application.start_date|date:"F j, Y" }}</span>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Hiring Details -->
+        {% if application.start_date %}
+        <div class="detail-section">
+            <div class="section-title">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                Hiring Details
+            </div>
+            <div class="hired-box">
+                <div class="info-grid">
+                    <div class="info-row">
+                        <span class="info-label">Start Date</span>
+                        <span class="info-value">{{ application.start_date|date:"F j, Y" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Hired Date</span>
+                        <span class="info-value">{{ application.hired_at|date:"F j, Y" }}</span>
+                    </div>
+                </div>
+                <div class="section-content" style="margin-top: 12px; color: #3fb950;">
+                    Congratulations! You have been hired for this position.
                 </div>
             </div>
         </div>

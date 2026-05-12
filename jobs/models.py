@@ -4,6 +4,30 @@ from django.urls import reverse
 from django.utils import timezone
 from cloudinary.models import CloudinaryField
 
+class JobCategory(models.Model):
+    """Job categories for better organization"""
+    
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    icon = models.CharField(max_length=50, blank=True, help_text="FontAwesome icon class")
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'job_categories'
+        ordering = ['order', 'name']
+        verbose_name = 'Job Category'
+        verbose_name_plural = 'Job Categories'
+    
+    def __str__(self):
+        return self.name
+    
+    def get_absolute_url(self):
+        return reverse('jobs:category', args=[self.slug])
+
+
 class Job(models.Model):
     JOB_TYPE_CHOICES = (
         ('freelance', 'Freelance'),
@@ -30,6 +54,9 @@ class Job(models.Model):
         verbose_name="Project Brief (Required for Interview)"
     )
     
+    # Categories
+    categories = models.ManyToManyField(JobCategory, blank=True, related_name='jobs')
+    
     # Compensation & Location
     salary_range = models.CharField(max_length=100, help_text="e.g., $80 - $100 per hour or $120k - $150k per year")
     location = models.CharField(max_length=255, default='Remote', db_index=True)
@@ -39,24 +66,16 @@ class Job(models.Model):
     experience_level = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, default='intermediate', db_index=True)
     skills_required = models.JSONField(default=list, blank=True, help_text="List of required skills")
     
-    # Images (for job advertisements)
-    image = CloudinaryField(
-        'job_image', 
-        blank=True, 
+    # Images
+    image = CloudinaryField('job_image', blank=True, null=True, folder='job_images/', help_text="Upload job advertisement image")
+    image_url = models.URLField(blank=True, help_text="External image URL (if not using Cloudinary upload)")
+    company_logo = CloudinaryField('company_logo', blank=True, null=True, folder='company_logos/', help_text="Company logo image")
+    
+    # Deadlines
+    application_deadline = models.DateTimeField(
         null=True, 
-        folder='job_images/',
-        help_text="Upload job advertisement image"
-    )
-    image_url = models.URLField(
         blank=True, 
-        help_text="External image URL (if not using Cloudinary upload)"
-    )
-    company_logo = CloudinaryField(
-        'company_logo', 
-        blank=True, 
-        null=True, 
-        folder='company_logos/',
-        help_text="Company logo image"
+        help_text="Deadline for submitting applications. Applicants cannot apply after this date."
     )
     
     # Status & Tracking
@@ -66,12 +85,7 @@ class Job(models.Model):
     application_count = models.PositiveIntegerField(default=0)
     
     # Relationships
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        related_name='created_jobs'
-    )
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_jobs')
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -89,6 +103,7 @@ class Job(models.Model):
             models.Index(fields=['location', '-created_at']),
             models.Index(fields=['is_featured', '-created_at']),
             models.Index(fields=['expires_at']),
+            models.Index(fields=['application_deadline']),
         ]
         verbose_name = 'Job'
         verbose_name_plural = 'Jobs'
@@ -101,7 +116,6 @@ class Job(models.Model):
     
     @property
     def get_image_url(self):
-        """Get the image URL from Cloudinary or external URL"""
         if self.image:
             return self.image.url
         elif self.image_url:
@@ -110,57 +124,63 @@ class Job(models.Model):
     
     @property
     def get_company_logo_url(self):
-        """Get company logo URL"""
         if self.company_logo:
             return self.company_logo.url
         return None
     
     @property
     def is_expired(self):
-        """Check if job posting has expired"""
         if self.expires_at:
             return timezone.now() > self.expires_at
         return False
     
     @property
+    def is_application_deadline_passed(self):
+        """Check if application deadline has passed"""
+        if self.application_deadline:
+            return timezone.now() > self.application_deadline
+        return False
+    
+    @property
     def days_remaining(self):
-        """Get days remaining until expiration"""
         if self.expires_at:
             delta = self.expires_at - timezone.now()
             return max(0, delta.days)
         return None
     
+    @property
+    def application_deadline_remaining(self):
+        """Get remaining time until application deadline as timedelta"""
+        if self.application_deadline:
+            delta = self.application_deadline - timezone.now()
+            if delta.total_seconds() <= 0:
+                return None
+            return delta
+        return None
+    
     def increment_view_count(self):
-        """Increment view count safely"""
         self.view_count += 1
         self.save(update_fields=['view_count'])
     
     def increment_application_count(self):
-        """Increment application count"""
         self.application_count += 1
         self.save(update_fields=['application_count'])
     
     def publish(self):
-        """Publish the job"""
         self.is_active = True
         if not self.published_at:
             self.published_at = timezone.now()
         self.save()
     
     def unpublish(self):
-        """Unpublish the job"""
         self.is_active = False
         self.save()
     
     def save(self, *args, **kwargs):
-        # Auto-set published_at when first activated
         if self.is_active and not self.published_at:
             self.published_at = timezone.now()
-        
-        # Auto-set expires_at if not set (default 90 days)
         if not self.expires_at and self.is_active:
             self.expires_at = timezone.now() + timezone.timedelta(days=90)
-        
         super().save(*args, **kwargs)
 
 
@@ -184,54 +204,3 @@ class SavedJob(models.Model):
     
     def __str__(self):
         return f"{self.user.email} saved {self.job.title}"
-
-
-class JobCategory(models.Model):
-    """Job categories for better organization"""
-    
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=100, unique=True)
-    description = models.TextField(blank=True)
-    icon = models.CharField(max_length=50, blank=True, help_text="FontAwesome icon class")
-    order = models.IntegerField(default=0)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        db_table = 'job_categories'
-        ordering = ['order', 'name']
-        verbose_name = 'Job Category'
-        verbose_name_plural = 'Job Categories'
-    
-    def __str__(self):
-        return self.name
-    
-    def get_absolute_url(self):
-        return reverse('jobs:category', args=[self.slug])
-
-
-class JobApplication(models.Model):
-    """Track job applications (separate from main application app for analytics)"""
-    
-    STATUS_CHOICES = (
-        ('pending', 'Pending Review'),
-        ('viewed', 'Viewed'),
-        ('shortlisted', 'Shortlisted'),
-        ('rejected', 'Rejected'),
-    )
-    
-    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='tracking_applications')
-    application_id = models.PositiveIntegerField(help_text="ID from main Application model")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    viewed_at = models.DateTimeField(null=True, blank=True)
-    notes = models.TextField(blank=True)
-    
-    class Meta:
-        db_table = 'job_applications_tracking'
-        ordering = ['-viewed_at']
-        indexes = [
-            models.Index(fields=['job', 'status']),
-        ]
-    
-    def __str__(self):
-        return f"Application #{self.application_id} for {self.job.title}"

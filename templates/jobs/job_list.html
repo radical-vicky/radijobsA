@@ -6,174 +6,570 @@
 {% block content %}
 
 <style>
-    .jobs-hero {
-        background: linear-gradient(135deg, #0d1117 0%, #151b23 100%);
-        border-bottom: 1px solid #2d2f36;
+    /* ============================================
+       BINANCE-STYLE COMPACT JOB CARDS
+       ============================================ */
+    
+    .hero-gradient {
+        background: radial-gradient(ellipse at 80% 30%, rgba(47, 129, 247, 0.12), transparent 50%),
+                    radial-gradient(ellipse at 20% 70%, rgba(163, 113, 247, 0.08), transparent 50%),
+                    linear-gradient(135deg, #0a0e13 0%, #0d1117 100%);
+        border-bottom: 1px solid rgba(61, 68, 77, 0.5);
+    }
+    
+    .category-tabs {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        padding: 4px 0 8px;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .category-tabs::-webkit-scrollbar {
+        height: 3px;
+    }
+    
+    .category-tab {
+        flex-shrink: 0;
+        padding: 6px 16px;
+        background: transparent;
+        border: 1px solid #2d2f36;
+        color: #8b949e;
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.2s;
+        cursor: pointer;
+        white-space: nowrap;
+        border-radius: 20px;
+    }
+    
+    .category-tab:hover {
+        border-color: #2f81f7;
+        color: #2f81f7;
+    }
+    
+    .category-tab.active {
+        background: #2f81f7;
+        border-color: #2f81f7;
+        color: white;
+    }
+    
+    .stats-row {
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+    }
+    
+    .stat-item {
+        flex: 1;
+        text-align: center;
+        padding: 12px 8px;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+    }
+    
+    .stat-number {
+        font-size: 24px;
+        font-weight: 700;
+        color: #2f81f7;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+        color: #8b949e;
+        margin-top: 4px;
+    }
+    
+    .search-container {
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        padding: 16px;
+    }
+    
+    .search-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .search-input-group {
+        flex: 2;
+        min-width: 180px;
+        position: relative;
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        color: #6e7681;
+    }
+    
+    .search-field {
+        width: 100%;
+        padding: 8px 12px 8px 36px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+        font-size: 13px;
+    }
+    
+    .search-field:focus {
+        outline: none;
+        border-color: #2f81f7;
+    }
+    
+    .filter-select {
+        padding: 8px 12px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        color: #e6edf3;
+        font-size: 13px;
+        min-width: 110px;
+        cursor: pointer;
+    }
+    
+    .search-btn {
+        padding: 8px 20px;
+        background: #2f81f7;
+        border: none;
+        color: white;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .search-btn:hover {
+        background: #58a6ff;
+    }
+    
+    .jobs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 16px;
     }
     
     .job-card {
-        transition: all 0.3s ease;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        transition: all 0.2s ease;
+        overflow: hidden;
+        position: relative;
     }
     
     .job-card:hover {
+        border-color: #2f81f7;
         transform: translateY(-2px);
+    }
+    
+    .save-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        background: rgba(13, 17, 23, 0.8);
+        backdrop-filter: blur(4px);
+        border: 1px solid #2d2f36;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 10;
+    }
+    
+    .save-btn:hover {
+        background: #2f81f7;
         border-color: #2f81f7;
     }
     
-    .search-input:focus {
-        box-shadow: 0 0 0 2px rgba(47, 129, 247, 0.3);
+    .save-btn.saved {
+        background: #2f81f7;
         border-color: #2f81f7;
     }
     
-    .filter-select:focus {
-        border-color: #2f81f7;
-        outline: none;
+    .save-icon {
+        width: 16px;
+        height: 16px;
+        color: #e6edf3;
+        stroke-width: 1.5;
     }
     
-    /* Company Logo with Gradient Overlay */
-    .company-logo {
-        width: 64px;
-        height: 64px;
-        flex-shrink: 0;
-        position: relative;
+    .save-btn.saved .save-icon {
+        fill: #e6edf3;
+    }
+    
+    .card-image {
+        width: 100%;
+        height: 140px;
         overflow: hidden;
+        background: #0d1117;
+        position: relative;
     }
     
-    @media (min-width: 640px) {
-        .company-logo {
-            width: 80px;
-            height: 80px;
-        }
-    }
-    
-    .company-logo img {
+    .card-image img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
     
-    /* Gradient overlay on logo */
-    .logo-gradient-overlay {
+    .image-gradient {
         position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, rgba(47, 129, 247, 0.2) 0%, rgba(163, 113, 247, 0.1) 100%);
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: linear-gradient(to top, #161b22 0%, rgba(22, 27, 34, 0) 100%);
         pointer-events: none;
     }
     
-    /* Sharp corners - no border-radius */
-    .job-card {
-        background: #161b22;
+    .image-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #1a1f2e, #0d1117);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        font-weight: 700;
+        color: #2f81f7;
+    }
+    
+    .card-content {
+        padding: 14px;
+    }
+    
+    .company-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .company-icon {
+        width: 28px;
+        height: 28px;
+        background: #0d1117;
         border: 1px solid #2d2f36;
-        transition: all 0.3s ease;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: #2f81f7;
         overflow: hidden;
     }
     
-    .job-card:hover {
+    .company-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .company-name {
+        font-size: 12px;
+        color: #8b949e;
+    }
+    
+    .job-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+    
+    .job-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 10px;
+        font-size: 11px;
+        color: #6e7681;
+    }
+    
+    .skills-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+    
+    .skill-tag {
+        padding: 2px 8px;
+        background: #0d1117;
+        border: 1px solid #2d2f36;
+        font-size: 10px;
+        color: #8b949e;
+    }
+    
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #2d2f36;
+    }
+    
+    .job-type-badge {
+        padding: 2px 8px;
+        font-size: 10px;
+        font-weight: 500;
+    }
+    
+    .badge-fulltime {
+        background: rgba(63, 185, 80, 0.1);
+        color: #3fb950;
+        border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    
+    .badge-freelance {
+        background: rgba(47, 129, 247, 0.1);
+        color: #2f81f7;
+        border: 1px solid rgba(47, 129, 247, 0.3);
+    }
+    
+    .badge-parttime {
+        background: rgba(210, 153, 34, 0.1);
+        color: #d29922;
+        border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+    
+    .salary {
+        font-size: 14px;
+        font-weight: 600;
+        color: #2f81f7;
+    }
+    
+    /* Deadline Badge */
+    .deadline-badge {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid #2d2f36;
+    }
+    
+    .deadline-text {
+        font-size: 10px;
+        color: #d29922;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .deadline-passed-badge {
+        font-size: 10px;
+        color: #f85149;
+    }
+    
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .results-count {
+        font-size: 13px;
+        color: #8b949e;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 32px;
+    }
+    
+    .page-link {
+        padding: 6px 12px;
+        background: #161b22;
+        border: 1px solid #2d2f36;
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 12px;
+    }
+    
+    .page-link:hover {
         border-color: #2f81f7;
-        transform: translateY(-2px);
+        color: #2f81f7;
     }
     
-    .search-input, .filter-select, .apply-btn, .skill-tag, .job-tag {
-        border-radius: 0;
+    .page-link.active {
+        background: #2f81f7;
+        border-color: #2f81f7;
+        color: white;
     }
     
-    .rounded-card, .rounded-lg, .rounded-xl {
-        border-radius: 0;
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        background: #161b22;
+        border: 1px solid #2d2f36;
     }
     
-    .company-logo {
-        border-radius: 0;
+    .toast-message {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #161b22;
+        border: 1px solid #2f81f7;
+        padding: 10px 20px;
+        border-radius: 6px;
+        color: #e6edf3;
+        font-size: 13px;
+        z-index: 1000;
+        animation: fadeInOut 3s ease;
     }
     
-    /* Hero gradient text */
-    .gradient-text {
-        background: linear-gradient(135deg, #2f81f7 0%, #58a6ff 50%, #a371f7 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+    @keyframes fadeInOut {
+        0% { opacity: 0; transform: translateY(20px); }
+        15% { opacity: 1; transform: translateY(0); }
+        85% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(20px); }
+    }
+    
+    @media (max-width: 768px) {
+        .jobs-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-row {
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            min-width: calc(50% - 8px);
+        }
+        
+        .search-wrapper {
+            flex-direction: column;
+        }
+        
+        .filter-select, .search-btn {
+            width: 100%;
+        }
+        
+        .card-image {
+            height: 120px;
+        }
     }
 </style>
 
 <!-- Hero Section -->
-<section class="jobs-hero py-12">
+<section class="hero-gradient py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
-            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2">
                 Find Your <span class="gradient-text">Remote IT Job</span>
             </h1>
-            <p class="text-base sm:text-lg text-github-fg-muted max-w-2xl mx-auto">
-                Discover thousands of remote opportunities from top tech companies worldwide
+            <p class="text-sm text-github-fg-muted max-w-xl mx-auto">
+                Discover remote opportunities from top tech companies
             </p>
         </div>
     </div>
 </section>
 
-<!-- Search and Filter Section -->
-<section class="py-8 border-b border-github-border">
+<!-- Stats Row -->
+<section class="py-6 border-b border-github-border">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <form method="get" class="space-y-4">
-            <div class="flex flex-col md:flex-row gap-4">
-                <!-- Search Input -->
-                <div class="flex-1">
-                    <div class="relative">
-                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-github-fg-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                        <input type="text" name="q" value="{{ search_query }}" 
-                               placeholder="Job title, company, or keywords"
-                               class="search-input w-full pl-10 pr-4 py-2.5 bg-github-bg border border-github-border text-github-fg focus:outline-none focus:border-github-accent transition">
-                    </div>
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-number">{{ total_jobs|default:"0" }}</div>
+                <div class="stat-label">LIVE JOBS</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ companies_count|default:"0" }}</div>
+                <div class="stat-label">COMPANIES</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ freelance_count|default:"0" }}</div>
+                <div class="stat-label">FREELANCE</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ fulltime_count|default:"0" }}</div>
+                <div class="stat-label">FULL TIME</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Tabs -->
+<section class="py-4 border-b border-github-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="category-tabs">
+            <a href="{% url 'jobs:list' %}" class="category-tab {% if not selected_category %}active{% endif %}">
+                All
+            </a>
+            {% for cat in categories %}
+            <a href="?category={{ cat.slug }}" class="category-tab {% if selected_category == cat.slug %}active{% endif %}">
+                {{ cat.name }}
+                <span style="margin-left: 3px; font-size: 10px;">({{ cat.job_count }})</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Search Section -->
+<section class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="search-container">
+            <form method="get" class="search-wrapper">
+                <div class="search-input-group">
+                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" name="q" value="{{ search_query }}" 
+                           placeholder="Search jobs, companies, or skills..."
+                           class="search-field">
                 </div>
-                
-                <!-- Job Type Filter -->
-                <select name="type" class="filter-select px-4 py-2.5 bg-github-bg border border-github-border text-github-fg-muted focus:border-github-accent transition">
-                    <option value="">All Types</option>
+                <select name="type" class="filter-select">
+                    <option value="">Type</option>
                     <option value="fulltime" {% if selected_type == 'fulltime' %}selected{% endif %}>Full Time</option>
                     <option value="freelance" {% if selected_type == 'freelance' %}selected{% endif %}>Freelance</option>
                     <option value="parttime" {% if selected_type == 'parttime' %}selected{% endif %}>Part Time</option>
                 </select>
-                
-                <!-- Experience Level Filter -->
-                <select name="experience" class="filter-select px-4 py-2.5 bg-github-bg border border-github-border text-github-fg-muted focus:border-github-accent transition">
-                    <option value="">Experience Level</option>
-                    <option value="entry" {% if selected_experience == 'entry' %}selected{% endif %}>Entry Level</option>
+                <select name="experience" class="filter-select">
+                    <option value="">Experience</option>
+                    <option value="entry" {% if selected_experience == 'entry' %}selected{% endif %}>Entry</option>
                     <option value="intermediate" {% if selected_experience == 'intermediate' %}selected{% endif %}>Intermediate</option>
                     <option value="senior" {% if selected_experience == 'senior' %}selected{% endif %}>Senior</option>
                     <option value="expert" {% if selected_experience == 'expert' %}selected{% endif %}>Expert</option>
                 </select>
-                
-                <!-- Location Filter -->
-                <select name="location" class="filter-select px-4 py-2.5 bg-github-bg border border-github-border text-github-fg-muted focus:border-github-accent transition">
-                    <option value="">All Locations</option>
-                    {% for loc in unique_locations %}
+                <select name="location" class="filter-select">
+                    <option value="">Location</option>
+                    {% for loc in unique_locations|slice:":8" %}
                     <option value="{{ loc }}" {% if selected_location == loc %}selected{% endif %}>{{ loc }}</option>
                     {% endfor %}
                 </select>
-                
-                <!-- Search Button -->
-                <button type="submit" class="px-6 py-2.5 bg-github-accent text-white hover:bg-github-accent-hover transition font-medium">
-                    Search
-                </button>
-                
-                <!-- Clear Filters -->
-                {% if search_query or selected_type or selected_experience or selected_location %}
-                <a href="{% url 'jobs:list' %}" class="px-6 py-2.5 border border-github-border text-github-fg-muted hover:bg-github-border transition text-center">
-                    Clear
-                </a>
+                <button type="submit" class="search-btn">Search</button>
+                {% if search_query or selected_type or selected_experience or selected_location or selected_category %}
+                <a href="{% url 'jobs:list' %}" class="search-btn" style="background: #21262d;">Clear</a>
                 {% endif %}
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </section>
 
-<!-- Results Count -->
-<section class="py-4">
+<!-- Results Header -->
+<section>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center">
-            <p class="text-github-fg-muted text-sm">
-                Found <span class="text-white font-semibold">{{ total_jobs }}</span> jobs
-            </p>
-            <select id="sort-select" class="filter-select px-3 py-1.5 bg-github-bg border border-github-border text-github-fg-muted text-sm">
+        <div class="results-header">
+            <div class="results-count">
+                <span class="text-white font-semibold">{{ total_jobs }}</span> jobs found
+            </div>
+            <select id="sort-select" class="filter-select" style="width: auto; padding: 4px 24px 4px 10px;">
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
             </select>
@@ -181,94 +577,94 @@
     </div>
 </section>
 
-<!-- Job Listings -->
-<section class="py-8">
+<!-- Job Grid -->
+<section class="py-4">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {% if jobs %}
-            <div class="grid gap-5" id="jobs-container">
+            <div class="jobs-grid" id="jobs-container">
                 {% for job in jobs %}
-                <div class="job-card cursor-pointer" data-date="{{ job.created_at.isoformat }}" onclick="window.location.href='{% url 'jobs:detail' job.id %}'">
-                    <div class="p-5 sm:p-6">
-                        <div class="flex gap-4 sm:gap-5">
-                            <!-- Company Logo with Gradient Overlay -->
-                            <div class="company-logo bg-github-border flex items-center justify-center overflow-hidden flex-shrink-0">
-                                {% if job.get_image_url %}
-                                    <img src="{{ job.get_image_url }}" alt="{{ job.company }}" class="w-full h-full object-cover">
-                                    <div class="logo-gradient-overlay"></div>
+                <div class="job-card" data-date="{{ job.created_at.isoformat }}" data-job-id="{{ job.id }}">
+                    <!-- Save Button -->
+                    <div class="save-btn {% if job.id in saved_job_ids %}saved{% endif %}" 
+                         data-job-id="{{ job.id }}"
+                         onclick="event.stopPropagation(); toggleSaveJob(this, {{ job.id }})">
+                        <svg class="save-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Image Section -->
+                    <div class="card-image" onclick="window.location.href='{% url 'jobs:detail' job.id %}'">
+                        {% if job.get_image_url %}
+                            <img src="{{ job.get_image_url }}" alt="{{ job.title }}">
+                            <div class="image-gradient"></div>
+                        {% else %}
+                            <div class="image-placeholder">
+                                {{ job.company|slice:":1"|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Content Section -->
+                    <div class="card-content" onclick="window.location.href='{% url 'jobs:detail' job.id %}'">
+                        <!-- Company Row -->
+                        <div class="company-row">
+                            <div class="company-icon">
+                                {% if job.get_company_logo_url %}
+                                    <img src="{{ job.get_company_logo_url }}" alt="{{ job.company }}">
                                 {% else %}
-                                    <div class="w-full h-full bg-gradient-to-br from-github-accent/20 to-purple-500/20 flex items-center justify-center">
-                                        <span class="text-2xl font-bold text-github-accent">{{ job.company|slice:":1"|upper }}</span>
-                                    </div>
+                                    {{ job.company|slice:":1"|upper }}
                                 {% endif %}
                             </div>
-                            
-                            <!-- Job Details -->
-                            <div class="flex-1">
-                                <!-- Header -->
-                                <div class="flex flex-wrap justify-between items-start gap-2 mb-2">
-                                    <div>
-                                        <h3 class="text-lg sm:text-xl font-semibold text-white hover:text-github-accent transition">
-                                            {{ job.title }}
-                                        </h3>
-                                        <p class="text-sm text-github-fg-muted">{{ job.company }}</p>
+                            <div class="company-name">{{ job.company }}</div>
+                        </div>
+                        
+                        <!-- Job Title -->
+                        <h3 class="job-title">{{ job.title }}</h3>
+                        
+                        <!-- Meta Info -->
+                        <div class="job-meta">
+                            <span>{{ job.location }}</span>
+                            <span>{{ job.created_at|timesince }} ago</span>
+                        </div>
+                        
+                        <!-- Skills -->
+                        {% if job.skills_required %}
+                        <div class="skills-row">
+                            {% for skill in job.skills_required|slice:":3" %}
+                            <span class="skill-tag">{{ skill }}</span>
+                            {% endfor %}
+                            {% if job.skills_required|length > 3 %}
+                            <span class="skill-tag">+{{ job.skills_required|length|add:"-3" }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Deadline Info -->
+                        {% if job.application_deadline %}
+                            {% if job.is_application_deadline_passed %}
+                                <div class="deadline-badge">
+                                    <div class="deadline-passed-badge">Deadline Passed</div>
+                                </div>
+                            {% else %}
+                                <div class="deadline-badge">
+                                    <div class="deadline-text">
+                                        Apply by: {{ job.application_deadline|date:"M d, Y" }}
                                     </div>
-                                    <span class="px-2 py-1 text-xs font-medium whitespace-nowrap
-                                        {% if job.job_type == 'fulltime' %}bg-green-900/50 text-green-400 border border-green-800
-                                        {% elif job.job_type == 'freelance' %}bg-blue-900/50 text-blue-400 border border-blue-800
-                                        {% else %}bg-purple-900/50 text-purple-400 border border-purple-800{% endif %}">
-                                        {{ job.get_job_type_display }}
-                                    </span>
                                 </div>
-                                
-                                <!-- Job Details Meta -->
-                                <div class="flex flex-wrap gap-4 mb-3 text-sm text-github-fg-muted">
-                                    <span class="flex items-center gap-1">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                            <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        </svg>
-                                        {{ job.location }}
-                                    </span>
-                                    <span class="flex items-center gap-1">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M12 8v4l3 3M12 22a10 10 0 100-20 10 10 0 000 20z"/>
-                                        </svg>
-                                        {{ job.created_at|timesince }} ago
-                                    </span>
-                                    <span class="flex items-center gap-1">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>
-                                        </svg>
-                                        {{ job.view_count|default:"0" }} views
-                                    </span>
-                                </div>
-                                
-                                <!-- Skills -->
-                                {% if job.skills_required %}
-                                <div class="flex flex-wrap gap-2 mb-3">
-                                    {% for skill in job.skills_required|slice:":4" %}
-                                    <span class="px-2 py-1 bg-github-border/30 text-xs text-github-fg-muted">{{ skill }}</span>
-                                    {% endfor %}
-                                    {% if job.skills_required|length > 4 %}
-                                    <span class="px-2 py-1 bg-github-border/30 text-xs text-github-fg-muted">+{{ job.skills_required|length|add:"-4" }}</span>
-                                    {% endif %}
-                                </div>
-                                {% endif %}
-                                
-                                <!-- Description -->
-                                <p class="text-github-fg-muted text-sm mb-4 line-clamp-2">{{ job.description|truncatewords:35 }}</p>
-                                
-                                <!-- Footer -->
-                                <div class="flex justify-between items-center pt-3 border-t border-github-border">
-                                    <span class="text-github-accent font-semibold text-base">{{ job.salary_range }}</span>
-                                    <span class="inline-flex items-center text-github-accent text-sm font-medium">
-                                        View Details
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ml-1">
-                                            <path d="M9 5l7 7-7 7"/>
-                                        </svg>
-                                    </span>
-                                </div>
-                            </div>
+                            {% endif %}
+                        {% endif %}
+                        
+                        <!-- Footer -->
+                        <div class="card-footer">
+                            <span class="job-type-badge 
+                                {% if job.job_type == 'fulltime' %}badge-fulltime
+                                {% elif job.job_type == 'freelance' %}badge-freelance
+                                {% else %}badge-parttime{% endif %}">
+                                {{ job.get_job_type_display }}
+                            </span>
+                            <span class="salary">{{ job.salary_range }}</span>
                         </div>
                     </div>
                 </div>
@@ -277,34 +673,97 @@
             
             <!-- Pagination -->
             {% if jobs.has_other_pages %}
-            <div class="flex justify-center gap-2 mt-8">
+            <div class="pagination">
                 {% if jobs.has_previous %}
-                <a href="?page={{ jobs.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_experience %}&experience={{ selected_experience }}{% endif %}" class="px-4 py-2 border border-github-border hover:bg-github-border transition text-sm">Previous</a>
+                <a href="?page={{ jobs.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_experience %}&experience={{ selected_experience }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="page-link">← Prev</a>
                 {% endif %}
                 
-                <span class="px-4 py-2 text-github-fg-muted text-sm">Page {{ jobs.number }} of {{ jobs.paginator.num_pages }}</span>
+                <span class="page-link active">{{ jobs.number }}</span>
                 
                 {% if jobs.has_next %}
-                <a href="?page={{ jobs.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_experience %}&experience={{ selected_experience }}{% endif %}" class="px-4 py-2 border border-github-border hover:bg-github-border transition text-sm">Next</a>
+                <a href="?page={{ jobs.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_experience %}&experience={{ selected_experience }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="page-link">Next →</a>
                 {% endif %}
             </div>
             {% endif %}
             
         {% else %}
-            <div class="text-center py-12">
-                <svg class="w-16 h-16 mx-auto text-github-fg-muted/30 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="empty-state">
+                <svg class="w-12 h-12 mx-auto text-github-fg-muted/30 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <h3 class="text-xl font-semibold text-white mb-2">No jobs found</h3>
-                <p class="text-github-fg-muted">Try adjusting your search or filter criteria</p>
-                <a href="{% url 'jobs:list' %}" class="inline-block mt-4 text-github-accent hover:underline">Clear all filters</a>
+                <h3 class="text-lg font-semibold text-white mb-1">No jobs found</h3>
+                <p class="text-sm text-github-fg-muted">Try adjusting your search or filter criteria</p>
+                <a href="{% url 'jobs:list' %}" class="inline-block mt-3 text-sm text-github-accent hover:underline">Clear all filters</a>
             </div>
         {% endif %}
     </div>
 </section>
 
 <script>
-    // Sort functionality
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    const csrftoken = getCookie('csrftoken');
+    
+    async function toggleSaveJob(btn, jobId) {
+        event.stopPropagation();
+        
+        const isSaved = btn.classList.contains('saved');
+        const url = isSaved ? `/jobs/unsave/${jobId}/` : `/jobs/save/${jobId}/`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'saved') {
+                btn.classList.add('saved');
+                showToast('Job saved to your list');
+            } else if (data.status === 'unsaved') {
+                btn.classList.remove('saved');
+                showToast('Job removed from saved list');
+            } else if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Please login to save jobs');
+            setTimeout(() => {
+                window.location.href = '/accounts/login/';
+            }, 1500);
+        }
+    }
+    
+    function showToast(message) {
+        let toast = document.querySelector('.toast-message');
+        if (toast) toast.remove();
+        
+        toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
     const sortSelect = document.getElementById('sort-select');
     if (sortSelect) {
         sortSelect.addEventListener('change', function() {

@@ -15,11 +15,14 @@
     
     /* Back Button */
     .back-link {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         margin-bottom: 20px;
         color: #8b949e;
         text-decoration: none;
         font-size: 13px;
+        transition: color 0.2s;
     }
     
     .back-link:hover {
@@ -59,6 +62,45 @@
         pointer-events: none;
     }
     
+    /* Save Button on Image */
+    .save-btn-image {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        z-index: 10;
+        width: 36px;
+        height: 36px;
+        background: rgba(13, 17, 23, 0.8);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(61, 68, 77, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .save-btn-image:hover {
+        background: #2f81f7;
+        border-color: #2f81f7;
+    }
+    
+    .save-btn-image.saved {
+        background: #2f81f7;
+        border-color: #2f81f7;
+    }
+    
+    .save-icon {
+        width: 16px;
+        height: 16px;
+        color: #e6edf3;
+        stroke-width: 1.5;
+    }
+    
+    .save-btn-image.saved .save-icon {
+        fill: #e6edf3;
+    }
+    
     .image-placeholder {
         width: 100%;
         height: 100%;
@@ -70,17 +112,6 @@
         font-size: 48px;
         font-weight: 500;
         position: relative;
-    }
-    
-    /* Placeholder gradient overlay */
-    .placeholder-gradient-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 50%;
-        background: linear-gradient(to top, #161b22 0%, rgba(22, 27, 34, 0) 100%);
-        pointer-events: none;
     }
     
     /* Job Header */
@@ -157,6 +188,74 @@
         color: #e6edf3;
     }
     
+    /* Deadline Section */
+    .deadline-section {
+        background: #0d1117;
+        border-bottom: 1px solid #2d2f36;
+        padding: 20px 24px;
+    }
+    
+    .deadline-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: #8b949e;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .countdown-timer {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .countdown-block {
+        text-align: center;
+        min-width: 65px;
+    }
+    
+    .countdown-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: #2f81f7;
+        font-family: monospace;
+        line-height: 1;
+    }
+    
+    .countdown-label {
+        font-size: 10px;
+        color: #8b949e;
+        margin-top: 4px;
+        text-transform: uppercase;
+    }
+    
+    .deadline-warning {
+        margin-top: 16px;
+        padding: 10px 14px;
+        background: rgba(210, 153, 34, 0.1);
+        border-left: 3px solid #d29922;
+    }
+    
+    .deadline-warning p {
+        font-size: 12px;
+        color: #d29922;
+        margin: 0;
+    }
+    
+    .deadline-passed {
+        background: rgba(248, 81, 73, 0.1);
+        border-left: 3px solid #f85149;
+        padding: 12px 16px;
+        margin: 0 24px 16px 24px;
+    }
+    
+    .deadline-passed p {
+        font-size: 12px;
+        color: #f85149;
+        margin: 0;
+    }
+    
     /* Job Sections */
     .job-section {
         padding: 24px;
@@ -197,6 +296,12 @@
         border: 1px solid #2d2f36;
         font-size: 12px;
         color: #8b949e;
+        transition: all 0.2s;
+    }
+    
+    .skill-item:hover {
+        border-color: #2f81f7;
+        color: #2f81f7;
     }
     
     /* Apply Button */
@@ -235,6 +340,42 @@
         cursor: not-allowed;
     }
     
+    .apply-btn-subscribe {
+        display: inline-block;
+        padding: 12px 32px;
+        background: #d29922;
+        color: white;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+    
+    .apply-btn-subscribe:hover {
+        background: #e6a336;
+    }
+    
+    /* Toast */
+    .toast-message {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #161b22;
+        border: 1px solid #2f81f7;
+        padding: 10px 20px;
+        color: #e6edf3;
+        font-size: 13px;
+        z-index: 1000;
+        animation: fadeInOut 3s ease;
+    }
+    
+    @keyframes fadeInOut {
+        0% { opacity: 0; transform: translateY(20px); }
+        15% { opacity: 1; transform: translateY(0); }
+        85% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(20px); }
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
         .detail-container {
@@ -262,6 +403,18 @@
         .job-image-banner {
             height: 160px;
         }
+        
+        .deadline-section {
+            padding: 16px;
+        }
+        
+        .countdown-block {
+            min-width: 50px;
+        }
+        
+        .countdown-number {
+            font-size: 22px;
+        }
     }
 </style>
 
@@ -283,10 +436,17 @@
                 <div class="image-gradient-overlay"></div>
             {% else %}
                 <div class="image-placeholder">
-                    B
-                    <div class="placeholder-gradient-overlay"></div>
+                    {{ job.company|slice:":1"|upper }}
                 </div>
             {% endif %}
+            
+            <!-- Save Button -->
+            <div class="save-btn-image {% if is_saved %}saved{% endif %}" onclick="event.stopPropagation(); toggleSaveJob(this, {{ job.id }})">
+                <svg class="save-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                </svg>
+            </div>
         </div>
         
         <!-- Job Header -->
@@ -328,6 +488,40 @@
             </div>
         </div>
         
+        <!-- Deadline Countdown -->
+        {% if job.application_deadline %}
+            {% if job.is_application_deadline_passed %}
+                <div class="deadline-passed">
+                    <p>Application deadline has passed. This job is no longer accepting applications.</p>
+                </div>
+            {% else %}
+                <div class="deadline-section">
+                    <div class="deadline-title">Time Left to Apply</div>
+                    <div class="countdown-timer" id="countdown-timer" data-deadline="{{ job.application_deadline.isoformat }}">
+                        <div class="countdown-block">
+                            <div class="countdown-number" id="countdown-days">--</div>
+                            <div class="countdown-label">Days</div>
+                        </div>
+                        <div class="countdown-block">
+                            <div class="countdown-number" id="countdown-hours">--</div>
+                            <div class="countdown-label">Hours</div>
+                        </div>
+                        <div class="countdown-block">
+                            <div class="countdown-number" id="countdown-minutes">--</div>
+                            <div class="countdown-label">Minutes</div>
+                        </div>
+                        <div class="countdown-block">
+                            <div class="countdown-number" id="countdown-seconds">--</div>
+                            <div class="countdown-label">Seconds</div>
+                        </div>
+                    </div>
+                    <div class="deadline-warning">
+                        <p>Applications must be submitted before {{ job.application_deadline|date:"F j, Y \a\t g:i A" }}</p>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+        
         <!-- Job Description -->
         <div class="job-section">
             <h2 class="section-title">Job Description</h2>
@@ -360,6 +554,7 @@
         {% if job.project_brief %}
         <div class="job-section">
             <h2 class="section-title">Project Brief</h2>
+            <p style="color: #d29922; font-size: 12px; margin-bottom: 12px;">⚠️ You must complete this project and present it live during your Zoom interview</p>
             <div class="section-content">
                 {{ job.project_brief|linebreaks }}
             </div>
@@ -367,26 +562,133 @@
         {% endif %}
         
         <!-- Apply Section -->
-        <div class="apply-section">
-            {% if user.is_applicant and user.has_active_subscription and not has_applied %}
-                <a href="{% url 'application:apply' job.id %}" class="apply-btn">
-                    Apply Now
-                </a>
-            {% elif has_applied %}
-                <div class="apply-btn-disabled">
-                    Already Applied ({{ application_status|title }})
-                </div>
-            {% elif not user.has_active_subscription %}
-                <a href="{% url 'subscriptions:subscribe' %}" class="apply-btn" style="background: #d29922;">
-                    Subscribe to Apply ($19/month)
-                </a>
-            {% else %}
-                <div class="apply-btn-disabled">
-                    Please login to apply
-                </div>
-            {% endif %}
-        </div>
+<div class="apply-section">
+    {% if job.is_application_deadline_passed %}
+        <div class="apply-btn-disabled">Applications Closed</div>
+        <div class="apply-note">Deadline has passed</div>
+    {% elif user.is_authenticated %}
+        {% if has_applied %}
+            <div class="apply-btn-disabled">Already Applied ({{ application_status|title }})</div>
+            <div class="apply-note">Your application is being reviewed</div>
+        {% elif user.has_active_subscription %}
+            <a href="{% url 'application:apply' job.id %}" class="apply-btn">Apply Now</a>
+            <div class="apply-note" style="margin-top: 10px;">Submit your project before deadline</div>
+        {% else %}
+            <a href="{% url 'subscriptions:subscribe' %}" class="apply-btn-subscribe">Subscribe to Apply ($19/month)</a>
+            <div class="apply-note">Active subscription required</div>
+        {% endif %}
+    {% else %}
+        <a href="{% url 'account_login' %}?next={{ request.path }}" class="apply-btn">Login to Apply</a>
+        <div class="apply-note">Sign in to submit your application</div>
+    {% endif %}
+</div>
     </div>
 </div>
+
+<script>
+    // CSRF Token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    const csrftoken = getCookie('csrftoken');
+    
+    // Toggle Save Job
+    async function toggleSaveJob(btn, jobId) {
+        event.stopPropagation();
+        
+        const isSaved = btn.classList.contains('saved');
+        const url = isSaved ? `/jobs/unsave/${jobId}/` : `/jobs/save/${jobId}/`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'saved') {
+                btn.classList.add('saved');
+                showToast('Job saved to your list');
+            } else if (data.status === 'unsaved') {
+                btn.classList.remove('saved');
+                showToast('Job removed from saved list');
+            } else if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Please login to save jobs');
+            setTimeout(() => {
+                window.location.href = '/accounts/login/';
+            }, 1500);
+        }
+    }
+    
+    // Countdown Timer
+    function updateCountdown() {
+        const timerElement = document.getElementById('countdown-timer');
+        if (!timerElement) return;
+        
+        const deadlineStr = timerElement.dataset.deadline;
+        if (!deadlineStr) return;
+        
+        const deadline = new Date(deadlineStr);
+        const now = new Date();
+        const diff = deadline - now;
+        
+        if (diff <= 0) {
+            document.getElementById('countdown-days').textContent = '00';
+            document.getElementById('countdown-hours').textContent = '00';
+            document.getElementById('countdown-minutes').textContent = '00';
+            document.getElementById('countdown-seconds').textContent = '00';
+            return;
+        }
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        document.getElementById('countdown-days').textContent = days.toString().padStart(2, '0');
+        document.getElementById('countdown-hours').textContent = hours.toString().padStart(2, '0');
+        document.getElementById('countdown-minutes').textContent = minutes.toString().padStart(2, '0');
+        document.getElementById('countdown-seconds').textContent = seconds.toString().padStart(2, '0');
+    }
+    
+    // Start countdown if element exists
+    if (document.getElementById('countdown-timer')) {
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+    }
+    
+    // Toast Notification
+    function showToast(message) {
+        let toast = document.querySelector('.toast-message');
+        if (toast) toast.remove();
+        
+        toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.remove(), 3000);
+    }
+</script>
 
 {% endblock %}
